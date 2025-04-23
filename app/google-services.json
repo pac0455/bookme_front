@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "753444284319",
+    "project_id": "bookme-e1ade",
+    "storage_bucket": "bookme-e1ade.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753444284319:android:e5257d8509d5cfb7e7ffaa",
+        "android_client_info": {
+          "package_name": "com.example.frontendapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "753444284319-stt6ammjih6b1v076rukqpu4rsg5dvf4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.frontendapp",
+            "certificate_hash": "6ca197aa71cc8098843c019b87e4a61f79dffc8c"
+          }
+        },
+        {
+          "client_id": "753444284319-bodkccae65g8b8aevrri41mhe72mnhjh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSYvq13njaa0R7OVYTUq4nAgSyPS0dilk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "753444284319-bodkccae65g8b8aevrri41mhe72mnhjh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
