@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.Composables
+package com.example.frontendapp.ui.theme.composables
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
