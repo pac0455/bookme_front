@@ -1,49 +1,53 @@
 package com.example.frontendapp.ui.theme.screens
 
-import android.app.Instrumentation.ActivityResult
-import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
 import com.example.frontendapp.R
-import com.example.frontendapp.auth.GoogleAuthUiClient
+import com.example.frontendapp.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.Composables.CustomTextField
 import com.example.frontendapp.ui.theme.Composables.GoogleButton
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
-import kotlinx.coroutines.launch
+
 
 @Composable
-fun RegisterScreen(navController: NavController, viewModel: UsuarioViewModel = viewModel()) {
-
+fun LoginScreen(navController: NavController){
     Scaffold(
         topBar = {
             Box(
@@ -86,11 +90,8 @@ fun RegisterScreen(navController: NavController, viewModel: UsuarioViewModel = v
                     correo.value.isNotBlank() &&
                     telefono.value.isNotBlank() &&
                     contrasenia.value.isNotBlank()) {
-                    viewModel.onNombreChanged(nombre.value)
-                    viewModel.onCorreoChanged(correo.value)
-                    viewModel.onTelefonoChanged(telefono.value)
-                    viewModel.onContrasenaChanged(contrasenia.value)
-                    viewModel.registrarUsuario()
+
+
 
                 } else {
                     Log.w("RegisterScreen", "Campos vacíos")
@@ -118,24 +119,10 @@ fun RegisterScreen(navController: NavController, viewModel: UsuarioViewModel = v
         }
     }
 }
-
-
-
-
-
-
-
 @Preview(showBackground = true)
 @Composable
-fun RegisterScreenPreview() {
+fun LoginScreenPreview() {
     FrontendappTheme {
-        RegisterScreen(navController = rememberNavController())
+        LoginScreen(navController = rememberNavController())
     }
-}
-fun onGoogleTokenReceived(idToken: String) {
-    Log.d("GoogleAuth", "Token recibido correctamente: $idToken")
-}
-
-fun onError(error: Throwable) {
-    Log.e("GoogleAuth", "Error al iniciar sesión con Google", error)
 }

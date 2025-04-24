@@ -66,16 +66,8 @@ object GoogleAuthUiClient {
                 // Aquí puedes manejar el usuario autenticado
                 // Por ejemplo, guardar el UID o la información del usuario en tu base de datos
                 if(it.isAnonymous.not()){
-                    val usuario = Usuario(
-                        id = "", // lo puedes dejar vacío si lo genera tu backend
-                        nombre = firebaseUser.displayName ?: "",
-                        email = firebaseUser.email ?: "",
-                        firebaseUid = firebaseUser.uid ?: "",
-                        telefono = firebaseUser.phoneNumber ?: "",
-                        contrasenaHash = "" // puedes dejarlo vacío si solo usas Google login
-                    )
                     val repository = AuthRemoteDataSource(RetrofitInstance.api)
-                    repository.login(usuario)
+                    repository.login(googleTokenId)
 
                 }
             }
