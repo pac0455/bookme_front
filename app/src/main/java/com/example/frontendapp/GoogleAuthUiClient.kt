@@ -1,21 +1,21 @@
-package com.example.frontendapp.auth
+package com.example.frontendapp
 
 import android.content.Context
 import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
+
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+
 import com.example.frontendapp.data.model.Usuario
-import com.example.frontendapp.data.remote.source.AuthRemoteDataSource
-import com.example.frontendapp.data.remote.source.RetrofitInstance
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await
-import java.sql.DriverManager
 
 object GoogleAuthUiClient {
 
@@ -66,8 +66,16 @@ object GoogleAuthUiClient {
                 // Aquí puedes manejar el usuario autenticado
                 // Por ejemplo, guardar el UID o la información del usuario en tu base de datos
                 if(it.isAnonymous.not()){
-                    val repository = AuthRemoteDataSource(RetrofitInstance.api)
-                    repository.login(googleTokenId)
+                    val usuario = Usuario(
+                        id = "", // lo puedes dejar vacío si lo genera tu backend
+                        nombre = firebaseUser.displayName ?: "",
+                        email = firebaseUser.email ?: "",
+                        firebaseUid = firebaseUser.uid,
+                        telefono = firebaseUser.phoneNumber ?: "",
+                        contrasenaHash = "" // puedes dejarlo vacío si solo usas Google login
+                    )
+                    val repository = AuthRemoteDataResource(RetrofitInstance.api)
+                    repository.registerUser(usuario)
 
                 }
             }

@@ -1,14 +1,12 @@
 package com.example.frontendapp.ui.theme.screens
 
-import android.app.Instrumentation.ActivityResult
-import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,32 +15,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
 import com.example.frontendapp.R
-import com.example.frontendapp.auth.GoogleAuthUiClient
-import com.example.frontendapp.ui.theme.Composables.CustomTextField
-import com.example.frontendapp.ui.theme.Composables.GoogleButton
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
+import com.example.frontendapp.ui.theme.composables.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.CustomTextField
+import com.example.frontendapp.ui.theme.composables.GoogleButton
 import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
-import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen(navController: NavController, viewModel: UsuarioViewModel = viewModel()) {
+fun RegisterScreen(navController: NavController, usuarioViewModel:  UsuarioViewModel) {
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -68,74 +62,64 @@ fun RegisterScreen(navController: NavController, viewModel: UsuarioViewModel = v
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val nombre = remember { mutableStateOf("") }
             val correo = remember { mutableStateOf("") }
             val telefono = remember { mutableStateOf("") }
             val contrasenia = remember { mutableStateOf("") }
-
-            CustomTextField(Icons.Default.AccountCircle, "Nombre", nombre.value) { nombre.value = it }
-            CustomTextField(Icons.Default.Email, "Correo", correo.value) { correo.value = it }
-            CustomTextField(Icons.Default.Phone, "Teléfono", telefono.value) { telefono.value = it }
-            CustomTextField(Icons.Default.Lock, "Contraseña", contrasenia.value, isPassword = true) { contrasenia.value = it }
-
-            Button(onClick = {
-                if (nombre.value.isNotBlank() &&
-                    correo.value.isNotBlank() &&
-                    telefono.value.isNotBlank() &&
-                    contrasenia.value.isNotBlank()) {
-                    viewModel.onNombreChanged(nombre.value)
-                    viewModel.onCorreoChanged(correo.value)
-                    viewModel.onTelefonoChanged(telefono.value)
-                    viewModel.onContrasenaChanged(contrasenia.value)
-                    viewModel.registrarUsuario()
-
-                } else {
-                    Log.w("RegisterScreen", "Campos vacíos")
-                    // Puedes usar un Snackbar o Toast si quieres mostrarlo al usuario
-                }
-            }) {
-                Text("Registrarse")
+            //Seccion de inputs
+            Column(
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ){
+                CustomTextField(Icons.Default.AccountCircle, "Nombre", nombre.value) { nombre.value = it }
+                CustomTextField(Icons.Default.Email, "Correo", correo.value) { correo.value = it }
+                CustomTextField(Icons.Default.Phone, "Teléfono", telefono.value) { telefono.value = it }
+                CustomTextField(Icons.Default.Lock, "Contraseña", contrasenia.value, isPassword = true) { contrasenia.value = it }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            val context = LocalContext.current
-
-            GoogleButton(
-                context = context,
-                onGoogleTokenReceived = { idToken ->
-                    // Aquí haces algo con el idToken, por ejemplo pasarlo a Firebase
-                    Log.d("LoginScreen", "Token recibido: $idToken")
-                },
-                onError = { error ->
-                    // Maneja el error aquí, por ejemplo mostrando un Toast
-                    Log.e("LoginScreen", "Error de Google Sign-In", error)
+            //Seccion de buttons
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                BtnStyle1(onClick = { OnclickRegister() }, text = "Registarse")
+                val indicatorWidth = remember { mutableStateOf(1f) } // Grosor de la línea
+                Column(
+                    modifier = Modifier.padding(16.dp),// Añadiendo un margen de 16dp
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    // Borde superior
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(indicatorWidth.value.dp) // Altura del borde superior
+                            .border(BorderStroke(indicatorWidth.value.dp, Color.Black))
+                    )
+                    // Contenido central
+                    Box(modifier = Modifier.padding(vertical = 8.dp)) { Text(text = "Tambien puedes registrarte con ...") }
+                    // Borde inferior
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(indicatorWidth.value.dp) // Altura del borde inferior
+                            .border(BorderStroke(indicatorWidth.value.dp, Color.Black))
+                    )
                 }
-            )
+                GoogleButton(context)
+            }
         }
     }
 }
-
-
-
-
-
-
-
+fun OnclickRegister(){
+    // Aquí puedes manejar el evento de clic para el botón de registro
+    Log.d("RegisterScreen", "Botón de registro clicado")
+    // Aquí puedes agregar la lógica para registrar al usuario
+}
 @Preview(showBackground = true)
 @Composable
 fun RegisterScreenPreview() {
     FrontendappTheme {
-        RegisterScreen(navController = rememberNavController())
+        val usuario= UsuarioViewModel()
+        RegisterScreen(navController = rememberNavController(),usuario)
     }
-}
-fun onGoogleTokenReceived(idToken: String) {
-    Log.d("GoogleAuth", "Token recibido correctamente: $idToken")
-}
-
-fun onError(error: Throwable) {
-    Log.e("GoogleAuth", "Error al iniciar sesión con Google", error)
 }

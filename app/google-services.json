@@ -7,14 +7,14 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:753444284319:android:e5257d8509d5cfb7e7ffaa",
+        "mobilesdk_app_id": "1:753444284319:android:dcaaf1122a47532ae7ffaa",
         "android_client_info": {
           "package_name": "com.example.frontendapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "753444284319-stt6ammjih6b1v076rukqpu4rsg5dvf4.apps.googleusercontent.com",
+          "client_id": "753444284319-v78ot6kqkpjd4bj35dc1cj189uegdv9f.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.frontendapp",

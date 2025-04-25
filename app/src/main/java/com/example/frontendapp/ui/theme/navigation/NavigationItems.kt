@@ -1,4 +1,4 @@
-package com.example.frontendapp.navigation
+package com.example.frontendapp.ui.theme.navigation
 
 enum class Screen {
     REGISTER,

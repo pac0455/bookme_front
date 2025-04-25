@@ -4,6 +4,7 @@ import com.example.frontendapp.data.model.LoginRequest
 import com.example.frontendapp.data.model.Usuario
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -13,7 +14,7 @@ interface ApiService {
     suspend fun signupWithGoogle(@Body usuario: Usuario): Response<Usuario>
 
     // Login con Google (sólo envías el ID Token de Google)
-    @POST("api/Usuarios/login/google/{idToken}")
+    @GET("api/Usuarios/login/{idToken}")
     suspend fun loginWithGoogle(@Path("idToken") idToken: String): Response<Usuario>
 
     // Login tradicional con email/contraseña (puedes usar un modelo LoginRequest si prefieres)
