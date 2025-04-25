@@ -25,7 +25,8 @@ fun CustomBoxPreview() {
         borderBottom = true,
         borderLeft = true,
         borderRight = true,
-        msg = "ejemplo"
+        msg = "ejemplo",
+
     )
 }
 
@@ -36,16 +37,16 @@ fun CustomBox(
     borderRight: Boolean = false,
     borderTop: Boolean = false,
     borderBottom: Boolean = false,
-    msg: String = "ejemplo"
+    msg: String = "ejemplo",
+    strokeColor: Color = Color.Black
 ) {
     val indicatorWidth = 1.dp
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding(16.dp)
             .fillMaxWidth()
             .drawBehind {
-                val strokeColor = Color.Black
                 val strokeWidth = indicatorWidth.toPx()
 
                 // Top
