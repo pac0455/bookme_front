@@ -7,5 +7,6 @@ import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 class AuthRepository(private val remote: AuthRemoteDataResource) {
     suspend fun signupGoogle(usuario: Usuario) = remote.signupWithGoogle(usuario)
     suspend fun signup(usuario: Usuario) = remote.registerUser(usuario)
-    suspend fun loginGoogle(token: String) = remote.loginWithGoogle(token)
+    suspend fun loginWithGoogle(token: String) = remote.loginWithGoogle(token)
+    suspend fun login(email: String, password: String) = remote.login(email, password)
 }

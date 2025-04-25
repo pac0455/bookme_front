@@ -51,11 +51,10 @@ class AuthRemoteDataResource(private val apiService: ApiService) {
     }
 
     // Método para iniciar sesión
-    suspend fun loginUser(email: String, password: String): Resource<String> {
+    suspend fun login(email: String, password: String): Resource<String> {
         // Validar los datos de inicio de sesión
-        if (email.isBlank() || password.isBlank()) {
-            return Resource.Error("El correo electrónico y la contraseña no pueden estar vacíos.")
-        }
+        if (email.isBlank() || password.isBlank()) return Resource.Error("El correo electrónico y la contraseña no pueden estar vacíos.")
+
 
         val loginRequest = LoginRequest(email, password)
         return try {
