@@ -1,6 +1,7 @@
 package com.example.frontendapp.ui.theme.composables
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -31,7 +33,8 @@ fun CustomTextField(
         trailingIcon = { Icon(icon, contentDescription = label) },
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(Color.Transparent),
     )
 }
 @Preview(showBackground = true)

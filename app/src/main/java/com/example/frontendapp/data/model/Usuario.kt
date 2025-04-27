@@ -2,13 +2,12 @@ package com.example.frontendapp.data.model
 
 import com.google.gson.annotations.SerializedName
 import java.util.Date
-@JvmRecord
+
 data class Usuario(
     @SerializedName("id")
     val id: String? = null,
 
-    @SerializedName("nombre")
-    val nombre: String? = null,
+    val username: String? = null,
 
     @SerializedName("email")
     val email: String? = null,
@@ -16,10 +15,9 @@ data class Usuario(
     @SerializedName("telefono")
     val telefono: String? = null,
 
-    @SerializedName("contrasena_hash")
-    val contrasenaHash: String? = null,
+    @SerializedName("password")
+    val password: String? = null,
 
-    @SerializedName("firebase_uid")
     val firebaseUid: String? = null,
 
     @SerializedName("rol")

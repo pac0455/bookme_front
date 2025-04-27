@@ -68,11 +68,11 @@ object GoogleAuthUiClient {
                 if(it.isAnonymous.not()){
                     val usuario = Usuario(
                         id = "", // lo puedes dejar vacío si lo genera tu backend
-                        nombre = firebaseUser.displayName ?: "",
+                        username = firebaseUser.displayName ?: "",
                         email = firebaseUser.email ?: "",
                         firebaseUid = firebaseUser.uid,
                         telefono = firebaseUser.phoneNumber ?: "",
-                        contrasenaHash = "" // puedes dejarlo vacío si solo usas Google login
+                        password = "" // puedes dejarlo vacío si solo usas Google login
                     )
                     val repository = AuthRemoteDataResource(RetrofitInstance.api)
                     repository.registerUser(usuario)

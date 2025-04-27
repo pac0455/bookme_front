@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -26,6 +27,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,19 +42,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 @Composable
 fun GoogleButton(
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    widthFraction: Float = 0.8f // Por defecto, 80% del ancho del Box
 ) {
     Box(
         modifier = Modifier
-            .height(40.dp)
-            .fillMaxWidth(0.8f)
-            .border(1.dp, Color.Black, RectangleShape) // borde perfecto
-            .background(Color.White, RectangleShape)   // fondo blanco bajo el botón
-            .padding(4.dp)
+            .background(Color.White)
+            .border(1.dp, Color.Black, RectangleShape)
+            .fillMaxWidth(widthFraction) // Ancho del Box
+
+
+
+
             .shadow(
-                elevation = 20.dp, // 👈 sombra potente
+                elevation = 20.dp,
                 shape = RoundedCornerShape(16.dp),
-                clip = false, // deja que la sombra sobresalga,
+                clip = false,
                 spotColor = Color.Black
             )
     ) {
@@ -61,33 +66,33 @@ fun GoogleButton(
                 CoroutineScope(Dispatchers.Main).launch {
                     GoogleAuthUiClient.launchSignIn(
                         context = context,
-                        onSuccess ={ idToken -> onGoogleTokenReceived(idToken ) },
+                        onSuccess = { idToken -> onGoogleTokenReceived(idToken) },
                         onError = { error -> onError(Exception("algo ha fallado")) }
                     )
                 }
             },
             modifier = Modifier
-                .fillMaxSize()
-            , // ← llenar completamente el box con borde
+                .fillMaxWidth(1f) // Ancho del botón al porcentaje especificado
+                .height(40.dp), // Altura específica del botón
+
             shape = RectangleShape,
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent), // evitar dobles colores
-            contentPadding = PaddingValues(0.dp), // sin padding interno que "rompa"
-            elevation = ButtonDefaults.buttonElevation(0.dp) // sin sombra que desplace
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            contentPadding = PaddingValues(0.dp),
+            elevation = ButtonDefaults.buttonElevation(0.dp),
 
         ) {
             Icon(
+                modifier = Modifier.padding(6.dp),
                 painter = painterResource(id = R.drawable.ic_googleiconcolor),
                 contentDescription = "Iniciar sesión con Google",
-                tint = Color.Unspecified
+                tint = Color.Unspecified,
+
             )
             Spacer(Modifier.width(8.dp))
             Text("Google", color = Color.Black)
         }
     }
 }
-
-
-
 
 fun onClick(context: Context){
     CoroutineScope(Dispatchers.Main).launch {
@@ -117,11 +122,17 @@ fun GoogleButtonPreview() {
     FrontendappTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color.Red
+            color = Color.Red,
+
         ) {
-            Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier =Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
                 GoogleButton(LocalContext.current)
             }
+
+
         }
     }
 }
@@ -136,12 +147,12 @@ fun BOxWithShadow(
     Box(
         //sombra basica
         //modifier = modifier
-            /*.shadow(
-                elevation = 50.dp, // 👈 sombra potente
-                shape = RoundedCornerShape(16.dp),
-                clip = false, // deja que la sombra sobresalga,
-                spotColor = Color.Blue
-            )*/
+        /*.shadow(
+            elevation = 50.dp, // 👈 sombra potente
+            shape = RoundedCornerShape(16.dp),
+            clip = false, // deja que la sombra sobresalga,
+            spotColor = Color.Blue
+        )*/
         modifier = modifier
             .graphicsLayer {
                 // Aumenta el blur y spread visual

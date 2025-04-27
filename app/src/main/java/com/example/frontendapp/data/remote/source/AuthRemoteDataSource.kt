@@ -7,11 +7,12 @@ import com.example.frontendapp.data.remote.api.ApiService
 class AuthRemoteDataResource(private val apiService: ApiService) {
 
     // Método para validar registro
-    private fun validateRegisterUser(username: String?, email: String?, password: String?): String? {
+    private fun validateRegisterUser(user: Usuario): String? {
         return when {
-            username.isNullOrBlank() -> "El nombre de usuario no puede estar vacío."
-            email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
-            password.isNullOrBlank() -> "La contraseña no puede estar vacía."
+            user.username.isNullOrBlank() -> "El nombre de usuario no puede estar vacío."
+            user.email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
+            user.password.isNullOrBlank() -> "La contraseña no puede estar vacía."
+            user.telefono.isNullOrBlank() -> "EL telefono no puede estar vacía."
             else -> null // Sin errores
         }
     }
@@ -36,15 +37,22 @@ class AuthRemoteDataResource(private val apiService: ApiService) {
     //Resource<String>> es como decir devuelve un objeto que tenfnga diferentes estados dependiendo de la solicitud
     suspend fun registerUser(usuario: Usuario): Resource<String> {
         // Validar los datos del usuario
-        val validationError = validateRegisterUser(usuario.email, usuario.contrasenaHash)
+        val validationError = validateRegisterUser(usuario)
         if (validationError != null) {
             return Resource.Error(validationError) // Retorna el mensaje de error de validación
         }
 
         // Intentar registrar al usuario a través de la API
         return try {
-            //Logica de registro
-            return Resource.Success("Registro exitoso")
+            val response = apiService.signup(usuario)
+
+            if (response.isSuccessful) {
+                Resource.Success("Registro exitoso")
+            } else {
+                // Podés extraer el error del body si querés más detalle
+                val errorBody = response.errorBody()?.string()
+                Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
+            }
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")
         }

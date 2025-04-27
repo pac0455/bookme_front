@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.ui.theme.screens.MainScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
@@ -14,8 +16,7 @@ fun Navigator( modifier: Modifier = Modifier,
                navController: NavHostController,
                startDestination: String = NavigationItem.Main.route) {
     //Logica de navegacion
-    val usuarioViewModel = UsuarioViewModel()
-
+    val usuarioViewModel = UsuarioViewModel(AuthRemoteDataResource(RetrofitInstance.api))
 
     NavHost(modifier = modifier,
         navController = navController,
