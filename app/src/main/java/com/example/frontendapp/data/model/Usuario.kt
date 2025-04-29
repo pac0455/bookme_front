@@ -2,7 +2,6 @@ package com.example.frontendapp.data.model
 
 import com.google.gson.annotations.SerializedName
 import java.util.Date
-@JvmRecord
 data class Usuario(
     @SerializedName("id")
     val id: String? = null,

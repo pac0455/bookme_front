@@ -82,7 +82,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  UsuarioViewM
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                BtnStyle1(onClick = { OnclickRegister() }, text = "Registarse")
+                BtnStyle1(onClick = { OnclickRegister() }, text = "Siguiente")
                 val indicatorWidth = remember { mutableStateOf(1f) } // Grosor de la línea
                 Column(
                     modifier = Modifier.padding(16.dp),// Añadiendo un margen de 16dp
