@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,9 @@ import com.example.frontendapp.ui.theme.composables.MySwitch
 import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalConfiguration
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 
 
 @Composable
@@ -69,11 +73,21 @@ fun NegocioClienteScrenn(navController: NavController, usuarioViewModel: Usuario
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Bottom,
-        ) {
+            verticalArrangement = Arrangement.SpaceBetween,
 
+        ) {
             var isBusiness by remember { mutableStateOf(false) }
             var isClient by remember { mutableStateOf(true) }
+            //Detectar el tamaño de la pantalla y en base a eso ajustar el tamaño de la imagen
+            val configuration = LocalConfiguration.current
+            val screenWidth = configuration.screenWidthDp.dp
+            val imageSize = screenWidth * 1f
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_shop),
+                contentDescription = "Logo",
+                modifier = Modifier.size(imageSize)
+            )
 
             MySwitch(
                 text = "Soy un cliente",
@@ -106,7 +120,7 @@ fun NegocioClienteScrenn(navController: NavController, usuarioViewModel: Usuario
 fun PreviewNegocioClienteScrenn(){
     FrontendappTheme {
         val navController = rememberNavController()
-        val usuarioViewModel: UsuarioViewModel = UsuarioViewModel()
+        val usuarioViewModel = UsuarioViewModel(AuthRemoteDataResource(RetrofitInstance.api))
         NegocioClienteScrenn(navController, usuarioViewModel)
     }
 }

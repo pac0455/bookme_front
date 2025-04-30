@@ -26,6 +26,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
@@ -65,18 +67,17 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  UsuarioViewM
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val nombre = remember { mutableStateOf("") }
-            val correo = remember { mutableStateOf("") }
-            val telefono = remember { mutableStateOf("") }
-            val contrasenia = remember { mutableStateOf("") }
             //Seccion de inputs
             Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ){
-                CustomTextField(Icons.Default.AccountCircle, "Nombre", nombre.value) { nombre.value = it }
-                CustomTextField(Icons.Default.Email, "Correo", correo.value) { correo.value = it }
-                CustomTextField(Icons.Default.Phone, "Teléfono", telefono.value) { telefono.value = it }
-                CustomTextField(Icons.Default.Lock, "Contraseña", contrasenia.value, isPassword = true) { contrasenia.value = it }
+                val uiState by usuarioViewModel.uiState.collectAsState()
+
+                CustomTextField(Icons.Default.AccountCircle, "Nombre",uiState.username ?: "", onValueChange = { usuarioViewModel.setNombre(it) })
+                CustomTextField(Icons.Default.Email, "Correo", uiState.email ?: "", onValueChange = { usuarioViewModel.setCorreo(it) })
+                CustomTextField(Icons.Default.Email, "Telefono", uiState.telefono ?: "", onValueChange = { usuarioViewModel.setTelefono(it) })
+                CustomTextField(Icons.Default.Email, "Contraseña", uiState.password ?: "", onValueChange = { usuarioViewModel.setContrasena(it) })
+
             }
             //Seccion de buttons
             Column(
@@ -119,7 +120,7 @@ fun OnclickRegister(){
 @Composable
 fun RegisterScreenPreview() {
     FrontendappTheme {
-        val usuario= UsuarioViewModel()
+        val usuario= UsuarioViewModel(AuthRemoteDataResource(RetrofitInstance.api))
         RegisterScreen(navController = rememberNavController(),usuario)
     }
 }

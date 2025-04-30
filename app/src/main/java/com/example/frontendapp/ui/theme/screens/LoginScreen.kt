@@ -38,16 +38,19 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomBox
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.GoogleButton
+import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
 
 
 @Composable
-fun LoginScreen(navController: NavController){
+fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel){
     Scaffold(
         topBar = {
             Box(
@@ -114,6 +117,7 @@ fun LoginScreen(navController: NavController){
 @Composable
 fun LoginScreenPreview() {
     FrontendappTheme {
-        LoginScreen(navController = rememberNavController())
+        val usuario = UsuarioViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        LoginScreen(navController = rememberNavController(),usuario)
     }
 }

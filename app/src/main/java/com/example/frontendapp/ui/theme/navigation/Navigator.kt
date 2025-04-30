@@ -7,14 +7,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.ui.theme.screens.LoginScreen
 import com.example.frontendapp.ui.theme.screens.MainScreen
+import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
 
 @Composable
 fun Navigator( modifier: Modifier = Modifier,
                navController: NavHostController,
-               startDestination: String = NavigationItem.Main.route) {
+               startDestination: String = NavigationItem.MAIN.route) {
     //Logica de navegacion
     val usuarioViewModel = UsuarioViewModel(AuthRemoteDataResource(RetrofitInstance.api))
 
@@ -22,8 +24,11 @@ fun Navigator( modifier: Modifier = Modifier,
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(NavigationItem.Main.route) { MainScreen(navController) }
-        composable(NavigationItem.Register.route) { RegisterScreen(navController,usuarioViewModel) }
+        composable(NavigationItem.MAIN.route) { MainScreen(navController) }
+        composable(NavigationItem.REGISTER.route) { RegisterScreen(navController,usuarioViewModel) }
+        composable(NavigationItem.NEGOCIO_CLIENTE.route) { NegocioClienteScrenn(navController,usuarioViewModel) }
+        composable(NavigationItem.LOGIN.route) { LoginScreen(navController,usuarioViewModel) }
+
     }
 }
 

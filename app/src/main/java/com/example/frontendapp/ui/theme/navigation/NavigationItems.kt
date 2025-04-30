@@ -4,9 +4,11 @@ enum class Screen {
     REGISTER,
     LOGIN,
     MAIN,
+    NEGOCIO_CLIENTE
 }
 sealed class NavigationItem(val route: String) {
-    data object Register : NavigationItem(Screen.REGISTER.name)
-    data object Login : NavigationItem(Screen.LOGIN.name)
-    data object Main : NavigationItem(Screen.MAIN.name)
+    data object REGISTER : NavigationItem(Screen.REGISTER.name)
+    data object NEGOCIO_CLIENTE : NavigationItem(Screen.NEGOCIO_CLIENTE.name)
+    data object LOGIN : NavigationItem(Screen.LOGIN.name)
+    data object MAIN : NavigationItem(Screen.MAIN.name)
 }

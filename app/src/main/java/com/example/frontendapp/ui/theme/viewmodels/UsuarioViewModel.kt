@@ -19,28 +19,29 @@ class UsuarioViewModel(private val auth: AuthRemoteDataResource) : ViewModel() {
     private val _uiState = MutableStateFlow(Usuario())
     val uiState: StateFlow<Usuario> = _uiState
 
-    // Función para registrar al usuario
+    // Estado para el registro
+    private val _registerState = MutableStateFlow<Resource<String>>(Resource.Success(""))
+    val registerState: StateFlow<Resource<String>> = _registerState
+
+    // Estado para el login
+    private val _loginState = MutableStateFlow<Resource<String>>(Resource.Success(""))
+    val loginState: StateFlow<Resource<String>> = _loginState
+
     fun registrarUsuario() {
         viewModelScope.launch {
-            val usuario = uiState.value // Obtén el estado actual del usuario
-            val resultado = auth.registerUser(usuario) // Llama a la función suspend
-
-            when (auth.registerUser(usuario)) {
-                is Resource.Success -> {
-                    // Manejar el caso de éxito
-                    println("Registro exitoso: ${resultado.data}")
-                }
-                is Resource.Error -> {
-                    // Manejar el caso de error
-                    println("Error al registrar: ${resultado.message}")
-                }
-                is Resource.Loading -> {
-                    println("estcargando")
-
-                }
-            }
+            _registerState.value = Resource.Loading()
+            val usuario = _uiState.value
+            _registerState.value = auth.registerUser(usuario)
         }
     }
+
+    fun loginUsuario(email: String, password: String) {
+        viewModelScope.launch {
+            _loginState.value = Resource.Loading()
+            _loginState.value = auth.login(email, password)
+        }
+    }
+
 
     // Métodos para actualizar el estado del usuario
     fun setNombre(nombre: String) {

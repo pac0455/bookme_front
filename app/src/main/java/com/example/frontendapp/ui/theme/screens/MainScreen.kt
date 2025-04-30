@@ -73,14 +73,14 @@ fun MainScreen(navController: NavController) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp) // Espaciado entre elementos
             ) {
-                Button(onClick = {navController.navigate(NavigationItem.Register.route) }){
+                Button(onClick = {navController.navigate(NavigationItem.REGISTER.route) }){
                     Text(text = "Comenzar ahora")
                     Icon(painter = painterResource(R.drawable.bootstrap_arrow_right),
                         contentDescription = "Arrow",
                         modifier = Modifier.padding(start = 25.dp)
                     )
                 }
-                Button(onClick = {navController.navigate(NavigationItem.Login.route) }){
+                Button(onClick = {navController.navigate(NavigationItem.LOGIN.route) }){
                     Text(text = "Ya tengo cuenta")
                     Icon(painter = painterResource(R.drawable.bootstrap_arrow_right),
                         contentDescription = "Arrow",
