@@ -1,13 +1,18 @@
 package com.example.frontendapp.ui.theme.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,15 +32,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
-import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.composables.BtnStyle1
-
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController) {
+fun BussinesMainScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -43,9 +46,7 @@ fun MainScreen(navController: NavController) {
                     containerColor = Principal_variacion3,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
-                title = {
-                    Text("Bookme")
-                }
+                title = { },
             )
         },
         modifier = Modifier.fillMaxSize()
@@ -57,36 +58,18 @@ fun MainScreen(navController: NavController) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Crear tu cuenta", fontSize= 34.sp)
-            Spacer(modifier = Modifier.height(20.dp))
-
-            //Detectar el tamaño de la pantalla y en base a eso ajustar el tamaño de la imagen
-            val configuration = LocalConfiguration.current
-            val screenWidth = configuration.screenWidthDp.dp
-            val imageSize = screenWidth * 1f
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_shop),
-                contentDescription = "Logo",
-                modifier = Modifier.size(imageSize)
-            )
-            Text(text = "y descubre", fontSize= 34.sp, modifier =  Modifier.padding(bottom = 24.dp))
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp) // Espaciado entre elementos
-            ) {
-                BtnStyle1(onClick =  {navController.navigate(NavigationItem.REGISTER.route) }, text = "Comenzar ahora")
-                BtnStyle1(onClick =  {navController.navigate(NavigationItem.REGISTER.route) }, text = "Ya tengo cuenta")
-
+           Row(modifier = Modifier.fillMaxWidth(),
+               horizontalArrangement = Arrangement.Start) { Text(text = "Mis servicios" ) }
+            LazyColumn {
 
             }
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun MAinBussinesingPreview() {
     FrontendappTheme {
-        MainScreen(navController = rememberNavController())
+        BussinesMainScreen(navController = rememberNavController())
     }
 }
