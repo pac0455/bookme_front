@@ -20,11 +20,12 @@ import com.example.frontendapp.ui.theme.Principal_variacion3
 
 @Composable
 fun BtnStyle1(
+    modifier : Modifier = Modifier,
     onClick: () -> Unit,
-    text: String = "Ejemplo"
+    text: String = "Ejemplo",
 ) {
     Button(
-        modifier = Modifier
+        modifier = modifier
             .padding(8.dp)
             .shadow(
                 elevation = 20.dp, // 👈 sombra potente

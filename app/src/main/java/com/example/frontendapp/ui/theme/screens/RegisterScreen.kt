@@ -73,11 +73,31 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  UsuarioViewM
             ){
                 val uiState by usuarioViewModel.uiState.collectAsState()
 
-                CustomTextField(Icons.Default.AccountCircle, "Nombre",uiState.username ?: "", onValueChange = { usuarioViewModel.setNombre(it) })
-                CustomTextField(Icons.Default.Email, "Correo", uiState.email ?: "", onValueChange = { usuarioViewModel.setCorreo(it) })
-                CustomTextField(Icons.Default.Email, "Telefono", uiState.telefono ?: "", onValueChange = { usuarioViewModel.setTelefono(it) })
-                CustomTextField(Icons.Default.Email, "Contraseña", uiState.password ?: "", onValueChange = { usuarioViewModel.setContrasena(it) })
-
+                CustomTextField(
+                    icon = Icons.Default.Person,
+                    label = "Nombre",
+                    value = uiState.username ?: "",
+                    onValueChange = { usuarioViewModel.setNombre(it) }
+                )
+                CustomTextField(
+                    icon = Icons.Default.Email,
+                    label = "Correo",
+                    value = uiState.email ?: "",
+                    onValueChange = { usuarioViewModel.setCorreo(it) }
+                )
+                CustomTextField(
+                    icon = Icons.Default.Phone,
+                    label = "Telefono",
+                    value = uiState.telefono ?: "",
+                    onValueChange = { usuarioViewModel.setTelefono(it) }
+                )
+                CustomTextField(
+                    icon = Icons.Default.Lock,
+                    label = "Contraseña",
+                    value = uiState.password ?: "",
+                    isPassword = true,
+                    onValueChange = { usuarioViewModel.setContrasena(it) }
+                )
             }
             //Seccion de buttons
             Column(
