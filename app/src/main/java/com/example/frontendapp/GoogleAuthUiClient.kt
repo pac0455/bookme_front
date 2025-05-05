@@ -71,7 +71,7 @@ object GoogleAuthUiClient {
                         username = firebaseUser.displayName ?: "",
                         email = firebaseUser.email ?: "",
                         firebaseUid = firebaseUser.uid,
-                        telefono = firebaseUser.phoneNumber ?: "",
+                        phoneNumber = firebaseUser.phoneNumber ?: "",
                         password = "" // puedes dejarlo vacío si solo usas Google login
                     )
                     val repository = AuthRemoteDataResource(RetrofitInstance.api)

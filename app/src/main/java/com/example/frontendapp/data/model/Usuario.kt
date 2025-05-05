@@ -13,8 +13,8 @@ data class Usuario(
     @SerializedName("email")
     val email: String? = null,
 
-    @SerializedName("telefono")
-    val telefono: String? = null,
+    @SerializedName("phoneNumber")
+    val phoneNumber: String? = null,
 
     @SerializedName("password")
     val password: String? = null,

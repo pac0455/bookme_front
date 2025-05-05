@@ -88,7 +88,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  UsuarioViewM
                 CustomTextField(
                     icon = Icons.Default.Phone,
                     label = "Telefono",
-                    value = uiState.telefono ?: "",
+                    value = uiState.phoneNumber ?: "",
                     onValueChange = { usuarioViewModel.setTelefono(it) }
                 )
                 CustomTextField(

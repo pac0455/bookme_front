@@ -1,9 +1,9 @@
 package com.example.frontendapp.data.remote.api
 
-import com.example.frontendapp.data.model.LoginRequest
 import com.example.frontendapp.data.model.Usuario
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -22,7 +22,7 @@ interface UserApi {
 
     // Login tradicional con email/contraseña (puedes usar un modelo LoginRequest si prefieres)
     @POST("$controller/login")
-    suspend fun login(@Body credentials: LoginRequest): Response<Usuario>
+    suspend fun login(@Body usuario: Usuario): Response<Usuario>
 
     // Registro tradicional
     @POST("$controller/register")
@@ -30,4 +30,7 @@ interface UserApi {
     //GetAll
     @GET(controller)
     suspend fun getAll(): Response <List<Usuario>>
+    @DELETE("$controller/{id}") // Asegúrate de que esta URL sea relativa
+    suspend fun delete(@Path("id") id: String): Response<String>
+
 }

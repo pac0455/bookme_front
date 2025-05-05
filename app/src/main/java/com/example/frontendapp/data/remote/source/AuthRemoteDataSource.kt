@@ -1,26 +1,25 @@
 package com.example.frontendapp.data.remote.source
 
-import com.example.frontendapp.data.model.LoginRequest
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.api.UserApi
 
 class AuthRemoteDataResource(private val userApi: UserApi) {
 
-    // Método para validar registro
+
     private fun validateRegisterUser(user: Usuario): String? {
         return when {
             user.username.isNullOrBlank() -> "El nombre de usuario no puede estar vacío."
             user.email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
             user.password.isNullOrBlank() -> "La contraseña no puede estar vacía."
-            user.telefono.isNullOrBlank() -> "EL telefono no puede estar vacía."
+            user.phoneNumber.isNullOrBlank() -> "EL telefono no puede estar vacía."
             else -> null // Sin errores
         }
     }
 
-    private fun validateRegisterUser(email: String?, password: String?): String? {
+    private fun validateLogin(usuario: Usuario): String? {
         return when {
-            email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
-            password.isNullOrBlank() -> "La contraseña no puede estar vacía."
+            usuario.email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
+            usuario.password.isNullOrBlank() -> "La contraseña no puede estar vacía."
             else -> null // Sin errores
         }
     }
@@ -40,6 +39,20 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
 
             if (response.isSuccessful){
                 Resource.Success(response.body() ?: emptyList())
+            }else{
+                val errorBody = response.errorBody()?.string()
+                Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
+            }
+        }catch (ex : Exception){
+            Resource.Error(ex.message ?: "error al cargar todos los usuarios")
+        }
+    }
+    suspend fun delete(idUser: String): Resource<String>{
+        return try {
+            val response = userApi.delete(idUser)
+
+            if (response.isSuccessful){
+                Resource.Success(response.body().toString())
             }else{
                 val errorBody = response.errorBody()?.string()
                 Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
@@ -75,18 +88,22 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
     }
 
     // Método para iniciar sesión
-    suspend fun login(email: String, password: String): Resource<String> {
+    suspend fun login(usuario: Usuario): Resource<String> {
         // Validar los datos de inicio de sesión
-        if (email.isBlank() || password.isBlank()) return Resource.Error("El correo electrónico y la contraseña no pueden estar vacíos.")
+        val validationError = validateLogin(usuario)
+        if (validationError != null) {
+            return Resource.Error(validationError) // Retorna el mensaje de error de validación
+        }
 
 
-        val loginRequest = LoginRequest(email, password)
+
         return try {
+            val response = userApi.login(usuario)
             //Logica de login
-            if (true) {
+            if (response.isSuccessful) {
                 Resource.Success("Inicio de sesión exitoso")
             } else {
-                Resource.Error("Error al iniciar sesión")
+                Resource.Error(response.errorBody().toString())
             }
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")

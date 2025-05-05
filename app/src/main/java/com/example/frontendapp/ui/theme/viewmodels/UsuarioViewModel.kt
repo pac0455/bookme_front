@@ -35,12 +35,7 @@ class UsuarioViewModel(private val auth: AuthRemoteDataResource) : ViewModel() {
         }
     }
 
-    fun loginUsuario(email: String, password: String) {
-        viewModelScope.launch {
-            _loginState.value = Resource.Loading()
-            _loginState.value = auth.login(email, password)
-        }
-    }
+
 
 
     // Métodos para actualizar el estado del usuario
@@ -58,7 +53,7 @@ class UsuarioViewModel(private val auth: AuthRemoteDataResource) : ViewModel() {
 
     fun setTelefono(telefono: String) {
         _uiState.update { currentState ->
-            currentState.copy(telefono = telefono)
+            currentState.copy(phoneNumber = telefono)
         }
     }
 

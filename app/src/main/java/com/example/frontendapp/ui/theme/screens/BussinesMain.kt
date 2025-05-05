@@ -100,6 +100,8 @@ fun BussinesMainScreen(navController: NavController) {
             }
             Row(Modifier.fillMaxWidth().padding(top = 20.dp),
                 horizontalArrangement = Arrangement.Start) { Text("Locales") }
+
+
         }
     }
 }

@@ -100,7 +100,9 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BtnStyle1(
-                    onClick =  {},
+                    onClick =  {
+
+                    },
                     text = "Registrase"
                 )
 

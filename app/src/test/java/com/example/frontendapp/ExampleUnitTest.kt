@@ -22,7 +22,32 @@ class AuthRemoteDataResourceTest {
 
     private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.api)
 
+    private val user = Usuario(
+        id = "13fe2a54-0499-4d62-8295-dde34fe3872a",
+        email = "test@example.com",
+        password = "12Aaaa",
+        username = "Nombre",
+        phoneNumber = "12dasdsaa"
+    )
+    @Test
+    fun deleteUser() = runBlocking {
+        val result = authRemoteDataResource.delete("13fe2a54-0499-4d62-8295-dde34fe3872a")
 
+        when (result) {
+            is Resource.Success -> {
+                println("✅ Test exitoso: ${result.data}")
+            }
+            is Resource.Error -> {
+                println("❌ Error inesperado: ${result.message}")
+            }
+            is Resource.Loading -> {
+                print("cargando...")
+            }
+            is Resource.None ->{}
+        }
+
+        assertTrue(result is Resource.Success)
+    }
     //api/usuarios -> GET
     @Test
     fun getAllUsers() = runBlocking {
@@ -40,6 +65,8 @@ class AuthRemoteDataResourceTest {
             is Resource.Error -> {
                 println("Error: ${result.message}")
             }
+            is Resource.None ->{}
+
 
         }
 
@@ -48,14 +75,9 @@ class AuthRemoteDataResourceTest {
 
     @Test
     fun `register user successfully`() = runBlocking {
-        val usuario = Usuario(
-            email = "test1@example.com",
-            password = "12Aaaa",
-            username = "Nombre",
-            telefono = "12dasdsaa"
-        )
 
-        val result = authRemoteDataResource.registerUser(usuario)
+
+        val result = authRemoteDataResource.registerUser(user)
 
         when (result) {
             is Resource.Success -> {
@@ -63,9 +85,11 @@ class AuthRemoteDataResourceTest {
             }
             is Resource.Error -> {
                 println("❌ Error inesperado: ${result.message}")
-            }            is Resource.Loading -> {
-            print("cargando...")
-        }
+            }
+            is Resource.Loading -> {
+                print("cargando...")
+            }
+            is Resource.None ->{}
 
 
         }
@@ -75,12 +99,9 @@ class AuthRemoteDataResourceTest {
     }
     @Test
     fun login() = runBlocking {
-        val usuario = Usuario(
-            email = "test@example.com",
-            password = "12Aaaa",
-        )
 
-        val result = authRemoteDataResource.login(usuario.email ?: "", usuario.password ?: "")
+
+        val result = authRemoteDataResource.login(user)
 
         when (result) {
             is Resource.Success -> {
@@ -94,8 +115,7 @@ class AuthRemoteDataResourceTest {
             is Resource.Loading -> {
                 print("cargando...")
             }
-
-            null -> TODO()
+            is Resource.None ->{}
         }
         assertTrue(result is Resource.Success)
     }
@@ -104,8 +124,8 @@ class AuthRemoteDataResourceTest {
     fun `register user with empty email returns error`() = runBlocking {
         val usuario = Usuario(
             email = "",
-            password = "12Aaaa",
-            username = "adasd"
+            password = user.password,
+            username = user.username
         )
 
         val result = authRemoteDataResource.registerUser(usuario)
