@@ -2,9 +2,9 @@ package com.example.frontendapp.data.remote.source
 
 import com.example.frontendapp.data.model.LoginRequest
 import com.example.frontendapp.data.model.Usuario
-import com.example.frontendapp.data.remote.api.ApiService
+import com.example.frontendapp.data.remote.api.UserApi
 
-class AuthRemoteDataResource(private val apiService: ApiService) {
+class AuthRemoteDataResource(private val userApi: UserApi) {
 
     // Método para validar registro
     private fun validateRegisterUser(user: Usuario): String? {
@@ -16,6 +16,7 @@ class AuthRemoteDataResource(private val apiService: ApiService) {
             else -> null // Sin errores
         }
     }
+
     private fun validateRegisterUser(email: String?, password: String?): String? {
         return when {
             email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
@@ -33,6 +34,21 @@ class AuthRemoteDataResource(private val apiService: ApiService) {
         // Implementación para iniciar sesión con Google
     }
 
+    suspend fun getAll(): Resource<List<Usuario>>{
+        return try {
+            val response = userApi.getAll()
+
+            if (response.isSuccessful){
+                Resource.Success(response.body() ?: emptyList())
+            }else{
+                val errorBody = response.errorBody()?.string()
+                Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
+            }
+        }catch (ex : Exception){
+            Resource.Error(ex.message ?: "error al cargar todos los usuarios")
+        }
+    }
+
     //Metodo para registrar un usuario
     //Resource<String>> es como decir devuelve un objeto que tenfnga diferentes estados dependiendo de la solicitud
     suspend fun registerUser(usuario: Usuario): Resource<String> {
@@ -44,7 +60,7 @@ class AuthRemoteDataResource(private val apiService: ApiService) {
 
         // Intentar registrar al usuario a través de la API
         return try {
-            val response = apiService.signup(usuario)
+            val response = userApi.signup(usuario)
 
             if (response.isSuccessful) {
                 Resource.Success("Registro exitoso")

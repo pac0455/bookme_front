@@ -7,6 +7,7 @@ data class Usuario(
     @SerializedName("id")
     val id: String? = null,
 
+    @SerializedName("userName")  // Asegúrate de usar el nombre correcto de la clave en la respuesta JSON
     val username: String? = null,
 
     @SerializedName("email")

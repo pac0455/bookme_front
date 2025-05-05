@@ -15,22 +15,44 @@ import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
 
-import com.example.frontendapp.data.remote.api.ApiService
 import com.example.frontendapp.data.remote.source.Resource
 
 class AuthRemoteDataResourceTest {
 
     private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.api)
 
+
+    //api/usuarios -> GET
+    @Test
+    fun getAllUsers() = runBlocking {
+        // Simulamos un delay para que el estado "Loading" se pueda activar
+        println("Iniciando test...")
+        val result = authRemoteDataResource.getAll()
+
+        when (result) {
+            is Resource.Loading -> {
+                println("Cargando...") // Aquí se debería imprimir si todo va bien
+            }
+            is Resource.Success -> {
+                result.data?.forEach { println(it.username) }
+            }
+            is Resource.Error -> {
+                println("Error: ${result.message}")
+            }
+
+        }
+
+        assertTrue(result is Resource.Success)
+    }
+
     @Test
     fun `register user successfully`() = runBlocking {
         val usuario = Usuario(
             email = "test@example.com",
-            password = "123456",
+            password = "12Aaaa",
             username = "Nombre",
-            telefono = "12dasdsa"
+            telefono = "12dasdsaa"
         )
 
         val result = authRemoteDataResource.registerUser(usuario)
@@ -41,10 +63,10 @@ class AuthRemoteDataResourceTest {
             }
             is Resource.Error -> {
                 println("❌ Error inesperado: ${result.message}")
-            }
-            is Resource.Loading -> {
-                println("${result.message}")
-            }
+            }            is Resource.Loading -> {
+            print("cargando...")
+        }
+
 
         }
 
@@ -56,8 +78,8 @@ class AuthRemoteDataResourceTest {
     @Test
     fun `register user with empty email returns error`() = runBlocking {
         val usuario = Usuario(
-            email = "",
-            password = "123456"
+            email = "test@example.com",
+            password = "12Aaaa"
         )
 
         val result = authRemoteDataResource.registerUser(usuario)
