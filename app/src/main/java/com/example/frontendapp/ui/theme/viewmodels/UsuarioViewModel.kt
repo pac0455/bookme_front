@@ -27,13 +27,13 @@ class UsuarioViewModel(private val auth: AuthRemoteDataResource) : ViewModel() {
     private val _loginState = MutableStateFlow<Resource<String>>(Resource.Success(""))
     val loginState: StateFlow<Resource<String>> = _loginState
 
-    fun registrarUsuario() {
+/*    fun registrarUsuario() {
         viewModelScope.launch {
             _registerState.value = Resource.Loading()
             val usuario = _uiState.value
             _registerState.value = auth.registerUser(usuario)
         }
-    }
+    }*/
 
 
 

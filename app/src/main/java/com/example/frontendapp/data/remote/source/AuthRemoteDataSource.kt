@@ -1,7 +1,9 @@
 package com.example.frontendapp.data.remote.source
 
+import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.api.UserApi
+import com.example.frontendapp.data.remote.reponses.DeleteResponse
 
 class AuthRemoteDataResource(private val userApi: UserApi) {
 
@@ -47,38 +49,47 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
             Resource.Error(ex.message ?: "error al cargar todos los usuarios")
         }
     }
-    suspend fun delete(idUser: String): Resource<String>{
+    suspend fun delete(idUser: String): Resource<String> {
         return try {
             val response = userApi.delete(idUser)
 
-            if (response.isSuccessful){
-                Resource.Success(response.body().toString())
-            }else{
+            if (response.isSuccessful) {
+                val result = response.body()
+                if (result != null) {
+                    Resource.Success(result.message.toString())
+                } else {
+                    Resource.Error("Respuesta vacía del servidor")
+                }
+            } else {
                 val errorBody = response.errorBody()?.string()
                 Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
             }
-        }catch (ex : Exception){
-            Resource.Error(ex.message ?: "error al cargar todos los usuarios")
+        } catch (ex: Exception) {
+            Resource.Error(ex.message ?: "Error al eliminar el usuario")
         }
     }
 
+
     //Metodo para registrar un usuario
     //Resource<String>> es como decir devuelve un objeto que tenfnga diferentes estados dependiendo de la solicitud
-    suspend fun registerUser(usuario: Usuario): Resource<String> {
+    suspend fun registerUser(usuario: Usuario): Resource<LoginRegisterResultDTO> {
         // Validar los datos del usuario
         val validationError = validateRegisterUser(usuario)
         if (validationError != null) {
-            return Resource.Error(validationError) // Retorna el mensaje de error de validación
+            return Resource.Error(validationError)
         }
 
-        // Intentar registrar al usuario a través de la API
         return try {
             val response = userApi.signup(usuario)
 
             if (response.isSuccessful) {
-                Resource.Success("Registro exitoso")
+                val result = response.body()
+                if (result != null) {
+                    Resource.Success(result)
+                } else {
+                    Resource.Error("Respuesta vacía del servidor")
+                }
             } else {
-                // Podés extraer el error del body si querés más detalle
                 val errorBody = response.errorBody()?.string()
                 Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
             }
@@ -87,26 +98,27 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
         }
     }
 
-    // Método para iniciar sesión
+
+
     suspend fun login(usuario: Usuario): Resource<String> {
-        // Validar los datos de inicio de sesión
         val validationError = validateLogin(usuario)
         if (validationError != null) {
-            return Resource.Error(validationError) // Retorna el mensaje de error de validación
+            return Resource.Error(validationError)
         }
-
-
 
         return try {
             val response = userApi.login(usuario)
-            //Logica de login
+
             if (response.isSuccessful) {
                 Resource.Success("Inicio de sesión exitoso")
             } else {
-                Resource.Error(response.errorBody().toString())
+                val errorMessage = response.errorBody()?.string()
+                Resource.Error("Error del servidor: ${response.code()} - ${errorMessage ?: "Desconocido"}")
             }
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")
         }
     }
+
+
 }

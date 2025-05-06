@@ -5,16 +5,16 @@ import java.util.Date
 
 data class Usuario(
     @SerializedName("id")
-    val id: String? = null,
+    var id: String? = null,
 
     @SerializedName("userName")  // Asegúrate de usar el nombre correcto de la clave en la respuesta JSON
-    val username: String? = null,
+    var username: String? = null,
 
     @SerializedName("email")
-    val email: String? = null,
+    var email: String? = null,
 
     @SerializedName("phoneNumber")
-    val phoneNumber: String? = null,
+    var phoneNumber: String? = null,
 
     @SerializedName("password")
     val password: String? = null,

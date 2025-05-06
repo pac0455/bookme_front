@@ -22,21 +22,40 @@ class AuthRemoteDataResourceTest {
 
     private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.api)
 
-    private val user = Usuario(
-        id = "13fe2a54-0499-4d62-8295-dde34fe3872a",
+    private var user = Usuario(
         email = "test@example.com",
         password = "12Aaaa",
         username = "Nombre",
         phoneNumber = "12dasdsaa"
     )
     @Test
-    fun deleteUser() = runBlocking {
-        val result = authRemoteDataResource.delete("13fe2a54-0499-4d62-8295-dde34fe3872a")
+    fun `register user with empty email returns error`() = runBlocking {
+        val usuario = Usuario(
+            email = "",
+            password = user.password,
+            username = user.username
+        )
+
+        val result = authRemoteDataResource.registerUser(usuario)
+
+        assertTrue(result is Resource.Error)
+        assertEquals("El correo electrónico no puede estar vacío.", (result as Resource.Error).message)
+    }
+    @Test
+    fun `register user successfully`() = runBlocking {
+
+
+        val result = authRemoteDataResource.registerUser(user)
 
         when (result) {
             is Resource.Success -> {
-                println("✅ Test exitoso: ${result.data}")
+                val usuarioResponse = result.data?.usuario
+                if (usuarioResponse != null) {
+                    user.id = usuarioResponse.id ?: ""
+                }
             }
+
+
             is Resource.Error -> {
                 println("❌ Error inesperado: ${result.message}")
             }
@@ -44,6 +63,8 @@ class AuthRemoteDataResourceTest {
                 print("cargando...")
             }
             is Resource.None ->{}
+
+
         }
 
         assertTrue(result is Resource.Success)
@@ -66,43 +87,13 @@ class AuthRemoteDataResourceTest {
                 println("Error: ${result.message}")
             }
             is Resource.None ->{}
-
-
         }
 
         assertTrue(result is Resource.Success)
-    }
-
-    @Test
-    fun `register user successfully`() = runBlocking {
-
-
-        val result = authRemoteDataResource.registerUser(user)
-
-        when (result) {
-            is Resource.Success -> {
-                println("✅ Test exitoso: ${result.data}")
-            }
-            is Resource.Error -> {
-                println("❌ Error inesperado: ${result.message}")
-            }
-            is Resource.Loading -> {
-                print("cargando...")
-            }
-            is Resource.None ->{}
-
-
-        }
-
-        assertTrue(result is Resource.Success)
-        assertEquals("Registro exitoso", (result as Resource.Success).data)
     }
     @Test
     fun login() = runBlocking {
-
-
         val result = authRemoteDataResource.login(user)
-
         when (result) {
             is Resource.Success -> {
                 println("✅ Test exitoso: ${result.data}")
@@ -119,18 +110,26 @@ class AuthRemoteDataResourceTest {
         }
         assertTrue(result is Resource.Success)
     }
-
     @Test
-    fun `register user with empty email returns error`() = runBlocking {
-        val usuario = Usuario(
-            email = "",
-            password = user.password,
-            username = user.username
-        )
+    fun deleteUser() = runBlocking {
+        val result = authRemoteDataResource.delete(user.email ?: "")
+//        val result = authRemoteDataResource.delete("41b20836-d410-45b5-9bf5-0575cedb5df1")
 
-        val result = authRemoteDataResource.registerUser(usuario)
-        assertTrue(result is Resource.Error)
-        assertEquals("El correo electrónico no puede estar vacío.", (result as Resource.Error).message)
+
+        when (result) {
+            is Resource.Success -> {
+                println("✅ Test exitoso: ${result.data}")
+            }
+            is Resource.Error -> {
+                println("El usuario es ${user.email}")
+                println("❌ Error inesperado: ${result.message}")
+            }
+            is Resource.Loading -> {
+                print("cargando...")
+            }
+            is Resource.None ->{}
+        }
+
+        assertTrue(result is Resource.Success)
     }
-
 }
