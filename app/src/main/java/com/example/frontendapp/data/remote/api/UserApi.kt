@@ -33,7 +33,7 @@ interface UserApi {
     //GetAll
     @GET(controller)
     suspend fun getAll(): Response <List<Usuario>>
-    @DELETE("usuarios/{id}")
+    @DELETE("$controller/{id}")
     suspend fun delete(@Path("id") id: String): Response<DeleteResponse>
 
 
