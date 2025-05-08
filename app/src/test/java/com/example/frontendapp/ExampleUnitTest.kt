@@ -23,7 +23,7 @@ class AuthRemoteDataResourceTest {
     private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.api)
 
     private var user = Usuario(
-        email = "test@example.com",
+        email = "franhidalc@gmail.com",
         password = "12Aaaa",
         username = "Nombre",
         phoneNumber = "12dasdsaa"
@@ -81,7 +81,7 @@ class AuthRemoteDataResourceTest {
                 println("Cargando...") // Aquí se debería imprimir si todo va bien
             }
             is Resource.Success -> {
-                result.data?.forEach { println(it.username) }
+                result.data?.forEach { println(it.toString()) }
             }
             is Resource.Error -> {
                 println("Error: ${result.message}")

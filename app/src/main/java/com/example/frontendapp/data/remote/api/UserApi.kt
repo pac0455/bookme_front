@@ -10,6 +10,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 
 private const val controller = "api/usuario"
@@ -33,8 +34,9 @@ interface UserApi {
     //GetAll
     @GET(controller)
     suspend fun getAll(): Response <List<Usuario>>
-    @DELETE("usuarios/{id}")
-    suspend fun delete(@Path("id") id: String): Response<DeleteResponse>
+    @DELETE(controller)
+    suspend fun delete(@Query("email") email: String): Response<DeleteResponse>
+
 
 
 
