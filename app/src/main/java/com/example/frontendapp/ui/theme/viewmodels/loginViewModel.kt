@@ -34,7 +34,7 @@ class loginViewModel(private  val auth: AuthRemoteDataResource): ViewModel() {
             currentState.copy(password = password)
         }
     }
-    fun loginUsuario() {
+   /* fun loginUsuario() {
         viewModelScope.launch {
             val usuario = _usuarioState.value
             _loginState.value = Resource.Loading()
@@ -44,5 +44,5 @@ class loginViewModel(private  val auth: AuthRemoteDataResource): ViewModel() {
                 val token = loginResponse.data
             }
         }
-    }
+    }*/
 }

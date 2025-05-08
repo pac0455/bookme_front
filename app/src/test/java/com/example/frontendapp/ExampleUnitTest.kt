@@ -13,6 +13,7 @@ import org.junit.Assert.*
 
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import kotlinx.coroutines.runBlocking
 
@@ -93,7 +94,8 @@ class AuthRemoteDataResourceTest {
     }
     @Test
     fun login() = runBlocking {
-        val result = authRemoteDataResource.login(user)
+
+        val result = authRemoteDataResource.login(LoginRequest(user.email, user.password))
         when (result) {
             is Resource.Success -> {
                 println("✅ Test exitoso: ${result.data}")

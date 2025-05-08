@@ -3,6 +3,7 @@ package com.example.frontendapp.data.remote.api
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.reponses.DeleteResponse
+import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.Resource
 import retrofit2.Response
 import retrofit2.http.Body
@@ -26,7 +27,7 @@ interface UserApi {
 
     // Login tradicional con email/contraseña (puedes usar un modelo LoginRequest si prefieres)
     @POST("$controller/login")
-    suspend fun login(@Body usuario: Usuario): Response<LoginRegisterResultDTO>
+    suspend fun login(@Body usuario: LoginRequest): Response<LoginRegisterResultDTO>
 
     // Registro tradicional
     @POST("$controller/register")
