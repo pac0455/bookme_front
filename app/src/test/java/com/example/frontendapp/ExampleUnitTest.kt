@@ -23,7 +23,7 @@ class AuthRemoteDataResourceTest {
     private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.api)
 
     private var user = Usuario(
-        email = "test1@example.com",
+        email = "franhidalc@gmail.com",
         password = "12Aaaa",
         username = "Nombre",
         phoneNumber = "12dasdsaa"
