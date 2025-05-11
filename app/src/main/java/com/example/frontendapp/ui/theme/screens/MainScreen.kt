@@ -75,7 +75,7 @@ fun MainScreen(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(16.dp) // Espaciado entre elementos
             ) {
                 BtnStyle1(onClick =  {navController.navigate(NavigationItem.REGISTER.route) }, text = "Comenzar ahora")
-                BtnStyle1(onClick =  {navController.navigate(NavigationItem.REGISTER.route) }, text = "Ya tengo cuenta")
+                BtnStyle1(onClick =  {navController.navigate(NavigationItem.LOGIN.route) }, text = "Ya tengo cuenta")
 
 
             }

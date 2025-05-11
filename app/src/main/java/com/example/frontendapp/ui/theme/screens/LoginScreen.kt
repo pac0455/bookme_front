@@ -1,6 +1,8 @@
 package com.example.frontendapp.ui.theme.screens
 
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,11 +43,31 @@ import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomBox
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.GoogleButton
-import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
 import androidx.compose.runtime.getValue
+import com.example.frontendapp.data.remote.source.Resource
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
+import com.example.frontendapp.ui.theme.viewmodels.loginViewModel
 
 @Composable
-fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel){
+fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
+    val loginState by loginViewModel.loginState.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is Resource.Success -> {
+                navController.navigate(NavigationItem.NEGOCIO_CLIENTE.route)
+            }
+            is Resource.Error -> {
+                Toast.makeText(context, loginState.message ?: "Login failed", Toast.LENGTH_SHORT).show()
+                Log.d("Inicar sesion", loginState.message?: "Login failed")
+            }
+            else -> {
+
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             Box(
@@ -78,13 +101,13 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                val usuario by usuarioViewModel.uiState.collectAsState()
+                val usuario by loginViewModel.usuarioState.collectAsState()
 
                 CustomTextField(
                     icon = Icons.Default.Person,
                     label = "Usuario",
-                    value = usuario.username.orEmpty(),
-                    onValueChange = { usuarioViewModel.setNombre(it) }
+                    value = usuario.email.orEmpty(),
+                    onValueChange = { loginViewModel.setEmail(it) }
                 )
 
                 CustomTextField(
@@ -92,7 +115,7 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
                     label = "Contraseña",
                     value = usuario.password.orEmpty(),
                     isPassword = true,
-                    onValueChange = { usuarioViewModel.setContrasena(it) }
+                    onValueChange = { loginViewModel.setPassword(it) }
                 )
 
             }
@@ -100,12 +123,11 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BtnStyle1(
-                    onClick =  {
-
+                    onClick = {
+                        loginViewModel.loginUsuario()
                     },
-                    text = "Registrase"
+                    text = "Registrarse"
                 )
-
                 CustomBox(
                     borderTop = true,
                     borderBottom = true,
@@ -122,7 +144,7 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
 @Composable
 fun LoginScreenPreview() {
     FrontendappTheme {
-        val usuario = UsuarioViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuario = loginViewModel(AuthRemoteDataResource(RetrofitInstance.api))
         LoginScreen(navController = rememberNavController(),usuario)
     }
 }

@@ -101,7 +101,7 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
 
 
 
-    suspend fun login(login: LoginRequest): Resource<String> {
+    suspend fun login(login: LoginRequest): Resource<LoginRegisterResultDTO> {
         val usuario = Usuario(
             email = login.email,
             password = login.password
@@ -115,7 +115,8 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
             val response = userApi.login(login)
 
             if (response.isSuccessful) {
-                Resource.Success("Inicio de sesión exitoso")
+                val loginResult = response.body()!!
+                Resource.Success(loginResult)
             } else {
                 val errorMessage = response.errorBody()?.string()
                 Resource.Error("Error del servidor: ${response.code()} - ${errorMessage ?: "Desconocido"}")
@@ -124,6 +125,7 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
             Resource.Error("Error de red: ${e.message}")
         }
     }
+
 
 
 }
