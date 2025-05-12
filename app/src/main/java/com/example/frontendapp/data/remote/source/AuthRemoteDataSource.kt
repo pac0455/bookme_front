@@ -98,6 +98,10 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
         }
     }
 
+    suspend fun registerCliente(baseUsuario: Usuario): Resource<LoginRegisterResultDTO> {
+        val usuario = baseUsuario.copy(isNegocio = false)
+        return registerUser(usuario)
+    }
 
 
     suspend fun login(usuario: Usuario): Resource<String> {
@@ -118,6 +122,10 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")
         }
+    }
+    suspend fun registerNegocio(baseUsuario: Usuario): Resource<LoginRegisterResultDTO> {
+        val usuario = baseUsuario.copy(isNegocio = true)
+        return registerUser(usuario)
     }
 
 

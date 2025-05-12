@@ -132,4 +132,5 @@ class AuthRemoteDataResourceTest {
 
         assertTrue(result is Resource.Success)
     }
+
 }
