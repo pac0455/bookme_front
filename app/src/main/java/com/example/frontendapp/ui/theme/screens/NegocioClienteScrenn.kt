@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,13 +36,23 @@ import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
+import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.Resource
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
 
 
 @Composable
 fun NegocioClienteScrenn(navController: NavController, registerViewModel: registerViewModel){
+    var isBusiness by remember { mutableStateOf(false) }
+    val registerState by registerViewModel.registerState.collectAsState()
 
+    var isClient by remember { mutableStateOf(true) }
+    //Detectar el tamaño de la pantalla y en base a eso ajustar el tamaño de la imagen
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val imageSize = screenWidth * 1f
     Scaffold(
         topBar = {
             Box(
@@ -69,12 +81,7 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: regist
             verticalArrangement = Arrangement.SpaceBetween,
 
         ) {
-            var isBusiness by remember { mutableStateOf(false) }
-            var isClient by remember { mutableStateOf(true) }
-            //Detectar el tamaño de la pantalla y en base a eso ajustar el tamaño de la imagen
-            val configuration = LocalConfiguration.current
-            val screenWidth = configuration.screenWidthDp.dp
-            val imageSize = screenWidth * 1f
+
 
             Image(
                 painter = painterResource(id = R.drawable.ic_shop),
@@ -103,10 +110,28 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: regist
 
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 BtnStyle1(onClick = {
-
-                }, text = "Registarse")
+                    if (isBusiness) {
+                        registerViewModel.registrarNegocio()
+                    } else {
+                        registerViewModel.registrarCliente()
+                    }
+                }, text = "Registrarse")
+                // Manejo del resultado del registro
+                when (val result = registerState) {
+                    is Resource.Success -> {
+                        val roles = result.data?.roles ?: emptyList()
+                        when {
+                            roles.contains("NEGOCIO") -> navController.navigate(NavigationItem.REGISTER.route)
+                        }
+                    }
+                    is Resource.Error -> {
+                        val errorMessage = result.message ?: "Error desconocido"
+                        // Aquí puedes mostrar un Snackbar, Dialog o Log
+                        println("Error en el registro: $errorMessage")
+                    }
+                    else -> {}
+                }
             }
-
         }
     }
 }

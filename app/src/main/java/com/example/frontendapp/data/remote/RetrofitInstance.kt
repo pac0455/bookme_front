@@ -1,6 +1,7 @@
 package com.example.frontendapp.data.remote
 
 import com.example.frontendapp.data.remote.api.UserApi
+
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 //Singleton

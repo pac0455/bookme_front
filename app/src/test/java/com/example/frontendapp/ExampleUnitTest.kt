@@ -129,5 +129,62 @@ class AuthRemoteDataResourceTest {
 
         assertTrue(result is Resource.Success)
     }
+    @Test
+    fun `register negocio successfully and delete`() = runBlocking {
+        val usuarioNegocio = Usuario(
+            email = "negocio_test@bookme.com",
+            password = "Negocio123!",
+            username = "NegocioTest",
+            phoneNumber = "600000000"
+        )
+
+        val result = authRemoteDataResource.registerNegocio(usuarioNegocio)
+
+        when (result) {
+            is Resource.Success -> {
+                val id = result.data?.usuario?.id
+                println("✅ Negocio registrado con ID: $id")
+
+                // Borrar usuario tras éxito
+                val deleteResult = authRemoteDataResource.delete(usuarioNegocio.email ?: "")
+                assertTrue(deleteResult is Resource.Success)
+            }
+            is Resource.Error -> {
+                println("❌ Error en registro negocio: ${result.message}")
+            }
+            else -> {}
+        }
+
+        assertTrue(result is Resource.Success)
+    }
+
+    @Test
+    fun `register cliente successfully and delete`() = runBlocking {
+        val usuarioCliente = Usuario(
+            email = "cliente_test@bookme.com",
+            password = "Cliente123!",
+            username = "ClienteTest",
+            phoneNumber = "699999999"
+        )
+
+        val result = authRemoteDataResource.registerCliente(usuarioCliente)
+
+        when (result) {
+            is Resource.Success -> {
+                val id = result.data?.usuario?.id
+                println("✅ Cliente registrado con ID: $id")
+
+                // Borrar usuario tras éxito
+                val deleteResult = authRemoteDataResource.delete(usuarioCliente.email ?: "")
+                assertTrue(deleteResult is Resource.Success)
+            }
+            is Resource.Error -> {
+                println("❌ Error en registro cliente: ${result.message}")
+            }
+            else -> {}
+        }
+
+        assertTrue(result is Resource.Success)
+    }
 
 }

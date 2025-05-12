@@ -41,6 +41,7 @@ class loginViewModel(private  val auth: AuthRemoteDataResource): ViewModel() {
         }
     }
 
+
     fun loginUsuario() {
         viewModelScope.launch {
             val user = _usuarioState.value
