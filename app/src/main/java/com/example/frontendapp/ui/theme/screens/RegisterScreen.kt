@@ -1,6 +1,5 @@
 package com.example.frontendapp.ui.theme.screens
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 
 import androidx.compose.foundation.background
@@ -15,14 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
@@ -33,11 +29,12 @@ import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.GoogleButton
-import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
+import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
 
 
 @Composable
-fun RegisterScreen(navController: NavController, usuarioViewModel:  UsuarioViewModel) {
+fun RegisterScreen(navController: NavController, usuarioViewModel:  registerViewModel) {
     val context = LocalContext.current
 
     Scaffold(
@@ -103,7 +100,9 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  UsuarioViewM
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                BtnStyle1(onClick = { OnclickRegister() }, text = "Siguiente")
+                BtnStyle1(onClick = {
+                    navController.navigate(NavigationItem.NEGOCIO_CLIENTE)
+                }, text = "Siguiente")
                 val indicatorWidth = remember { mutableStateOf(1f) } // Grosor de la línea
                 Column(
                     modifier = Modifier.padding(16.dp),// Añadiendo un margen de 16dp
@@ -131,16 +130,11 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  UsuarioViewM
         }
     }
 }
-fun OnclickRegister(){
-    // Aquí puedes manejar el evento de clic para el botón de registro
-    Log.d("RegisterScreen", "Botón de registro clicado")
-    // Aquí puedes agregar la lógica para registrar al usuario
-}
 @Preview(showBackground = true)
 @Composable
 fun RegisterScreenPreview() {
     FrontendappTheme {
-        val usuario= UsuarioViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuario= registerViewModel(AuthRemoteDataResource(RetrofitInstance.api))
         RegisterScreen(navController = rememberNavController(),usuario)
     }
 }

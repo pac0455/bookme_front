@@ -4,6 +4,7 @@ import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.api.UserApi
 import com.example.frontendapp.data.remote.reponses.DeleteResponse
+import com.example.frontendapp.data.remote.request.LoginRequest
 
 class AuthRemoteDataResource(private val userApi: UserApi) {
 
@@ -104,17 +105,22 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
     }
 
 
-    suspend fun login(usuario: Usuario): Resource<String> {
+    suspend fun login(login: LoginRequest): Resource<LoginRegisterResultDTO> {
+        val usuario = Usuario(
+            email = login.email,
+            password = login.password
+        )
         val validationError = validateLogin(usuario)
         if (validationError != null) {
             return Resource.Error(validationError)
         }
 
         return try {
-            val response = userApi.login(usuario)
+            val response = userApi.login(login)
 
             if (response.isSuccessful) {
-                Resource.Success("Inicio de sesión exitoso")
+                val loginResult = response.body()!!
+                Resource.Success(loginResult)
             } else {
                 val errorMessage = response.errorBody()?.string()
                 Resource.Error("Error del servidor: ${response.code()} - ${errorMessage ?: "Desconocido"}")
@@ -127,6 +133,7 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
         val usuario = baseUsuario.copy(isNegocio = true)
         return registerUser(usuario)
     }
+
 
 
 }

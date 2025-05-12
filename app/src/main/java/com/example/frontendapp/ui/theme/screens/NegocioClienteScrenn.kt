@@ -12,12 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,11 +29,8 @@ import com.example.frontendapp.R
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
-import com.example.frontendapp.ui.theme.composables.CustomBox
-import com.example.frontendapp.ui.theme.composables.CustomTextField
-import com.example.frontendapp.ui.theme.composables.GoogleButton
 import com.example.frontendapp.ui.theme.composables.MySwitch
-import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
@@ -46,7 +39,7 @@ import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 
 
 @Composable
-fun NegocioClienteScrenn(navController: NavController, usuarioViewModel: UsuarioViewModel){
+fun NegocioClienteScrenn(navController: NavController, registerViewModel: registerViewModel){
 
     Scaffold(
         topBar = {
@@ -109,7 +102,9 @@ fun NegocioClienteScrenn(navController: NavController, usuarioViewModel: Usuario
 
 
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                BtnStyle1(onClick = { }, text = "Registarse")
+                BtnStyle1(onClick = {
+
+                }, text = "Registarse")
             }
 
         }
@@ -120,7 +115,7 @@ fun NegocioClienteScrenn(navController: NavController, usuarioViewModel: Usuario
 fun PreviewNegocioClienteScrenn(){
     FrontendappTheme {
         val navController = rememberNavController()
-        val usuarioViewModel = UsuarioViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuarioViewModel = registerViewModel(AuthRemoteDataResource(RetrofitInstance.api))
         NegocioClienteScrenn(navController, usuarioViewModel)
     }
 }
