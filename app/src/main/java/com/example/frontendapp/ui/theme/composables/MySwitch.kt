@@ -54,7 +54,7 @@ fun MySwitch(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            thumbContent = {
+/*            thumbContent = {
                 Icon(
                     imageVector = if (checked) {
                         Icons.Default.Check
@@ -63,7 +63,7 @@ fun MySwitch(
                     },
                     contentDescription = null
                 )
-            },
+            },*/
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.Green,
                 uncheckedThumbColor = Color.Red,
