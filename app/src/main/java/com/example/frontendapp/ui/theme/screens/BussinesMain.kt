@@ -86,7 +86,7 @@ fun BussinesMainScreen(navController: NavController) {
             ) {
                 FloatingActionButton(
                     onClick = { 
-                        //Moverme a
+                        navController.navigate(NavigationItem.LOCATION.route)
                     },
                     modifier = Modifier.size(60.dp),
                     shape = RoundedCornerShape(100.dp),
