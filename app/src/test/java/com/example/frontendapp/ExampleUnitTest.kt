@@ -56,6 +56,7 @@ class AuthRemoteDataResourceTest {
         when (registerResult) {
             is Resource.Success -> {
                 println("✅ Usuario registrado correctamente: ${registerResult.data?.usuario}")
+
             }
             is Resource.Error -> {
                 println("❌ Error al registrar usuario: ${registerResult.message}")
@@ -76,6 +77,17 @@ class AuthRemoteDataResourceTest {
         )
 
         val result = authRemoteDataResource.registerUser(usuario)
+        when(result){
+            is Resource.Success -> {
+                val deleteResult = authRemoteDataResource.delete(usuario.email ?: "")
+                assertTrue(deleteResult is Resource.Success)
+            }
+            is Resource.Error -> {
+                print(result.message)
+            }
+            else -> {}
+
+        }
 
         assertTrue(result is Resource.Error)
         assertEquals("El correo electrónico no puede estar vacío.", (result as Resource.Error).message)
