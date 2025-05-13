@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.ui.theme.screens.BussinesMainScreen
 import com.example.frontendapp.ui.theme.screens.LocationScreen
 import com.example.frontendapp.ui.theme.screens.LoginScreen
 import com.example.frontendapp.ui.theme.screens.MainScreen
@@ -32,6 +33,8 @@ fun Navigator( modifier: Modifier = Modifier,
         composable(NavigationItem.NEGOCIO_CLIENTE.route) { NegocioClienteScrenn(navController,registerViewModel) }
         composable(NavigationItem.LOGIN.route) { LoginScreen(navController,loginViewModel) }
         composable(NavigationItem.LOCATION.route) { LocationScreen(navController) }
+        composable(NavigationItem.BUSSINES_MAIN.route) { BussinesMainScreen(navController) }
+
     }
 }
 

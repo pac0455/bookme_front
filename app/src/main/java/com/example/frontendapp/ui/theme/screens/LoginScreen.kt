@@ -45,6 +45,7 @@ import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.GoogleButton
 import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
 import androidx.compose.runtime.getValue
+import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.remote.source.Resource
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.loginViewModel
@@ -56,7 +57,14 @@ fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
     LaunchedEffect(loginState) {
         when (loginState) {
             is Resource.Success -> {
-                navController.navigate(NavigationItem.NEGOCIO_CLIENTE.route)
+                val result = loginState.data
+                Log.d("Inicar sesion", result?.usuario?.toString() ?: "Login beub")
+
+                val roles = loginState.data?.roles ?: emptyList()
+                when {
+                    roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.MAIN.route)
+                    roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                }
             }
             is Resource.Error -> {
                 Toast.makeText(context, loginState.message ?: "Login failed", Toast.LENGTH_SHORT).show()
@@ -128,6 +136,7 @@ fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
                     },
                     text = "Registrarse"
                 )
+
                 CustomBox(
                     borderTop = true,
                     borderBottom = true,

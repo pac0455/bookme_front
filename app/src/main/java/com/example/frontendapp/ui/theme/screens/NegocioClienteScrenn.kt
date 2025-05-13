@@ -36,6 +36,7 @@ import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
+import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
@@ -121,7 +122,8 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: regist
                     is Resource.Success -> {
                         val roles = result.data?.roles ?: emptyList()
                         when {
-                            roles.contains("NEGOCIO") -> navController.navigate(NavigationItem.REGISTER.route)
+                            roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.MAIN.route)
+                            roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
                         }
                     }
                     is Resource.Error -> {

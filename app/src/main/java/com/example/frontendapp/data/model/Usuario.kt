@@ -27,5 +27,5 @@ data class Usuario(
     @SerializedName("fecha_registro")
     val fechaRegistro: Date? = null,
     @SerializedName("IsNegocio")
-    val isNegocio: Boolean = true
+    val isNegocio: Boolean = false
 )
