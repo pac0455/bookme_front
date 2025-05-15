@@ -8,11 +8,13 @@ import androidx.navigation.compose.composable
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.ui.theme.screens.BussinesMainScreen
-import com.example.frontendapp.ui.theme.screens.LocationScreen
 import com.example.frontendapp.ui.theme.screens.LoginScreen
 import com.example.frontendapp.ui.theme.screens.MainScreen
+import com.example.frontendapp.ui.theme.screens.MapaScreen
 import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
+import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
+import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.loginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
 
@@ -23,6 +25,7 @@ fun Navigator( modifier: Modifier = Modifier,
     //Logica de navegacion
     val registerViewModel = registerViewModel(AuthRemoteDataResource(RetrofitInstance.api))
     val loginViewModel = loginViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+    val negocioViewModel = NegocioViewModel()
 
     NavHost(modifier = modifier,
         navController = navController,
@@ -32,8 +35,10 @@ fun Navigator( modifier: Modifier = Modifier,
         composable(NavigationItem.REGISTER.route) { RegisterScreen(navController,registerViewModel) }
         composable(NavigationItem.NEGOCIO_CLIENTE.route) { NegocioClienteScrenn(navController,registerViewModel) }
         composable(NavigationItem.LOGIN.route) { LoginScreen(navController,loginViewModel) }
-        composable(NavigationItem.LOCATION.route) { LocationScreen(navController) }
+        composable(NavigationItem.LOCATION.route) { NegocioFormScreen(navController,negocioViewModel) }
         composable(NavigationItem.BUSSINES_MAIN.route) { BussinesMainScreen(navController) }
+        composable(NavigationItem.MAP_SELECT.route) { MapaScreen(navController) }
+
 
     }
 }

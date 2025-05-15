@@ -33,34 +33,37 @@ import com.example.frontendapp.ui.theme.FrontendappTheme
 @Composable
 fun CustomTextField(
     modifier: Modifier = Modifier,
-    icon: ImageVector,
+    icon: ImageVector? = null,
     label: String,
     value: String,
     isPassword: Boolean = false,
     onValueChange: (String) -> Unit,
-    ) {
+) {
     TextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        trailingIcon = { Icon(
-            modifier = Modifier.scale(1.4f),
-            imageVector = icon,
-            tint = Color.Black,
-            contentDescription = label) },
-
+        trailingIcon = icon?.let { nonNullIcon ->
+            {
+                Icon(
+                    modifier = Modifier.scale(1.4f),
+                    imageVector = nonNullIcon,
+                    tint = Color.Black,
+                    contentDescription = label
+                )
+            }
+        },
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         modifier = modifier
-            .fillMaxWidth(1f)
+            .fillMaxWidth()
             .background(Color.Transparent),
         colors = TextFieldDefaults.textFieldColors(
-
             unfocusedIndicatorColor = Color.Black,
             containerColor = Color.Transparent
         ),
-
     )
 }
+
 @Preview(showBackground = true)
 @Composable
 fun CustomTextFieldPreview(){
