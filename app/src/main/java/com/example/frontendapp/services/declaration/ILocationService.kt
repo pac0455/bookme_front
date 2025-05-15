@@ -1,7 +1,5 @@
 package com.example.frontendapp.services.declaration
 
-import kotlinx.coroutines.flow.Flow
-
 //interface ILocationService {
 //   fun requestLocationUpdates(): Flow<LatLng?>
 //   fun requestCurrentLocation(): Flow<LatLng?>

@@ -43,7 +43,6 @@ import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomBox
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.GoogleButton
-import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
 import androidx.compose.runtime.getValue
 import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.remote.source.Resource

@@ -4,7 +4,6 @@ import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.reponses.DeleteResponse
 import com.example.frontendapp.data.remote.request.LoginRequest
-import com.example.frontendapp.data.remote.source.Resource
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE

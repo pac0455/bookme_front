@@ -3,7 +3,6 @@ package com.example.frontendapp.data.remote.source
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.api.UserApi
-import com.example.frontendapp.data.remote.reponses.DeleteResponse
 import com.example.frontendapp.data.remote.request.LoginRequest
 
 class AuthRemoteDataResource(private val userApi: UserApi) {
