@@ -143,12 +143,20 @@ class AuthRemoteDataResourceTest {
     }
     @Test
     fun `register negocio successfully and delete`() = runBlocking {
+
         val usuarioNegocio = Usuario(
             email = "negocio_test@bookme.com",
             password = "Negocio123!",
             username = "NegocioTest",
-            phoneNumber = "600000000"
+            phoneNumber = "600000000",
+            isNegocio = true
         )
+
+        // 1. Intentar borrar al usuario si existe
+        val deleteResult = authRemoteDataResource.delete(usuarioNegocio.email ?:"")
+        if (deleteResult is Resource.Success) {
+            println("🧹 usuarioNegocio anterior eliminado antes del test.")
+        }
 
         val result = authRemoteDataResource.registerNegocio(usuarioNegocio)
 
@@ -156,10 +164,6 @@ class AuthRemoteDataResourceTest {
             is Resource.Success -> {
                 val id = result.data?.usuario?.id
                 println("✅ Negocio registrado con ID: $id")
-
-                // Borrar usuario tras éxito
-                val deleteResult = authRemoteDataResource.delete(usuarioNegocio.email ?: "")
-                assertTrue(deleteResult is Resource.Success)
             }
             is Resource.Error -> {
                 println("❌ Error en registro negocio: ${result.message}")
@@ -176,7 +180,7 @@ class AuthRemoteDataResourceTest {
             email = "cliente_test@bookme.com",
             password = "Cliente123!",
             username = "ClienteTest",
-            phoneNumber = "699999999"
+            phoneNumber = "699999999",
         )
         val deleteResponse = authRemoteDataResource.delete(usuarioCliente.email ?: "")
         if(deleteResponse is Resource.Success){

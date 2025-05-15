@@ -52,12 +52,13 @@ import com.example.frontendapp.ui.theme.viewmodels.loginViewModel
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
     val loginState by loginViewModel.loginState.collectAsState()
+    val usuario by loginViewModel.usuarioState.collectAsState()
     val context = LocalContext.current
     LaunchedEffect(loginState) {
         when (loginState) {
             is Resource.Success -> {
                 val result = loginState.data
-                Log.d("Inicar sesion", result?.usuario?.toString() ?: "Login beub")
+                Log.d("Inicar sesion existoso", result?.usuario?.toString() ?: "Login beub")
 
                 val roles = loginState.data?.roles ?: emptyList()
                 when {
@@ -68,6 +69,8 @@ fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
             is Resource.Error -> {
                 Toast.makeText(context, loginState.message ?: "Login failed", Toast.LENGTH_SHORT).show()
                 Log.d("Inicar sesion", loginState.message?: "Login failed")
+                Log.d("Inicar sesion",usuario.toString())
+
             }
             else -> {
 
@@ -108,7 +111,7 @@ fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                val usuario by loginViewModel.usuarioState.collectAsState()
+
 
                 CustomTextField(
                     icon = Icons.Default.Person,
@@ -133,7 +136,7 @@ fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
                     onClick = {
                         loginViewModel.loginUsuario()
                     },
-                    text = "Registrarse"
+                    text = "Iniciar Sesión"
                 )
 
                 CustomBox(
