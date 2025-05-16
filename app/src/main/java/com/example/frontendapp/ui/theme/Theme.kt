@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 public val MyLightColorScheme  = lightColorScheme(
-    primary = Color(0xFF6200EE),
+    primary = Principal,
     onPrimary = Color.White,
     background = Color(0xFFF2F2F2),
     onBackground = Color.Black,
@@ -25,7 +25,7 @@ public val MyLightColorScheme  = lightColorScheme(
 public val MyDarkColorScheme = darkColorScheme(
     primary = Color(0xFFBB86FC),
     onPrimary = Color.Black,
-    background = Color(0xFF121212),
+    background = Color(0xFF1516A4),
     onBackground = Color.White,
     surface = Color(0xFF1F1F1F),
     onSurface = Color.White,
@@ -44,7 +44,7 @@ fun FrontendappTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> MyDarkColorScheme
-        else -> MyDarkColorScheme
+        else -> MyLightColorScheme
     }
 
     MaterialTheme(

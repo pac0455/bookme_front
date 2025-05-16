@@ -37,6 +37,7 @@ fun CustomTextField(
     label: String,
     value: String,
     isPassword: Boolean = false,
+    enabled: Boolean = true,
     onValueChange: (String) -> Unit,
 ) {
     TextField(
@@ -53,6 +54,7 @@ fun CustomTextField(
                 )
             }
         },
+        enabled = enabled,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         modifier = modifier
             .fillMaxWidth()

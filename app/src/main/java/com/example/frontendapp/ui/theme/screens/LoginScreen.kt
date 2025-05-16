@@ -72,9 +72,7 @@ fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
                 Log.d("Inicar sesion",usuario.toString())
 
             }
-            else -> {
-
-            }
+            else -> {}
         }
     }
 

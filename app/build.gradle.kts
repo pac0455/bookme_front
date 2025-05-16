@@ -89,6 +89,9 @@ dependencies {
     //google maps
     implementation("com.google.maps.android:maps-compose:2.11.4")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+    //Acceder a mi ubicacion actual
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
 
 
 }

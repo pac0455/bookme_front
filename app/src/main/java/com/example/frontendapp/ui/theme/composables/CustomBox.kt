@@ -26,7 +26,6 @@ fun CustomBoxPreview() {
         borderLeft = true,
         borderRight = true,
         msg = "ejemplo",
-
     )
 }
 

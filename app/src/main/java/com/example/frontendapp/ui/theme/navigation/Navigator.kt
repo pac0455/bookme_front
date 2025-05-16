@@ -37,7 +37,7 @@ fun Navigator( modifier: Modifier = Modifier,
         composable(NavigationItem.LOGIN.route) { LoginScreen(navController,loginViewModel) }
         composable(NavigationItem.LOCATION.route) { NegocioFormScreen(navController,negocioViewModel) }
         composable(NavigationItem.BUSSINES_MAIN.route) { BussinesMainScreen(navController) }
-        composable(NavigationItem.MAP_SELECT.route) { MapaScreen(navController) }
+        composable(NavigationItem.MAP_SELECT.route) { MapaScreen(navController,negocioViewModel) }
 
 
     }

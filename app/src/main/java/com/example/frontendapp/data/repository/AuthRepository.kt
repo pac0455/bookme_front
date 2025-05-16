@@ -9,5 +9,5 @@ class AuthRepository(private val remote: AuthRemoteDataResource) {
     suspend fun signupGoogle(usuario: Usuario) = remote.signupWithGoogle(usuario)
     suspend fun signup(usuario: Usuario) = remote.registerUser(usuario)
     suspend fun loginWithGoogle(token: String) = remote.loginWithGoogle(token)
-    suspend fun login(usuario: LoginRequest) = remote.login(usuario)
+
 }
