@@ -31,7 +31,7 @@ import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.MySwitch
-import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
+import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
@@ -43,7 +43,7 @@ import com.example.frontendapp.ui.theme.navigation.NavigationItem
 
 
 @Composable
-fun NegocioClienteScrenn(navController: NavController, registerViewModel: registerViewModel){
+fun NegocioClienteScrenn(navController: NavController, registerViewModel: RegisterViewModel){
     var isBusiness by remember { mutableStateOf(false) }
     val registerState by registerViewModel.registerState.collectAsState()
 
@@ -140,7 +140,7 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: regist
 fun PreviewNegocioClienteScrenn(){
     FrontendappTheme {
         val navController = rememberNavController()
-        val usuarioViewModel = registerViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuarioViewModel = RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.api))
         NegocioClienteScrenn(navController, usuarioViewModel)
     }
 }

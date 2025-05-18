@@ -50,16 +50,19 @@ fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel)
     var selectedLocation by remember { mutableStateOf<LatLng?>(null) }
 
     LaunchedEffect(Unit) {
+        //revisar permisos
         val permisoConcedido = ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-
+        //Sino paro la ejcucion asi
         if (!permisoConcedido) return@LaunchedEffect
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            //Con `let` solo si no es nulo ejecuto su bloque de codigo
             location?.let {
                 val nuevaUbicacion = LatLng(it.latitude, it.longitude)
                 ubicacion = nuevaUbicacion
+                //Actualizo la camara de google maps
                 cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(nuevaUbicacion, 15f))
             } ?: Toast.makeText(context, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
         }

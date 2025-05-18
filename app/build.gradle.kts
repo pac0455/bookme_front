@@ -42,19 +42,45 @@ android {
 }
 
 dependencies {
-
+    // Básicas
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Compose BOM
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation(libs.firebase.auth)
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.googleid)
+
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.9.0")
+
+    // Maps
+    implementation("com.google.maps.android:maps-compose:3.1.0")
+    implementation("com.google.android.gms:play-services-maps:19.2.0")
+
+    // Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // Retrofit & JSON
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.gson)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Google Identity SDK: Sign-in with Google via Android Credential Manager
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // Optional: Jetpack Credentials for federated sign-in
+    implementation("androidx.credentials:credentials-play-services-auth:1.0.0-alpha01")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -62,36 +88,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-
-    // Retrofit para llamadas HTTP
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation (libs.gson)
-
-    // Corrutinas
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-
-    //Fuentes
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.8")
-
-    //Nav
-    implementation("androidx.navigation:navigation-compose:2.8.9")
-    //Google auth
-
-    //firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
-
-    implementation("com.google.firebase:firebase-auth-ktx")
-    //datastore
-    implementation ("androidx.datastore:datastore-preferences:1.1.6")
-    implementation ("androidx.datastore:datastore-preferences-core:1.1.6")
-    //google maps
-    implementation("com.google.maps.android:maps-compose:2.11.4")
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
-    //Acceder a mi ubicacion actual
-    implementation("com.google.android.gms:play-services-location:21.0.1")
-
-
-
 }

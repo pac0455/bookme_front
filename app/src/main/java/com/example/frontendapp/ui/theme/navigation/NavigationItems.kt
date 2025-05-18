@@ -7,7 +7,8 @@ enum class Screen {
     NEGOCIO_CLIENTE,
     LOCATION,
     BUSSINES_MAIN,
-    MAP_SELECT
+    MAP_SELECT,
+    HORARIO_FORM
 }
 sealed class NavigationItem(val route: String) {
     data object REGISTER : NavigationItem(Screen.REGISTER.name)
@@ -17,4 +18,6 @@ sealed class NavigationItem(val route: String) {
     data object LOCATION : NavigationItem(Screen.LOCATION.name)
     data object BUSSINES_MAIN : NavigationItem(Screen.BUSSINES_MAIN.name)
     data object MAP_SELECT: NavigationItem(Screen.MAP_SELECT.name)
+    data object HORARIO_FORM: NavigationItem(Screen.HORARIO_FORM.name)
+
 }

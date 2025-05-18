@@ -1,11 +1,9 @@
 package com.example.frontendapp.ui.theme.screens
 
-import android.Manifest
-import android.content.pm.PackageManager
+
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,69 +39,76 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.CustomBox
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioViewModel ) {
+fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioViewModel,enableGeocoder: Boolean = true ) {
     val context = LocalContext.current
-    val geoCoder = Geocoder(context, Locale.getDefault())
+    val geoCoder = remember(context, enableGeocoder) {
+        if (enableGeocoder) Geocoder(context, Locale.getDefault()) else null
+    }
+
     val negocio = negocioViewModel.negocio
     val categorias = listOf("Salón", "Clínica", "Gimnasio", "Otro")
     var categoriaExpanded by remember { mutableStateOf(false) }
 
     // Si hay una ubicación, usar Geocoder para obtener la dirección
-    LaunchedEffect(negocio.latitud, negocio.longitud) {
-        val ubi = LatLng(negocio.latitud ?: 0.0, negocio.longitud ?: 0.0)
-        if (ubi.latitude != 0.0 && negocio.longitud != 0.0) {
-            try {
+
+        LaunchedEffect(negocio.latitud, negocio.longitud) {
+            val ubi = LatLng(negocio.latitud ?: 0.0, negocio.longitud ?: 0.0)
+            if (ubi.latitude != 0.0 && ubi.longitude != 0.0) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geoCoder.getFromLocation(
-                        ubi.latitude  ,
+                    geoCoder?.getFromLocation(
+                        ubi.latitude,
                         ubi.longitude,
                         1,
                         object : Geocoder.GeocodeListener {
-                        override fun onGeocode(addresses: MutableList<Address>) {
-                            val direccion = addresses.firstOrNull()?.getAddressLine(0)
-                            direccion?.let {
-                                negocioViewModel.updateField { copy(direccion = it) }
+                            override fun onGeocode(addresses: MutableList<Address>) {
+                                val direccion = addresses.firstOrNull()?.getAddressLine(0)
+                                direccion?.let {
+                                    negocioViewModel.updateField { copy(direccion = it) }
+                                }
                             }
-                        }
 
-                        override fun onError(errorMessage: String?) {
-                            Toast.makeText(context, "Error al obtener dirección", Toast.LENGTH_SHORT).show()
+                            override fun onError(errorMessage: String?) {}
                         }
-                    })
+                    )
                 } else {
                     @Suppress("DEPRECATION")
-                    val addresses = geoCoder.getFromLocation(ubi.latitude, ubi.longitude, 1)
+                    val addresses = geoCoder?.getFromLocation(ubi.latitude, ubi.longitude, 1)
                     val direccion = addresses?.firstOrNull()?.getAddressLine(0)
                     direccion?.let {
                         negocioViewModel.updateField { copy(direccion = it) }
                     }
                 }
-            } catch (e: Exception) {
-                Toast.makeText(context, "No se pudo obtener la dirección", Toast.LENGTH_SHORT).show()
             }
         }
-    }
     Scaffold(
         topBar = {
             TopBarBussines()
         },
-        modifier = Modifier.fillMaxSize()
+        bottomBar = {
+            // Este botón queda SIEMPRE abajo
+            BtnStyle1(
+                text = "Siguiente",
+                onClick = {
+                    navController.navigate(NavigationItem.MAP_SELECT.route)
+                },
+                icon = Icons.Default.ArrowForward,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+        }
+
     ) { innerPadding ->
-
-
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -164,6 +170,7 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                         }
                     }
                 }
+
                 //Ubicación
                 BtnStyle1(
                     text = "Elegir ubicación",
@@ -176,10 +183,33 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
     }
 }
 
+
+@Preview(showBackground = true)
 @Composable
-@Preview
-fun LocationPreviewScreen(){
+fun NegocioFormScreenPreview() {
+    // 1. Creas una instancia REAL de NegocioViewModel
+    val viewModelForPreview = remember {
+        NegocioViewModel().apply {
+            // 2. Configuras datos de prueba directamente
+            updateField {
+                copy(
+                    nombre = "Peliquería Preview",
+                    descripcion = "Descripción de prueba para el preview",
+                    direccion = "Calle Falsa 123",
+                    categoria = "Salón",
+                    latitud = null,  // Importante para evitar Geocoder en preview
+                    longitud = null
+                )
+            }
+        }
+    }
+
+    // 3. Pasas la instancia real al composable
     FrontendappTheme {
-        NegocioFormScreen(navController = rememberNavController(), negocioViewModel = NegocioViewModel())
+        NegocioFormScreen(
+            navController = rememberNavController(),
+            negocioViewModel = viewModelForPreview,  // <- Tipo correcto: NegocioViewModel
+            enableGeocoder = false  // Desactivas Geocoder para el preview
+        )
     }
 }

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class loginViewModel(private  val auth: AuthRemoteDataResource): ViewModel() {
+class LoginViewModel(private  val auth: AuthRemoteDataResource): ViewModel() {
     // Estado del usuario
     private val _usuarioState = MutableStateFlow(Usuario())
     val usuarioState: StateFlow<Usuario> = _usuarioState

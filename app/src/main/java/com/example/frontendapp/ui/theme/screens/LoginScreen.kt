@@ -47,10 +47,10 @@ import androidx.compose.runtime.getValue
 import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.remote.source.Resource
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.example.frontendapp.ui.theme.viewmodels.loginViewModel
+import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 
 @Composable
-fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
+fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
     val loginState by loginViewModel.loginState.collectAsState()
     val usuario by loginViewModel.usuarioState.collectAsState()
     val context = LocalContext.current
@@ -153,7 +153,7 @@ fun LoginScreen(navController: NavController, loginViewModel: loginViewModel){
 @Composable
 fun LoginScreenPreview() {
     FrontendappTheme {
-        val usuario = loginViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuario = LoginViewModel(AuthRemoteDataResource(RetrofitInstance.api))
         LoginScreen(navController = rememberNavController(),usuario)
     }
 }

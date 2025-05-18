@@ -30,11 +30,11 @@ import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.GoogleButton
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.example.frontendapp.ui.theme.viewmodels.registerViewModel
+import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 
 
 @Composable
-fun RegisterScreen(navController: NavController, usuarioViewModel:  registerViewModel) {
+fun RegisterScreen(navController: NavController, usuarioViewModel:  RegisterViewModel) {
     val context = LocalContext.current
 
     Scaffold(
@@ -134,7 +134,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  registerView
 @Composable
 fun RegisterScreenPreview() {
     FrontendappTheme {
-        val usuario= registerViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuario= RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.api))
         RegisterScreen(navController = rememberNavController(),usuario)
     }
 }

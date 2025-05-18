@@ -22,9 +22,6 @@ import androidx.compose.ui.unit.dp
 fun CustomBoxPreview() {
     CustomBox(
         borderTop = true,
-        borderBottom = true,
-        borderLeft = true,
-        borderRight = true,
         msg = "ejemplo",
     )
 }
@@ -37,6 +34,7 @@ fun CustomBox(
     borderTop: Boolean = false,
     borderBottom: Boolean = false,
     msg: String = "ejemplo",
+    border: Boolean=false,
     strokeColor: Color = Color.Black
 ) {
     val indicatorWidth = 1.dp
@@ -47,46 +45,51 @@ fun CustomBox(
             .fillMaxWidth()
             .drawBehind {
                 val strokeWidth = indicatorWidth.toPx()
+                val drawTop = border || borderTop
+                val drawBottom = border || borderBottom
+                val drawLeft = border || borderLeft
+                val drawRight = border || borderRight
+                    // Top
+                    if (drawTop) {
+                        drawLine(
+                            color = strokeColor,
+                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            end = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                            strokeWidth = strokeWidth
+                        )
+                    }
 
-                // Top
-                if (borderTop) {
-                    drawLine(
-                        color = strokeColor,
-                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                        end = androidx.compose.ui.geometry.Offset(size.width, 0f),
-                        strokeWidth = strokeWidth
-                    )
-                }
+                    // Bottom
+                    if (drawBottom) {
+                        drawLine(
+                            color = strokeColor,
+                            start = androidx.compose.ui.geometry.Offset(0f, size.height),
+                            end = androidx.compose.ui.geometry.Offset(size.width, size.height),
+                            strokeWidth = strokeWidth
+                        )
+                    }
 
-                // Bottom
-                if (borderBottom) {
-                    drawLine(
-                        color = strokeColor,
-                        start = androidx.compose.ui.geometry.Offset(0f, size.height),
-                        end = androidx.compose.ui.geometry.Offset(size.width, size.height),
-                        strokeWidth = strokeWidth
-                    )
-                }
+                    // Left
+                    if (drawLeft) {
+                        drawLine(
+                            color = strokeColor,
+                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            end = androidx.compose.ui.geometry.Offset(0f, size.height),
+                            strokeWidth = strokeWidth
+                        )
+                    }
 
-                // Left
-                if (borderLeft) {
-                    drawLine(
-                        color = strokeColor,
-                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                        end = androidx.compose.ui.geometry.Offset(0f, size.height),
-                        strokeWidth = strokeWidth
-                    )
-                }
+                    // Right
+                    if (drawRight) {
+                        drawLine(
+                            color = strokeColor,
+                            start = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                            end = androidx.compose.ui.geometry.Offset(size.width, size.height),
+                            strokeWidth = strokeWidth
+                        )
+                    }
 
-                // Right
-                if (borderRight) {
-                    drawLine(
-                        color = strokeColor,
-                        start = androidx.compose.ui.geometry.Offset(size.width, 0f),
-                        end = androidx.compose.ui.geometry.Offset(size.width, size.height),
-                        strokeWidth = strokeWidth
-                    )
-                }
+
             }
     ) {
         Box(
