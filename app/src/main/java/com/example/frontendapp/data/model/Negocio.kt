@@ -10,4 +10,6 @@ data class Negocio(
     var categoria: String = "",
     var horarioAtencion: String = "",
     var activo: Boolean = true
-)
+) {
+
+}

@@ -40,7 +40,7 @@ fun Navigator( modifier: Modifier = Modifier,
         composable(NavigationItem.LOCATION.route) { NegocioFormScreen(navController,negocioViewModel) }
         composable(NavigationItem.BUSSINES_MAIN.route) { BussinesMainScreen(navController) }
         composable(NavigationItem.MAP_SELECT.route) { MapaScreen(navController,negocioViewModel) }
-        composable(NavigationItem.HORARIO_FORM.route) { HorarioForm(navController) }
+        composable(NavigationItem.HORARIO_FORM.route) { HorarioForm(navController, negocioViewModel) }
 
 
 
