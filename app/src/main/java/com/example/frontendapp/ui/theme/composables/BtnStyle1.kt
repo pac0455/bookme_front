@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -18,8 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.ui.theme.Principal_variacion3
 
@@ -32,11 +35,14 @@ enum class IconPosition{
 @Composable
 fun BtnStyle1(
     modifier: Modifier = Modifier,
+    iconSize: Dp = 34.dp,
     onClick: () -> Unit,
     text: String = "Ejemplo",
     icon: ImageVector? = null,
     iconPosition: IconPosition? = IconPosition.START,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    containerColor: Color = Principal_variacion3,
+    shape: Shape = RectangleShape
 ) {
     val horizontalArrangement = when (horizontalAlignment) {
         Alignment.Start -> Arrangement.Start
@@ -50,42 +56,51 @@ fun BtnStyle1(
             .padding(8.dp)
             .shadow(
                 elevation = 20.dp,
-                shape = RoundedCornerShape(16.dp),
+                shape = shape,
                 clip = false,
                 spotColor = Color.Black
             ),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Principal_variacion3,
+            containerColor = containerColor,
             contentColor = Color.White
         ),
-        shape = RectangleShape,
+        shape = shape,
         onClick = onClick
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(), // 👈 aquí está el cambio clave
-            horizontalArrangement = horizontalArrangement,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = if (text.isEmpty()) Arrangement.Center else horizontalArrangement,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (icon != null && iconPosition == IconPosition.START) {
+            if (icon != null && (iconPosition == IconPosition.START || text.isEmpty())) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier
+                        .padding(end = if (text.isNotEmpty()) 8.dp else 0.dp)
+                        .size(iconSize)
                 )
             }
 
-            Text(text)
+            if (text.isNotEmpty()) {
+                Text(text)
+            }
 
-            if (icon != null && iconPosition == IconPosition.END) {
+            if (icon != null && iconPosition == IconPosition.END && text.isNotEmpty()) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .size(iconSize)
                 )
             }
         }
     }
 }
+
+
+
 
 
 

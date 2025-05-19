@@ -6,12 +6,16 @@ import android.location.Geocoder
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -39,9 +43,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import com.example.frontendapp.ui.theme.composables.BtnIconRounded
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomBox
+import com.example.frontendapp.ui.theme.composables.CustomMultilineTextField
 import com.example.frontendapp.ui.theme.composables.CustomTextField
+import com.example.frontendapp.ui.theme.composables.IconPosition
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.google.android.gms.maps.model.LatLng
 
@@ -95,18 +102,20 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
             TopBarBussines()
         },
         bottomBar = {
-            // Este botón queda SIEMPRE abajo
             BtnStyle1(
                 text = "Siguiente",
                 onClick = {
-                    navController.navigate(NavigationItem.MAP_SELECT.route)
+                    navController.navigate(NavigationItem.HORARIO_FORM.route)
                 },
+                iconPosition = IconPosition.END,
                 icon = Icons.Default.ArrowForward,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
+                    .navigationBarsPadding() // ✅ esto evita que se solape con la barra del sistema
             )
         }
+
 
     ) { innerPadding ->
         Column(
@@ -128,19 +137,42 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                     onValueChange = { negocioViewModel.updateField { copy(nombre = it) } }
                 )
 
-                CustomTextField(
+                CustomMultilineTextField(
                     value = negocio.descripcion,
                     onValueChange = { negocioViewModel.updateField { copy(descripcion = it) } },
-                    label =  "Descripción" ,
-                )
-                CustomTextField(
-                    value = negocio.direccion,
-                    enabled = false,
-                    onValueChange = { negocioViewModel.updateField { copy(direccion = it) } },
-                    label =  "Dirección" ,
+                    label = "Descripción"
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(15.dp)
+                ) {
+                    if (negocio.direccion.isNullOrEmpty()) {
+                        negocio.direccion = "Pulsa el icono para poder insertar una dirección"
+                    }
+
+                    CustomTextField(
+                        modifier = Modifier.weight(1f), // 🔁 equilibrado
+                        value = negocio.direccion,
+                        enabled = false,
+                        onValueChange = { negocioViewModel.updateField { copy(direccion = it) } },
+                        label = "Dirección"
+                    )
+
+                    BtnIconRounded(
+                        icon = Icons.Default.Place,
+                        onClick = {
+                            navController.navigate(NavigationItem.MAP_SELECT.route)
+                        },
+                        size = 56.dp,        //  tamaño fijo del botón
+                        iconSize = 24.dp     //  tamaño visible del icono
+                    )
+                }
+
+
+
+
 
                 // Selector de Categoría
                 ExposedDropdownMenuBox (
@@ -171,13 +203,7 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                     }
                 }
 
-                //Ubicación
-                BtnStyle1(
-                    text = "Elegir ubicación",
-                    onClick = {
-                        //Mandarlo a la pantalla de mapScreen
-                        navController.navigate(NavigationItem.MAP_SELECT.route)
-                    }, icon = Icons.Default.Place)
+
             }
         }
     }
@@ -194,8 +220,8 @@ fun NegocioFormScreenPreview() {
             updateField {
                 copy(
                     nombre = "Peliquería Preview",
-                    descripcion = "Descripción de prueba para el preview",
-                    direccion = "Calle Falsa 123",
+                    descripcion = "",
+                    direccion = "",
                     categoria = "Salón",
                     latitud = null,  // Importante para evitar Geocoder en preview
                     longitud = null
