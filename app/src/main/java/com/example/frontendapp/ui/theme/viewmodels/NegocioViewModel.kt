@@ -2,9 +2,8 @@ package com.example.frontendapp.ui.theme.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.frontendapp.data.model.Negocio
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.example.frontendapp.data.model.Horario
+import com.example.frontendapp.data.remote.source.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +15,11 @@ import javax.inject.Inject
 class NegocioViewModel @Inject constructor() : ViewModel() {
     private val _negocioState = MutableStateFlow(Negocio())
     val negocioState : StateFlow<Negocio> = _negocioState
+
+
+    // Estado de la llamada api
+    private val _negocioCreteState = MutableStateFlow<Resource<Negocio>>(Resource.None<Negocio>())
+    val negocioApiState: StateFlow<Resource<Negocio>> = _negocioCreteState
 
     fun setId(update: Int) {
         _negocioState.update { currentState -> currentState.copy(id = update) }
@@ -51,9 +55,6 @@ class NegocioViewModel @Inject constructor() : ViewModel() {
     fun setcategoria(update: String){
         _negocioState.update { currentState-> currentState.copy(categoria = update) }
     }
-
-
-
     fun setActivo(update: Boolean) {
         _negocioState.update { currentState -> currentState.copy(activo = update) }
     }
@@ -96,7 +97,5 @@ class NegocioViewModel @Inject constructor() : ViewModel() {
             current.copy(horarioAtencion = horariosActuales + nuevosHorarios)
         }
     }
-
-
 }
 
