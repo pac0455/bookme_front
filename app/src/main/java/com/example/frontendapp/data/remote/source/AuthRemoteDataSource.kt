@@ -3,6 +3,7 @@ package com.example.frontendapp.data.remote.source
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.api.UserApi
+import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.request.LoginRequest
 
 class AuthRemoteDataResource(private val userApi: UserApi) {
@@ -35,7 +36,7 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
         // Implementación para iniciar sesión con Google
     }
 
-    suspend fun getAll(): Resource<List<Usuario>>{
+    suspend fun getAll(): Resource<List<Usuario>> {
         return try {
             val response = userApi.getAll()
 

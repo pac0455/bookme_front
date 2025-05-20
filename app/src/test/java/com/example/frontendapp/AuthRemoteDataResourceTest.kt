@@ -8,7 +8,7 @@ import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
-import com.example.frontendapp.data.remote.source.Resource
+import com.example.frontendapp.data.remote.reponses.Resource
 import kotlinx.coroutines.runBlocking
 
 class AuthRemoteDataResourceTest {
@@ -204,5 +204,4 @@ class AuthRemoteDataResourceTest {
 
         assertTrue(result is Resource.Success)
     }
-
 }

@@ -1,18 +1,18 @@
 package com.example.frontendapp.ui.theme.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.Negocio
 import com.example.frontendapp.data.model.Horario
-import com.example.frontendapp.data.remote.source.Resource
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.reponses.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 
-@HiltViewModel
-class NegocioViewModel @Inject constructor() : ViewModel() {
+class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource) : ViewModel() {
     private val _negocioState = MutableStateFlow(Negocio())
     val negocioState : StateFlow<Negocio> = _negocioState
 
@@ -97,5 +97,17 @@ class NegocioViewModel @Inject constructor() : ViewModel() {
             current.copy(horarioAtencion = horariosActuales + nuevosHorarios)
         }
     }
+    fun addNegocioDB() {
+        viewModelScope.launch {
+            val state = negocioRemoteSource.addNegocio(_negocioState.value)
+            _negocioCreteState.value = state
+            if(_negocioCreteState.value is Resource.Success) resetNegocio()
+        }
+    }
+    fun resetNegocio() {
+        _negocioState.value = Negocio()
+        _negocioCreteState.value = Resource.None()
+    }
+
 }
 

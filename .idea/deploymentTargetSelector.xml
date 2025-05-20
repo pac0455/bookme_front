@@ -13,17 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="PreviewHorarioForm">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-05-19T14:30:46.334190400Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=286349f40121" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
     </selectionStates>
   </component>
 </project>

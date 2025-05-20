@@ -45,7 +45,7 @@ import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.GoogleButton
 import androidx.compose.runtime.getValue
 import com.example.frontendapp.data.model.ERol
-import com.example.frontendapp.data.remote.source.Resource
+import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 
@@ -134,7 +134,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
                     onClick = {
                         loginViewModel.loginUsuario()
                     },
-                    text = "Iniciar Sesión"
+                    text =  "Iniciar Sesión"
                 )
 
                 CustomBox(

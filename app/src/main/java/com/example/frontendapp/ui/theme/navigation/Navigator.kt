@@ -16,30 +16,49 @@ import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
 import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
+import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 
 @Composable
-fun Navigator( modifier: Modifier = Modifier,
-               navController: NavHostController,
-               startDestination: String = NavigationItem.MAIN.route) {
-    //Logica de navegacion
-    val registerViewModel = RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
-    val loginViewModel = LoginViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
-
-
-    NavHost(modifier = modifier,
+fun Navigator(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    startDestination: String = NavigationItem.MAIN.route,
+    loginViewModel: LoginViewModel,
+    registerViewModel: RegisterViewModel,
+    negocioViewModel: NegocioViewModel
+) {
+    NavHost(
+        modifier = modifier,
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(NavigationItem.MAIN.route) { MainScreen(navController) }
-        composable(NavigationItem.REGISTER.route) { RegisterScreen(navController,registerViewModel) }
-        composable(NavigationItem.NEGOCIO_CLIENTE.route) { NegocioClienteScrenn(navController,registerViewModel) }
-        composable(NavigationItem.LOGIN.route) { LoginScreen(navController,loginViewModel) }
-        composable(NavigationItem.LOCATION.route) { NegocioFormScreen(navController) }
-        composable(NavigationItem.BUSSINES_MAIN.route) { BussinesMainScreen(navController) }
-        composable(NavigationItem.MAP_SELECT.route) { MapaScreen(navController) }
-        composable(NavigationItem.HORARIO_FORM.route) { HorarioForm(navController) }
+        composable(NavigationItem.MAIN.route) {
+            MainScreen(navController)
+        }
+        composable(NavigationItem.REGISTER.route) {
+            RegisterScreen(navController, registerViewModel)
+        }
+        composable(NavigationItem.NEGOCIO_CLIENTE.route) {
+            NegocioClienteScrenn(navController, registerViewModel)
+        }
+        composable(NavigationItem.LOGIN.route) {
+            LoginScreen(navController, loginViewModel)
+        }
+        composable(NavigationItem.LOCATION.route) {
+            NegocioFormScreen(navController, negocioViewModel)
+        }
+        composable(NavigationItem.BUSSINES_MAIN.route) {
+            BussinesMainScreen(navController)
+        }
+        composable(NavigationItem.MAP_SELECT.route) {
+            MapaScreen(navController, negocioViewModel)
+        }
+        composable(NavigationItem.HORARIO_FORM.route) {
+            HorarioForm(navController, negocioViewModel)
+        }
     }
 }
+
 
 //reource: https://medium.com/@KaushalVasava/navigation-in-jetpack-compose-full-guide-beginner-to-advanced-950c1133740

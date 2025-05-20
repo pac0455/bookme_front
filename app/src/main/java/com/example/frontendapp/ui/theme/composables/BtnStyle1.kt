@@ -35,8 +35,8 @@ enum class IconPosition{
 @Composable
 fun BtnStyle1(
     modifier: Modifier = Modifier,
-    iconSize: Dp = 34.dp,
-    onClick: () -> Unit,
+
+    iconSize: Dp = 34.dp,    onClick: () -> Unit,
     text: String = "Ejemplo",
     icon: ImageVector? = null,
     iconPosition: IconPosition? = IconPosition.START,

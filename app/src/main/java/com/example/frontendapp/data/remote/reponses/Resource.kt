@@ -1,4 +1,4 @@
-package com.example.frontendapp.data.remote.source
+package com.example.frontendapp.data.remote.reponses
 
 
 // Clase que representa el estado de una llamada a cualquiera de las APIs

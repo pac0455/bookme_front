@@ -41,6 +41,7 @@ import com.google.android.gms.location.LocationServices
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.google.android.gms.maps.model.LatLng
 
 @OptIn(ExperimentalMaterial3Api::class)

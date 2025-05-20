@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
@@ -34,7 +33,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel = hiltViewModel()) {
+fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel) {
     val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 

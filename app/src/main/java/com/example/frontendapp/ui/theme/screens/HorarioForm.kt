@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,8 +33,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.frontendapp.data.model.Horario
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.composables.DaySelector
 import com.example.frontendapp.ui.theme.composables.HorarioList
 import com.example.frontendapp.ui.theme.composables.TimePickerButton
@@ -41,9 +45,12 @@ import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 @Composable
 fun HorarioForm(
     navController: NavController,
-    negocioViewModel: NegocioViewModel = hiltViewModel()
+    negocioViewModel: NegocioViewModel
 )
 {
+
+
+
     val negocio = negocioViewModel.negocioState.collectAsState().value
 
     val diasVisuales = listOf("L", "M", "X", "J", "V", "S", "D")
@@ -59,7 +66,50 @@ fun HorarioForm(
 
     var horarioEditando by remember { mutableStateOf<Horario?>(null) }
     val context = LocalContext.current
-    Scaffold(topBar = { TopBarBussines() }) { inner ->
+
+
+    val textBtnCrear ="Crear"
+    val createState by negocioViewModel.negocioApiState.collectAsState()
+    when (createState) {
+
+        is Resource.Success -> {
+            // Handle success state
+            LaunchedEffect(Unit) {
+                Toast.makeText(context, "Negocio cargado correctamente", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+        is Resource.Error -> {
+            Text(text = "Error: ${(createState as Resource.Error).message}")
+        }
+        else -> {
+            // Handle other states if necessary
+        }
+    }
+
+    Scaffold(
+
+        topBar = { TopBarBussines() },
+        bottomBar = {
+            BtnStyle1(
+                text = when (createState) {
+                    is Resource.Loading -> "Cargando..."
+                    is Resource.Success -> "Crear"
+                    is Resource.Error -> "Error: ${(createState as Resource.Error).message}"
+                    else -> "Crear"
+                },
+                onClick = {
+                    negocioViewModel.addNegocioDB()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .navigationBarsPadding() // esto evita que se solape con la barra del sistema
+            )
+        }
+
+
+    ) { inner ->
         Column(
             modifier = Modifier
                 .padding(inner)
@@ -218,6 +268,6 @@ fun horaToMinutos(hora: String): Int {
 @Composable
 fun PreviewHorarioForm(){
 FrontendappTheme {
-            HorarioForm(rememberNavController())
+            HorarioForm(rememberNavController(),  NegocioViewModel(NegocioRemoteSource(RetrofitInstance.negocioApi)))
     }
 }

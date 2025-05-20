@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
-import com.example.frontendapp.data.remote.source.Resource
+import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 
 

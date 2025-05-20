@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
-import com.example.frontendapp.data.remote.source.Resource
+import com.example.frontendapp.data.remote.reponses.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

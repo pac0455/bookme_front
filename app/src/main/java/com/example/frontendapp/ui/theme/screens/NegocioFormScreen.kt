@@ -7,15 +7,11 @@ import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -44,10 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.composables.BtnIconRounded
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
-import com.example.frontendapp.ui.theme.composables.CustomBox
 import com.example.frontendapp.ui.theme.composables.CustomMultilineTextField
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.IconPosition
@@ -58,7 +54,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioViewModel = hiltViewModel(), enableGeocoder: Boolean = true ) {
+fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioViewModel, enableGeocoder: Boolean = true ) {
     val context = LocalContext.current
     val negocio = negocioViewModel.negocioState.collectAsState().value
     val geoCoder = remember(context, enableGeocoder) {
@@ -220,7 +216,8 @@ fun NegocioFormScreenPreview() {
     // 3. Pasas la instancia real al composable
     FrontendappTheme {
         NegocioFormScreen(
-            navController = rememberNavController(),// <- Tipo correcto: NegocioViewModel
+            navController = rememberNavController(),// <- Tipo correcto: NegocioViewModel,
+            negocioViewModel = NegocioViewModel(NegocioRemoteSource(RetrofitInstance.negocioApi)),
             enableGeocoder = false  // Desactivas Geocoder para el preview
         )
     }
