@@ -13,7 +13,7 @@ import kotlinx.coroutines.runBlocking
 
 class AuthRemoteDataResourceTest {
 
-    private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.api)
+    private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.userApi)
 
     private val user = Usuario(
         email = "franhidalc@gmail.com",

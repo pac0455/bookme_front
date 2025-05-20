@@ -153,7 +153,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
 @Composable
 fun LoginScreenPreview() {
     FrontendappTheme {
-        val usuario = LoginViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuario = LoginViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
         LoginScreen(navController = rememberNavController(),usuario)
     }
 }

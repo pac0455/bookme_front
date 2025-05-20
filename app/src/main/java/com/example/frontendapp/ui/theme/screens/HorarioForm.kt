@@ -1,24 +1,22 @@
 package com.example.frontendapp.ui.theme.screens
 
-import android.app.TimePickerDialog
-import android.content.Context
+
 import android.util.Log
-import android.widget.TimePicker
+
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.layout.Arrangement
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -27,26 +25,27 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
-import com.example.frontendapp.ui.theme.composables.CustomBox
 import com.example.frontendapp.ui.theme.composables.TopBarBussines
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.frontendapp.data.model.Horario
-import com.example.frontendapp.data.model.Negocio
-import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.DaySelector
 import com.example.frontendapp.ui.theme.composables.HorarioList
 import com.example.frontendapp.ui.theme.composables.TimePickerButton
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
-import java.util.Calendar
 
 @Composable
-fun HorarioForm(navController: NavController, negocioViewModel: NegocioViewModel) {
+fun HorarioForm(
+    navController: NavController,
+    negocioViewModel: NegocioViewModel = hiltViewModel()
+)
+{
+    val negocio = negocioViewModel.negocioState.collectAsState().value
+
     val diasVisuales = listOf("L", "M", "X", "J", "V", "S", "D")
     val diasInternos = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
     val diasSeleccionados = remember { mutableStateListOf<String>() }
@@ -54,7 +53,8 @@ fun HorarioForm(navController: NavController, negocioViewModel: NegocioViewModel
     var horaInicioSeleccionada by remember { mutableStateOf<String?>(null) }
     var horaFinSeleccionada by remember { mutableStateOf<String?>(null) }
 
-    val horariosSeleccionados = remember { mutableStateListOf<Horario>() }
+    val horarios = negocio.horarioAtencion.orEmpty()
+
     val horariosMarcados = remember { mutableStateListOf<Horario>() }
 
     var horarioEditando by remember { mutableStateOf<Horario?>(null) }
@@ -128,64 +128,47 @@ fun HorarioForm(navController: NavController, negocioViewModel: NegocioViewModel
 
                 onClick = {
                     // Solo procede si se han seleccionado ambas horas
-                    if (horaInicioSeleccionada != null && horaFinSeleccionada != null) {
-                        val inicio = horaInicioSeleccionada!!
-                        val fin = horaFinSeleccionada!!
-
-                        // Validamos que NO haya solapamiento en ningún día seleccionado para que devuelva true
-                        val nuevoHorarioValido: Boolean = diasSeleccionados.all { dia ->
-                            //Filtra todos las horas de este dia de la semana
-                            val existentes = horariosSeleccionados.filter { it.diaSemana == dia }
-                            //
-                            !haySolapamiento(inicio, fin, existentes)
-                        }
-
-                        if (nuevoHorarioValido) {
-                            // Si estamos editando un horario existente
-                            if (horarioEditando != null) {
-                                val index = horariosSeleccionados.indexOf(horarioEditando)
-                                if (index != -1) {
-                                    // Reemplazamos el horario con los nuevos datos
-                                    horariosSeleccionados[index] = horarioEditando!!.copy(
-                                        horaInicio = inicio,
-                                        horaFin = fin
-                                    )
-                                }
-                                // Salimos del modo edición
-                                horarioEditando = null
-                            } else {
-                                // Si es un nuevo horario, lo añadimos para cada día seleccionado
-                                diasSeleccionados.forEach { dia ->
-                                    horariosSeleccionados.add(
-                                        Horario(
-                                            idNegocio = negocioViewModel.negocio.id,
-                                            diaSemana = dia,
-                                            horaInicio = inicio,
-                                            horaFin = fin
-                                        )
-                                    )
-                                }
-                            }
-                            // Limpiamos los valores seleccionados tras guardar
-                            horaInicioSeleccionada = null
-                            horaFinSeleccionada = null
-                            diasSeleccionados.clear()
-                        } else {
-                            // Si se detecta un solapamiento de horarios:
-                            println("⛔ Ya existe un horario que se solapa en ese día")
-                            Toast.makeText(
-                                context,
-                                "Ya existe un horario que se solapa en ese día",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                    if (horaInicioSeleccionada == null || horaFinSeleccionada == null) {
+                        // Si falta alguna hora, no hacemos nada
+                        return@BtnStyle1
                     }
+
+                    val inicio = horaInicioSeleccionada!!
+                    val fin = horaFinSeleccionada!!
+                    val horarios = negocio.horarioAtencion.orEmpty()
+
+                    val hayConflicto = diasSeleccionados.any { dia ->
+                        val existentes = horarios.filter { it.diaSemana == dia }
+                        haySolapamiento(inicio, fin, existentes)
+                    }
+
+                    if (hayConflicto) {
+                        Toast.makeText(
+                            context,
+                            "Ya existe un horario que se solapa en ese día",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@BtnStyle1
+                    }
+
+                    // No hay conflicto: editamos o añadimos
+                    if (horarioEditando != null) {
+                        negocioViewModel.editarHorario(horarioEditando!!, inicio, fin)
+                        horarioEditando = null
+                    } else {
+                        negocioViewModel.addHorarios(diasSeleccionados, inicio, fin)
+                    }
+
+                    // Limpiamos estado tras guardar
+                    horaInicioSeleccionada = null
+                    horaFinSeleccionada = null
+                    diasSeleccionados.clear()
                 })
 
             Spacer(modifier = Modifier.height(24.dp))
             Text("Horarios añadidos:")
             HorarioList(
-                horarios = horariosSeleccionados,
+                horarios = horarios,
                 horariosMarcados = horariosMarcados,
                 onEditar = { horario ->
                     horarioEditando = horario
@@ -193,7 +176,7 @@ fun HorarioForm(navController: NavController, negocioViewModel: NegocioViewModel
                     horaFinSeleccionada = horario.horaFin
                 },
                 onEliminar = { horariosAEliminar ->
-                    horariosSeleccionados.removeAll(horariosAEliminar)
+                    negocioViewModel.eliminarHorarios(horariosAEliminar)
                     horariosMarcados.removeAll(horariosAEliminar)
                 }
             )
@@ -235,6 +218,6 @@ fun horaToMinutos(hora: String): Int {
 @Composable
 fun PreviewHorarioForm(){
 FrontendappTheme {
-            HorarioForm(rememberNavController(), NegocioViewModel())
+            HorarioForm(rememberNavController())
     }
 }

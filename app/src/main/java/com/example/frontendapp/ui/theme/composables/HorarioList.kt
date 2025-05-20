@@ -35,7 +35,7 @@ import com.example.frontendapp.ui.theme.FrontendappTheme
 
 @Composable
 fun HorarioList(
-    horarios: SnapshotStateList<Horario>,
+    horarios: List<Horario>,
     horariosMarcados: SnapshotStateList<Horario>,
     onEditar: (Horario) -> Unit,
     onEliminar: (List<Horario>) -> Unit

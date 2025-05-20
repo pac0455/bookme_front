@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.frontendapp.ui.theme.composables.BtnIconRounded
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomBox
@@ -56,13 +58,14 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioViewModel,enableGeocoder: Boolean = true ) {
+fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioViewModel = hiltViewModel(), enableGeocoder: Boolean = true ) {
     val context = LocalContext.current
+    val negocio = negocioViewModel.negocioState.collectAsState().value
     val geoCoder = remember(context, enableGeocoder) {
         if (enableGeocoder) Geocoder(context, Locale.getDefault()) else null
     }
 
-    val negocio = negocioViewModel.negocio
+
     val categorias = listOf("Salón", "Clínica", "Gimnasio", "Otro")
     var categoriaExpanded by remember { mutableStateOf(false) }
 
@@ -80,7 +83,7 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                             override fun onGeocode(addresses: MutableList<Address>) {
                                 val direccion = addresses.firstOrNull()?.getAddressLine(0)
                                 direccion?.let {
-                                    negocioViewModel.updateField { copy(direccion = it) }
+                                    negocioViewModel.setDireccion(it)
                                 }
                             }
 
@@ -92,7 +95,7 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                     val addresses = geoCoder?.getFromLocation(ubi.latitude, ubi.longitude, 1)
                     val direccion = addresses?.firstOrNull()?.getAddressLine(0)
                     direccion?.let {
-                        negocioViewModel.updateField { copy(direccion = it) }
+                        negocioViewModel.setDireccion(it)
                     }
                 }
             }
@@ -112,7 +115,7 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .navigationBarsPadding() // ✅ esto evita que se solape con la barra del sistema
+                    .navigationBarsPadding() // esto evita que se solape con la barra del sistema
             )
         }
 
@@ -134,12 +137,12 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                 CustomTextField(
                     label = "Nombre",
                     value = negocio.nombre,
-                    onValueChange = { negocioViewModel.updateField { copy(nombre = it) } }
+                    onValueChange = { negocioViewModel.setNombre(it)  }
                 )
 
                 CustomMultilineTextField(
                     value = negocio.descripcion,
-                    onValueChange = { negocioViewModel.updateField { copy(descripcion = it) } },
+                    onValueChange = { negocioViewModel.setDescripcion(it)  },
                     label = "Descripción"
                 )
 
@@ -153,10 +156,10 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                     }
 
                     CustomTextField(
-                        modifier = Modifier.weight(1f), // 🔁 equilibrado
+                        modifier = Modifier.weight(1f),
                         value = negocio.direccion,
                         enabled = false,
-                        onValueChange = { negocioViewModel.updateField { copy(direccion = it) } },
+                        onValueChange = { negocioViewModel.setDireccion(it) },
                         label = "Dirección"
                     )
 
@@ -195,15 +198,13 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
                             DropdownMenuItem(
                                 text = { Text(it) },
                                 onClick = {
-                                    negocioViewModel.updateField { copy(categoria = it) }
+                                    negocioViewModel.setcategoria(it)
                                     categoriaExpanded = false
                                 }
                             )
                         }
                     }
                 }
-
-
             }
         }
     }
@@ -214,27 +215,12 @@ fun NegocioFormScreen(navController: NavController,negocioViewModel: NegocioView
 @Composable
 fun NegocioFormScreenPreview() {
     // 1. Creas una instancia REAL de NegocioViewModel
-    val viewModelForPreview = remember {
-        NegocioViewModel().apply {
-            // 2. Configuras datos de prueba directamente
-            updateField {
-                copy(
-                    nombre = "Peliquería Preview",
-                    descripcion = "",
-                    direccion = "",
-                    categoria = "Salón",
-                    latitud = null,  // Importante para evitar Geocoder en preview
-                    longitud = null
-                )
-            }
-        }
-    }
+
 
     // 3. Pasas la instancia real al composable
     FrontendappTheme {
         NegocioFormScreen(
-            navController = rememberNavController(),
-            negocioViewModel = viewModelForPreview,  // <- Tipo correcto: NegocioViewModel
+            navController = rememberNavController(),// <- Tipo correcto: NegocioViewModel
             enableGeocoder = false  // Desactivas Geocoder para el preview
         )
     }

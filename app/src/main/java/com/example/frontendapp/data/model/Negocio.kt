@@ -8,7 +8,7 @@ data class Negocio(
     var latitud: Double? = null,
     var longitud: Double? = null,
     var categoria: String = "",
-    var horarioAtencion: String = "",
+    var horarioAtencion: List<Horario> = listOf(),
     var activo: Boolean = true
 ) {
 

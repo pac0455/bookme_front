@@ -2,7 +2,6 @@ package com.example.frontendapp.ui.theme.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,7 +16,6 @@ import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
 import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
-import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 
 @Composable
@@ -25,9 +23,9 @@ fun Navigator( modifier: Modifier = Modifier,
                navController: NavHostController,
                startDestination: String = NavigationItem.MAIN.route) {
     //Logica de navegacion
-    val registerViewModel = RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.api))
-    val loginViewModel = LoginViewModel(AuthRemoteDataResource(RetrofitInstance.api))
-    val negocioViewModel = NegocioViewModel()
+    val registerViewModel = RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
+    val loginViewModel = LoginViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
+
 
     NavHost(modifier = modifier,
         navController = navController,
@@ -37,13 +35,10 @@ fun Navigator( modifier: Modifier = Modifier,
         composable(NavigationItem.REGISTER.route) { RegisterScreen(navController,registerViewModel) }
         composable(NavigationItem.NEGOCIO_CLIENTE.route) { NegocioClienteScrenn(navController,registerViewModel) }
         composable(NavigationItem.LOGIN.route) { LoginScreen(navController,loginViewModel) }
-        composable(NavigationItem.LOCATION.route) { NegocioFormScreen(navController,negocioViewModel) }
+        composable(NavigationItem.LOCATION.route) { NegocioFormScreen(navController) }
         composable(NavigationItem.BUSSINES_MAIN.route) { BussinesMainScreen(navController) }
-        composable(NavigationItem.MAP_SELECT.route) { MapaScreen(navController,negocioViewModel) }
-        composable(NavigationItem.HORARIO_FORM.route) { HorarioForm(navController, negocioViewModel) }
-
-
-
+        composable(NavigationItem.MAP_SELECT.route) { MapaScreen(navController) }
+        composable(NavigationItem.HORARIO_FORM.route) { HorarioForm(navController) }
     }
 }
 

@@ -140,7 +140,7 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
 fun PreviewNegocioClienteScrenn(){
     FrontendappTheme {
         val navController = rememberNavController()
-        val usuarioViewModel = RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuarioViewModel = RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
         NegocioClienteScrenn(navController, usuarioViewModel)
     }
 }

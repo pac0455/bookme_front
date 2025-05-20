@@ -134,7 +134,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  RegisterView
 @Composable
 fun RegisterScreenPreview() {
     FrontendappTheme {
-        val usuario= RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.api))
+        val usuario= RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
         RegisterScreen(navController = rememberNavController(),usuario)
     }
 }
