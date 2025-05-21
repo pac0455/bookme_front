@@ -150,11 +150,17 @@ fun NegocioScreen(
         }
 
 
-// Acciones rápidas
-        QuickActionsExpandable(
-            selectedContent = selectedContent,
-            onContentSelected = { selectedContent = it }
-        )
+        // Acciones rápidas
+        Column (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            QuickActionsExpandable(
+                selectedContent = selectedContent,
+                onContentSelected = { selectedContent = it }
+            )
+        }
+
 
 
 
