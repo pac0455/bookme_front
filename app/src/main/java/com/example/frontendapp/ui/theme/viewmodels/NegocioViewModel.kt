@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 open class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource) : ViewModel() {
 
-    private val _negocioState = MutableStateFlow(Negocio())
+    protected val _negocioState = MutableStateFlow(Negocio())
     val negocioState : StateFlow<Negocio> = _negocioState
 
 
@@ -123,7 +123,35 @@ open class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource
             }
         }
     }
+    open fun loadNegocioById(
+        id: Int,
+        onLoading: () -> Unit = {},
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            onLoading()
 
+            val result = negocioRemoteSource.getNegocio(id)
+            _negocioCreteState.value = result
+
+            when (result) {
+                is Resource.Success -> {
+                    val negocio = result.data
+                    if (negocio != null) {
+                        _negocioState.value = negocio
+                        onSuccess()
+                    } else {
+                        onError("Negocio no encontrado")
+                    }
+                }
+                is Resource.Error -> {
+                    onError(result.message ?: "Error desconocido al cargar el negocio")
+                }
+                else -> {} // Resource.None
+            }
+        }
+    }
 
     private fun resetNegocio() {
         _negocioState.value = Negocio()

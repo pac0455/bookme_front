@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitInstance {
 
     private var jwtToken: String? = null
-    private val server= "http://172.16.83.165:5000/"
+    private val server= "http://192.168.18.3:5000/"
     private val serverTest = "https://localhost:7211/"
 
     // Llama a esta función para actualizar el token cuando inicies sesión o refresques

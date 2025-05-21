@@ -100,4 +100,8 @@ dependencies {
 //    implementation("com.google.dagger:hilt-android:2.56.2")
 //    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 //    ksp("com.google.dagger:hilt-compiler:2.56.2")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    implementation("androidx.compose.material:material-icons-extended:1.7.7")
+
 }

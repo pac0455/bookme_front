@@ -10,6 +10,7 @@ val Principal_variacion2 = Color(0xFFA9CBBE)
 val Principal_variacion3 = Color(0xFF749F8F)
 val Principal_variacion4 = Color(0xFF9CAAA5)
 val Principal_variacion5 = Color(0xFF90BBB4)
+val Principal_variacion6 = Color(0xFFE1EAE7)
 
 val Secundario = Color(0xFF3A5A40)
 

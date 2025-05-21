@@ -1,19 +1,21 @@
 package com.example.frontendapp.ui.theme.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
-import com.example.frontendapp.ui.theme.screens.BussinesMainScreen
+import androidx.navigation.navArgument
+import com.example.frontendapp.ui.theme.screens.UsuarioNegocioMainScreen
 import com.example.frontendapp.ui.theme.screens.HorarioForm
 import com.example.frontendapp.ui.theme.screens.LoginScreen
 import com.example.frontendapp.ui.theme.screens.MainScreen
 import com.example.frontendapp.ui.theme.screens.MapaScreen
 import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
 import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
+import com.example.frontendapp.ui.theme.screens.NegocioScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
@@ -51,7 +53,7 @@ fun Navigator(
             NegocioFormScreen(navController, negocioViewModel)
         }
         composable(NavigationItem.BUSSINES_MAIN.route) {
-            BussinesMainScreen(navController, bussinesMainViewModel)
+            UsuarioNegocioMainScreen(navController, bussinesMainViewModel)
         }
         composable(NavigationItem.MAP_SELECT.route) {
             MapaScreen(navController, negocioViewModel)
@@ -59,6 +61,28 @@ fun Navigator(
         composable(NavigationItem.HORARIO_FORM.route) {
             HorarioForm(navController, negocioViewModel)
         }
+        composable(
+            route = "${Screen.NEGOCIO.name}/{negocioId}",
+            arguments = listOf(navArgument("negocioId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: 0
+
+            // Aquí puedes usar LaunchedEffect para llamar la carga solo cuando cambie el negocioId
+            LaunchedEffect(negocioId) {
+                if (negocioId != 0) {
+                    negocioViewModel.loadNegocioById(
+                        id = negocioId,
+                        onLoading = { /* mostrar loading UI si quieres */ },
+                        onSuccess = { /* ocultar loading UI */ },
+                        onError = { mensaje -> /* mostrar error UI */ }
+                    )
+                }
+            }
+
+            NegocioScreen(viewModel = negocioViewModel, navController = navController)
+        }
+
+
     }
 }
 

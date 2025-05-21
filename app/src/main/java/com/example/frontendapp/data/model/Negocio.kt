@@ -9,5 +9,6 @@ data class Negocio(
     var longitud: Double? = null,
     var categoria: String = "",
     var horarioAtencion: List<Horario> = listOf(),
-    var activo: Boolean = true
+    var activo: Boolean = true,
+    var logoUrl: String = "",
 )
