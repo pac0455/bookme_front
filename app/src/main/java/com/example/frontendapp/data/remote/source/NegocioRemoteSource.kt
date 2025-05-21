@@ -40,6 +40,14 @@ class NegocioRemoteSource(
             Resource.Error("Error de red: ${e.message}")
         }
     }
+    suspend fun getNegociosByUserId(): Resource<List<Negocio>> {
+        return try {
+            val response = negocioApi.getByUserId()
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Excepción: ${e.localizedMessage}")
+        }
+    }
 
     suspend fun getAllNegocios(): Resource<List<Negocio>> {
         return try {
@@ -49,6 +57,19 @@ class NegocioRemoteSource(
             Resource.Error("Error de red: ${e.message}")
         }
     }
+    suspend fun updateNegocioByNombre(negocio: Negocio): Resource<Unit> {
+        return try {
+            val response = negocioApi.updateByNombre(negocio.nombre, negocio)
+            if (response.isSuccessful) {
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Error ${response.code()}: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Resource.Error("Excepción: ${e.localizedMessage}")
+        }
+    }
+
 
     suspend fun updateNegocio(id: Int, negocio: Negocio): Resource<Unit> {
         val validationError = validateNegocio(negocio)

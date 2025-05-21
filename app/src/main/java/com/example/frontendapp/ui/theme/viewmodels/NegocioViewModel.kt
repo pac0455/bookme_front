@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 
 
 class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource) : ViewModel() {
+
     private val _negocioState = MutableStateFlow(Negocio())
     val negocioState : StateFlow<Negocio> = _negocioState
 
@@ -20,6 +21,8 @@ class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource) : V
     // Estado de la llamada api
     private val _negocioCreteState = MutableStateFlow<Resource<Negocio>>(Resource.None<Negocio>())
     val negocioApiState: StateFlow<Resource<Negocio>> = _negocioCreteState
+
+
 
     fun setId(update: Int) {
         _negocioState.update { currentState -> currentState.copy(id = update) }
@@ -97,14 +100,32 @@ class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource) : V
             current.copy(horarioAtencion = horariosActuales + nuevosHorarios)
         }
     }
-    fun addNegocioDB() {
+    fun addNegocioDB(
+        onLoading: () -> Unit = {},
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
         viewModelScope.launch {
+            onLoading()
+
             val state = negocioRemoteSource.addNegocio(_negocioState.value)
             _negocioCreteState.value = state
-            if(_negocioCreteState.value is Resource.Success) resetNegocio()
+
+            when (state) {
+                is Resource.Success -> {
+                    onSuccess()
+                    resetNegocio()
+                }
+                is Resource.Error -> {
+                    onError(state.message ?: "Error desconocido")
+                }
+                else -> {}
+            }
         }
     }
-    fun resetNegocio() {
+
+
+    private fun resetNegocio() {
         _negocioState.value = Negocio()
         _negocioCreteState.value = Resource.None()
     }

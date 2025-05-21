@@ -10,6 +10,4 @@ data class Negocio(
     var categoria: String = "",
     var horarioAtencion: List<Horario> = listOf(),
     var activo: Boolean = true
-) {
-
-}
+)

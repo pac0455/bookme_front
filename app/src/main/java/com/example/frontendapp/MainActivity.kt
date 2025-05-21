@@ -19,6 +19,7 @@ import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.navigation.Navigator
 import com.example.frontendapp.ui.theme.FrontendappTheme
+import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
@@ -46,13 +47,16 @@ class MainActivity : ComponentActivity() {
                     val loginViewModel: LoginViewModel = viewModel(factory = factory)
                     val registerViewModel: RegisterViewModel = viewModel(factory = factory)
                     val negocioViewModel: NegocioViewModel = viewModel(factory = factory)
+                    val bussinesMainViewModel: BussinesMainViewModel = viewModel(factory = factory)
+
 
                     // Navegación
                     Navigator(
                         navController = navController,
                         loginViewModel = loginViewModel,
                         registerViewModel = registerViewModel,
-                        negocioViewModel = negocioViewModel
+                        negocioViewModel = negocioViewModel,
+                        bussinesMainViewModel = bussinesMainViewModel
                     )
                 }
             }
@@ -64,7 +68,8 @@ class MainActivity : ComponentActivity() {
 
 class AppViewModelFactory(
     private val authRepo: AuthRemoteDataResource,
-    private val negocioRepo: NegocioRemoteSource
+    private val negocioRepo: NegocioRemoteSource,
+
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -78,6 +83,8 @@ class AppViewModelFactory(
 
             modelClass.isAssignableFrom(NegocioViewModel::class.java) ->
                 NegocioViewModel(negocioRepo) as T
+            modelClass.isAssignableFrom(BussinesMainViewModel::class.java) ->
+                BussinesMainViewModel(negocioRepo) as T
 
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }

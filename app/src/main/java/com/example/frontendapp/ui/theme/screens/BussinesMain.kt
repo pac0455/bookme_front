@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
@@ -37,44 +39,53 @@ import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.TopBarBussines
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.google.android.gms.location.LocationServices
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
-import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
-import com.google.android.gms.maps.model.LatLng
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.ui.theme.composables.NegocioList
+import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BussinesMainScreen(navController: NavController) {
-    //pedir permisos para conseguir la ubicacion por parametro y pasarla por parametro al composable
-    // MapaScreen
+fun BussinesMainScreen(
+    navController: NavController,
+    bussinesMainViewModel: BussinesMainViewModel
+) {
     val context = LocalContext.current
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    var ubicacion by remember { mutableStateOf<LatLng?>(null) }
-
-    //Launcher para pedir permisos
-    val locationPermissionLauncher  = rememberLauncherForActivityResult(
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        //Si no nos concede los permisos le decimos que no podremos ubicarlo en el mapa
-        if(!isGranted){
-            Toast.makeText(context, "Si no se permite la ubicación no se podra registrar un negocio",Toast.LENGTH_LONG ).show()
+        if (!isGranted) {
+            Toast.makeText(context, "Si no se permite la ubicación no se podrá registrar un negocio", Toast.LENGTH_LONG).show()
         }
-        //Segunda comprobacion recomendada por google
+
         val permisoConcedido = ContextCompat.checkSelfPermission(
             context, android.Manifest.permission.ACCESS_FINE_LOCATION
-        )== PackageManager.PERMISSION_GRANTED
-
+        ) == PackageManager.PERMISSION_GRANTED
 
         navController.navigate(NavigationItem.LOCATION.route)
-
     }
+
     Scaffold(
         topBar = {
             TopBarBussines()
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    locationPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                },
+                modifier = Modifier.size(60.dp),
+                shape = RoundedCornerShape(100.dp),
+                containerColor = Principal_variacion3
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Seleccionar ubicación",
+                    tint = Color.White
+                )
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -83,46 +94,38 @@ fun BussinesMainScreen(navController: NavController) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row (horizontalArrangement = Arrangement.Start){
+            Row(horizontalArrangement = Arrangement.Start) {
                 BtnStyle1(
                     Modifier.fillMaxWidth(0.8f),
-                    onClick = {},
+                    onClick = { /* lógica de configuración */ },
                     text = "Configuración",
                     icon = Icons.Default.Settings,
-                    horizontalAlignment = Alignment.Start)
-            }
-            Row(Modifier.fillMaxWidth().padding(top = 20.dp),
-                horizontalArrangement = Arrangement.Start) { Text("Locales") }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp), // margen desde el borde
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                FloatingActionButton(
-                    onClick = {
-                        locationPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    },
-                    modifier = Modifier.size(60.dp),
-                    shape = RoundedCornerShape(100.dp),
-                    containerColor = Principal_variacion3
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Seleccionar ubicación",
-                        tint = Color.White
-                    )
-                }
+                    horizontalAlignment = Alignment.Start
+                )
             }
 
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text("Locales")
+            }
+
+            // Aquí se llama a tu listado dinámico
+            NegocioList(bussinesMainViewModel = bussinesMainViewModel, navController = navController)
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
 fun MAinBussinesingPreview() {
     FrontendappTheme {
-        BussinesMainScreen(navController = rememberNavController())
+        BussinesMainScreen(navController = rememberNavController(), BussinesMainViewModel(
+            NegocioRemoteSource(RetrofitInstance.negocioApi)
+        ))
     }
 }

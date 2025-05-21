@@ -59,7 +59,10 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
             is Resource.Success -> {
                 val result = loginState.data
                 Log.d("Inicar sesion existoso", result?.usuario?.toString() ?: "Login beub")
-
+                val token = result?.token
+                if (!token.isNullOrEmpty()) {
+                    RetrofitInstance.setToken(token)
+                }
                 val roles = loginState.data?.roles ?: emptyList()
                 when {
                     roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.MAIN.route)

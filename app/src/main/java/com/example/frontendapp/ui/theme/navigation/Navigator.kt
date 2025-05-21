@@ -15,6 +15,7 @@ import com.example.frontendapp.ui.theme.screens.MapaScreen
 import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
 import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
+import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
@@ -26,7 +27,8 @@ fun Navigator(
     startDestination: String = NavigationItem.MAIN.route,
     loginViewModel: LoginViewModel,
     registerViewModel: RegisterViewModel,
-    negocioViewModel: NegocioViewModel
+    negocioViewModel: NegocioViewModel,
+    bussinesMainViewModel: BussinesMainViewModel
 ) {
     NavHost(
         modifier = modifier,
@@ -49,7 +51,7 @@ fun Navigator(
             NegocioFormScreen(navController, negocioViewModel)
         }
         composable(NavigationItem.BUSSINES_MAIN.route) {
-            BussinesMainScreen(navController)
+            BussinesMainScreen(navController, bussinesMainViewModel)
         }
         composable(NavigationItem.MAP_SELECT.route) {
             MapaScreen(navController, negocioViewModel)

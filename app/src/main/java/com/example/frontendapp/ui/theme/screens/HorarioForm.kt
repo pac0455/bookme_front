@@ -40,6 +40,7 @@ import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.composables.DaySelector
 import com.example.frontendapp.ui.theme.composables.HorarioList
 import com.example.frontendapp.ui.theme.composables.TimePickerButton
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 
 @Composable
@@ -68,43 +69,33 @@ fun HorarioForm(
     val context = LocalContext.current
 
 
-    val textBtnCrear ="Crear"
-    val createState by negocioViewModel.negocioApiState.collectAsState()
-    when (createState) {
-
-        is Resource.Success -> {
-            // Handle success state
-            LaunchedEffect(Unit) {
-                Toast.makeText(context, "Negocio cargado correctamente", Toast.LENGTH_SHORT).show()
-            }
-
-        }
-        is Resource.Error -> {
-            Text(text = "Error: ${(createState as Resource.Error).message}")
-        }
-        else -> {
-            // Handle other states if necessary
-        }
-    }
 
     Scaffold(
 
         topBar = { TopBarBussines() },
         bottomBar = {
             BtnStyle1(
-                text = when (createState) {
-                    is Resource.Loading -> "Cargando..."
-                    is Resource.Success -> "Crear"
-                    is Resource.Error -> "Error: ${(createState as Resource.Error).message}"
-                    else -> "Crear"
-                },
+                text = "Crear",
                 onClick = {
-                    negocioViewModel.addNegocioDB()
+                    negocioViewModel.addNegocioDB(
+                        onLoading = {
+                            Log.d("Loading necgocio", "Cargando el negocio ${negocio.toString()}")
+                            Toast.makeText(context, "Creando negocio...", Toast.LENGTH_SHORT).show()
+                        },
+                        onSuccess = {
+                            Toast.makeText(context, "Negocio creado correctamente", Toast.LENGTH_SHORT).show()
+                            navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                        },
+                        onError = { errorMsg ->
+                            Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                            Log.d("Negocio error","Error: $errorMsg" )
+                        }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .navigationBarsPadding() // esto evita que se solape con la barra del sistema
+                    .navigationBarsPadding()
             )
         }
 
