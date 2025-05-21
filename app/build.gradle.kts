@@ -85,6 +85,7 @@ dependencies {
 
     // Optional: Jetpack Credentials for federated sign-in
     implementation("androidx.credentials:credentials-play-services-auth:1.0.0-alpha01")
+    implementation(libs.androidx.storage)
 
     // Testing
     testImplementation(libs.junit)

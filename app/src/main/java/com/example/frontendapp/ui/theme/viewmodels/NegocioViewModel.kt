@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource) : ViewModel() {
+open class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource) : ViewModel() {
 
     private val _negocioState = MutableStateFlow(Negocio())
     val negocioState : StateFlow<Negocio> = _negocioState
@@ -128,6 +128,33 @@ class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource) : V
     private fun resetNegocio() {
         _negocioState.value = Negocio()
         _negocioCreteState.value = Resource.None()
+    }
+    private fun horaToMinutos(hora: String): Int {
+        val partes = hora.split(":")
+        return partes[0].toInt() * 60 + partes[1].toInt()
+    }
+
+    private fun normalizarFin(inicio: Int, fin: Int): Int {
+        return if (fin <= inicio) fin + 1440 else fin
+    }
+
+    fun haySolapamientoEnDias(dias: List<String>, inicio: String, fin: String): Boolean {
+        val horarios = _negocioState.value.horarioAtencion.orEmpty()
+        val nuevoInicioMin = horaToMinutos(inicio)
+        val nuevoFinMin = normalizarFin(nuevoInicioMin, horaToMinutos(fin))
+
+        return dias.any { dia ->
+            val existentes = horarios.filter { it.diaSemana == dia }
+            existentes.any {
+                val inicioExistente = horaToMinutos(it.horaInicio)
+                val finExistente = normalizarFin(inicioExistente, horaToMinutos(it.horaFin))
+                nuevoInicioMin < finExistente && nuevoFinMin > inicioExistente
+            }
+        }
+    }
+
+    fun esFinAntesDeInicio(inicio: String, fin: String): Boolean {
+        return horaToMinutos(fin) < horaToMinutos(inicio)
     }
 
 }

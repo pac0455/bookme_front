@@ -42,8 +42,20 @@ fun HorarioList(
 ) {
     val isInSelectionMode = horariosMarcados.isNotEmpty()
     if (horarios.isEmpty()) {
-        Text("No hay horarios")
-    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "No hay horarios añadidos",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+        }
+    }
+    else {
         val multipleSelection = horariosMarcados.size > 1
 
         horarios.groupBy { it.diaSemana }

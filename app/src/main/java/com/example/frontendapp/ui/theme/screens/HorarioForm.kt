@@ -1,11 +1,14 @@
 package com.example.frontendapp.ui.theme.screens
 
 
+import android.annotation.SuppressLint
 import android.util.Log
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,8 +16,16 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,18 +42,21 @@ import com.example.frontendapp.ui.theme.composables.TopBarBussines
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.data.model.Horario
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
-import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.ui.theme.Principal
 import com.example.frontendapp.ui.theme.composables.DaySelector
 import com.example.frontendapp.ui.theme.composables.HorarioList
 import com.example.frontendapp.ui.theme.composables.TimePickerButton
+import com.example.frontendapp.ui.theme.composables.TimePickerInputButton
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HorarioForm(
     navController: NavController,
@@ -72,7 +86,26 @@ fun HorarioForm(
 
     Scaffold(
 
-        topBar = { TopBarBussines() },
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Principal,
+                    titleContentColor = Color.White
+                ),
+
+               title = { Text("Horarios") },
+                navigationIcon = {
+                    IconButton (onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Color.White
+                        )
+                    }
+                }
+            )
+        },
+
         bottomBar = {
             BtnStyle1(
                 text = "Crear",
@@ -121,46 +154,63 @@ fun HorarioForm(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Selecciona hora de inicio:")
-            TimePickerButton(
-                label = "Elegir hora de inicio",
-                selectedTime = horaInicioSeleccionada,
-                onTimeSelected = {
-                    //Comprobar si se ha seleccionado alguno hora+
-                   if(diasSeleccionados.isEmpty()){
-                        Toast.makeText(context, "Elige un dia", Toast.LENGTH_SHORT).show()
-                   }
-                  if(horaFinSeleccionada == null){
-                      horaInicioSeleccionada = it
-                      return@TimePickerButton
-                  }
-                  if( horaToMinutos(it) < horaToMinutos(horaFinSeleccionada!!)){
-                      Toast.makeText(context, "El fin no puede ser anterior al incio", Toast.LENGTH_SHORT).show()
-                  }
-                  horaInicioSeleccionada = it
-                }
-            )
+            Text("Selecciona el horario:")
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Selecciona hora de fin:")
-            TimePickerButton(
-                label = "Elegir hora de fin",
-                selectedTime = horaFinSeleccionada,
-                onTimeSelected = {
-                    if(diasSeleccionados.isEmpty()){
-                        Toast.makeText(context, "Elige un dia", Toast.LENGTH_SHORT).show()
-                    }
-                    if(horaInicioSeleccionada== null){
-                        horaFinSeleccionada = it
-                        return@TimePickerButton
-                        //Comprobar si se ha seleccionado alguno hora de inicio
-                    }else if(horaToMinutos(it) > horaToMinutos(horaInicioSeleccionada!!)){
-                        // Comprobar que la hora de fin no es anterior a la hora de inicio
-                        Toast.makeText(context, "El fin no puede ser anterior al incio", Toast.LENGTH_SHORT).show()
-                    }
-                    horaFinSeleccionada = it
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Inicio", style = MaterialTheme.typography.labelSmall)
+                    TimePickerInputButton(
+                        label = "Elegir inicio",
+                        selectedTime = horaInicioSeleccionada,
+                        onTimeSelected = {
+                            if (diasSeleccionados.isEmpty()) {
+                                Toast.makeText(context, "Elige un día", Toast.LENGTH_SHORT).show()
+                                return@TimePickerInputButton
+                            }
+
+                            if (horaFinSeleccionada != null &&
+                                negocioViewModel.esFinAntesDeInicio(it, horaFinSeleccionada!!)
+                            ) {
+                                Toast.makeText(context, "El fin no puede ser anterior al inicio", Toast.LENGTH_SHORT).show()
+                                return@TimePickerInputButton
+                            }
+
+                            horaInicioSeleccionada = it
+                        }
+                    )
                 }
-            )
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Fin", style = MaterialTheme.typography.labelSmall)
+                    TimePickerInputButton(
+                        label = "Elegir fin",
+                        selectedTime = horaFinSeleccionada,
+                        onTimeSelected = {
+                            if (diasSeleccionados.isEmpty()) {
+                                Toast.makeText(context, "Elige un día", Toast.LENGTH_SHORT).show()
+                                return@TimePickerInputButton
+                            }
+
+                            if (horaInicioSeleccionada == null) {
+                                horaFinSeleccionada = it
+                                return@TimePickerInputButton
+                            }
+
+                            if (negocioViewModel.esFinAntesDeInicio(horaInicioSeleccionada!!, it)) {
+                                Toast.makeText(context, "El fin no puede ser anterior al inicio", Toast.LENGTH_SHORT).show()
+                                return@TimePickerInputButton
+                            }
+
+                            horaFinSeleccionada = it
+                        }
+                    )
+                }
+            }
+
+
 
             Spacer(modifier = Modifier.height(16.dp))
             BtnStyle1(
@@ -168,39 +218,28 @@ fun HorarioForm(
                 text = if (horarioEditando == null) "Añadir horario" else "Guardar cambios",
 
                 onClick = {
-                    // Solo procede si se han seleccionado ambas horas
                     if (horaInicioSeleccionada == null || horaFinSeleccionada == null) {
-                        // Si falta alguna hora, no hacemos nada
+                        Toast.makeText(context, "Debes seleccionar ambas horas", Toast.LENGTH_SHORT).show()
                         return@BtnStyle1
                     }
 
-                    val inicio = horaInicioSeleccionada!!
-                    val fin = horaFinSeleccionada!!
-                    val horarios = negocio.horarioAtencion.orEmpty()
-
-                    val hayConflicto = diasSeleccionados.any { dia ->
-                        val existentes = horarios.filter { it.diaSemana == dia }
-                        haySolapamiento(inicio, fin, existentes)
-                    }
-
-                    if (hayConflicto) {
-                        Toast.makeText(
-                            context,
-                            "Ya existe un horario que se solapa en ese día",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    if (negocioViewModel.haySolapamientoEnDias(
+                            diasSeleccionados,
+                            horaInicioSeleccionada!!,
+                            horaFinSeleccionada!!
+                        )
+                    ) {
+                        Toast.makeText(context, "Ya existe un horario que se solapa en ese día", Toast.LENGTH_SHORT).show()
                         return@BtnStyle1
                     }
 
-                    // No hay conflicto: editamos o añadimos
                     if (horarioEditando != null) {
-                        negocioViewModel.editarHorario(horarioEditando!!, inicio, fin)
+                        negocioViewModel.editarHorario(horarioEditando!!, horaInicioSeleccionada!!, horaFinSeleccionada!!)
                         horarioEditando = null
                     } else {
-                        negocioViewModel.addHorarios(diasSeleccionados, inicio, fin)
+                        negocioViewModel.addHorarios(diasSeleccionados, horaInicioSeleccionada!!, horaFinSeleccionada!!)
                     }
 
-                    // Limpiamos estado tras guardar
                     horaInicioSeleccionada = null
                     horaFinSeleccionada = null
                     diasSeleccionados.clear()
@@ -225,36 +264,11 @@ fun HorarioForm(
     }
 }
 
-fun haySolapamiento(
-    nuevoInicio: String,
-    nuevoFin: String,
-    existentes: List<Horario>
-): Boolean {
-    val nuevoInicioMin = horaToMinutos(nuevoInicio)
-    val nuevoFinMin = normalizarFin(horaToMinutos(nuevoInicio), horaToMinutos(nuevoFin))
-
-    return existentes.any {
-        val inicioExistente = horaToMinutos(it.horaInicio)
-        val finExistente = normalizarFin(inicioExistente, horaToMinutos(it.horaFin))
-        Log.i("HORAS","$nuevoInicioMin < $finExistente && $nuevoFinMin > $inicioExistente")
-        nuevoInicioMin < finExistente && nuevoFinMin > inicioExistente
-    }
-}
-
-// Si la hora fin está antes que la hora inicio, asumimos que pasa de medianoche
-fun normalizarFin(inicio: Int, fin: Int): Int {
-    return if (fin <= inicio) fin + 1440 else fin // 1440 minutos = 24h
-}
-
-fun horaToMinutos(hora: String): Int {
-    val partes = hora.split(":")
-    return partes[0].toInt() * 60 + partes[1].toInt()
-}
 
 
 
 
-
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview
 @Composable
 fun PreviewHorarioForm(){
