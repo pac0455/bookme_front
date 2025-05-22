@@ -1,11 +1,8 @@
-package com.example.frontendapp.ui.theme.composables
+package com.example.frontendapp.ui.theme.composables.list
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,7 +13,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.data.model.Horario
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,7 +22,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
@@ -58,72 +53,72 @@ fun HorarioList(
     else {
         val multipleSelection = horariosMarcados.size > 1
 
-        horarios.groupBy { it.diaSemana }
-            .forEach { (dia, lista) ->
-                Text(
-                    text = dia,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+            horarios.groupBy { it.diaSemana }
+                .forEach { (dia, lista) ->
+                    Text(
+                        text = dia,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
 
-                lista.forEach { horario ->
-                    val isMarked = horariosMarcados.contains(horario)
-                    val bgColor = if (isMarked) Color(0xFFD0EBFF) else Color(0xFFF5F5F5)
-                    var expanded by remember { mutableStateOf(false) }
+                    lista.forEach { horario ->
+                        val isMarked = horariosMarcados.contains(horario)
+                        val bgColor = if (isMarked) Color(0xFFD0EBFF) else Color(0xFFF5F5F5)
+                        var expanded by remember { mutableStateOf(false) }
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = bgColor),
-                        elevation = CardDefaults.cardElevation(4.dp)
-                    ) {
-                        Row(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                                .padding(vertical = 4.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = bgColor),
+                            elevation = CardDefaults.cardElevation(4.dp)
                         ) {
                             Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.weight(1f)
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Checkbox(
-                                    checked = isMarked,
-                                    onCheckedChange = {
-                                        if (it) horariosMarcados.add(horario)
-                                        else horariosMarcados.remove(horario)
-                                    }
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("${horario.horaInicio} - ${horario.horaFin}")
-                            }
-                            //Iconos
-                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                // Botón de editar (solo actúa sobre este horario)
-                                if(horariosMarcados.count() <= 1){
-                                    IconButton(onClick = { onEditar(horario) }) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Editar")
-                                    }
-                                }
-                               // Botón de eliminar (actúa en lote si hay seleccionados, si no, solo este)
-                                IconButton(
-                                    onClick = {
-                                        val aEliminar = if (isInSelectionMode) horariosMarcados.toList() else listOf(horario)
-                                        onEliminar(aEliminar)
-                                    },
-
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
                                 ) {
-                                    val darkRed = Color.Red.copy(alpha = 1f).darken(0.2f)
-
-                                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = darkRed)
+                                    Checkbox(
+                                        checked = isMarked,
+                                        onCheckedChange = {
+                                            if (it) horariosMarcados.add(horario)
+                                            else horariosMarcados.remove(horario)
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("${horario.horaInicio} - ${horario.horaFin}")
                                 }
-                            }
+                                //Iconos
+                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    // Botón de editar (solo actúa sobre este horario)
+                                    if(horariosMarcados.count() <= 1){
+                                        IconButton(onClick = { onEditar(horario) }) {
+                                            Icon(Icons.Default.Edit, contentDescription = "Editar")
+                                        }
+                                    }
+                                   // Botón de eliminar (actúa en lote si hay seleccionados, si no, solo este)
+                                    IconButton(
+                                        onClick = {
+                                            val aEliminar = if (isInSelectionMode) horariosMarcados.toList() else listOf(horario)
+                                            onEliminar(aEliminar)
+                                        },
+
+                                    ) {
+                                        val darkRed = Color.Red.copy(alpha = 1f).darken(0.2f)
+
+                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = darkRed)
+                                    }
+                                }
+                        }
                     }
                 }
-            }
             }
     }
     }

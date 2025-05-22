@@ -153,7 +153,7 @@ open class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource
         }
     }
 
-    private fun resetNegocio() {
+    fun resetNegocio() {
         _negocioState.value = Negocio()
         _negocioCreteState.value = Resource.None()
     }

@@ -1,6 +1,9 @@
 package com.example.frontendapp.data.remote.api
 
 import com.example.frontendapp.data.model.Negocio
+import com.example.frontendapp.data.model.Reserva
+import com.example.frontendapp.data.model.ReservaDetallada
+import com.example.frontendapp.data.model.Servicio
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -34,5 +37,16 @@ interface NegocioApi {
 
     @PUT("$controller/ByNombre/{nombre}")
     suspend fun updateByNombre(@Path("nombre") nombre: String, @Body negocio: Negocio): Response<Unit>
+
+    @GET("$controller/{id}/servicios")
+    suspend fun getServiciosByNegocioId(@Path("id") negocioId: Int): Response<List<Servicio>>
+
+    @GET("$controller/{id}/reservas")
+    suspend fun getReservasByNegocioId(@Path("id") negocioId: Int): Response<List<Reserva>>
+    @GET("$controller/{id}/reservas/detalladas")
+    suspend fun getReservasDetalladas(@Path("id") negocioId: Int): Response<List<ReservaDetallada>>
+
+
+
 }
 

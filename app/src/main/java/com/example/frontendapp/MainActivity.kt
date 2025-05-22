@@ -23,9 +23,11 @@ import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 
 
 //https://www.youtube.com/watch?v=IX1GkpV71pw
+//https://medium.com/@kiwi47/create-a-flexible-and-customizable-calendar-view-in-android-with-jetpack-compose-56dfb911c2ab
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +52,7 @@ class MainActivity : ComponentActivity() {
                     val registerViewModel: RegisterViewModel = viewModel(factory = factory)
                     val negocioViewModel: NegocioViewModel = viewModel(factory = factory)
                     val bussinesMainViewModel: BussinesMainViewModel = viewModel(factory = factory)
+                    val reservasViewModel: ReservasViewModel = viewModel(factory= factory)
 
 
                     // Navegación
@@ -58,7 +61,8 @@ class MainActivity : ComponentActivity() {
                         loginViewModel = loginViewModel,
                         registerViewModel = registerViewModel,
                         negocioViewModel = negocioViewModel,
-                        bussinesMainViewModel = bussinesMainViewModel
+                        bussinesMainViewModel = bussinesMainViewModel,
+                        reservasViewModel = reservasViewModel
                     )
                 }
             }
@@ -77,18 +81,13 @@ class AppViewModelFactory(
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
-            modelClass.isAssignableFrom(LoginViewModel::class.java) ->
-                LoginViewModel(authRepo) as T
-
-            modelClass.isAssignableFrom(RegisterViewModel::class.java) ->
-                RegisterViewModel(authRepo) as T
-
-            modelClass.isAssignableFrom(NegocioViewModel::class.java) ->
-                NegocioViewModel(negocioRepo) as T
-            modelClass.isAssignableFrom(BussinesMainViewModel::class.java) ->
-                BussinesMainViewModel(negocioRepo) as T
-
+            modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(authRepo) as T
+            modelClass.isAssignableFrom(RegisterViewModel::class.java) -> RegisterViewModel(authRepo) as T
+            modelClass.isAssignableFrom(NegocioViewModel::class.java) -> NegocioViewModel(negocioRepo) as T
+            modelClass.isAssignableFrom(BussinesMainViewModel::class.java) -> BussinesMainViewModel(negocioRepo) as T
+            modelClass.isAssignableFrom(ReservasViewModel::class.java) -> ReservasViewModel(negocioRepo) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }
 }
+

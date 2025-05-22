@@ -21,6 +21,7 @@ import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 
 @Composable
 fun Navigator(
@@ -30,7 +31,8 @@ fun Navigator(
     loginViewModel: LoginViewModel,
     registerViewModel: RegisterViewModel,
     negocioViewModel: NegocioViewModel,
-    bussinesMainViewModel: BussinesMainViewModel
+    bussinesMainViewModel: BussinesMainViewModel,
+    reservasViewModel: ReservasViewModel
 ) {
     NavHost(
         modifier = modifier,
@@ -50,6 +52,7 @@ fun Navigator(
             LoginScreen(navController, loginViewModel)
         }
         composable(NavigationItem.LOCATION.route) {
+            negocioViewModel.resetNegocio()
             NegocioFormScreen(navController, negocioViewModel)
         }
         composable(NavigationItem.BUSSINES_MAIN.route) {
@@ -79,10 +82,8 @@ fun Navigator(
                 }
             }
 
-            NegocioScreen(viewModel = negocioViewModel, navController = navController)
+            NegocioScreen(viewModel = negocioViewModel, reservasViewModel= reservasViewModel, navController = navController)
         }
-
-
     }
 }
 

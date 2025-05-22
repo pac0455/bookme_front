@@ -10,6 +10,8 @@ object RetrofitInstance {
 
     private var jwtToken: String? = null
     private val server= "http://192.168.18.3:5000/"
+    private val serverPracticas= "http://172.16.83.165:5000/"
+
     private val serverTest = "https://localhost:7211/"
 
     // Llama a esta función para actualizar el token cuando inicies sesión o refresques
@@ -29,7 +31,7 @@ object RetrofitInstance {
 
     val userApi: UserApi by lazy {
         Retrofit.Builder()
-            .baseUrl(server)
+            .baseUrl(serverPracticas)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -38,7 +40,7 @@ object RetrofitInstance {
 
     val negocioApi: NegocioApi by lazy {
         Retrofit.Builder()
-            .baseUrl(server)
+            .baseUrl(serverPracticas)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

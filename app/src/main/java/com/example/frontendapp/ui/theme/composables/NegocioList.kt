@@ -23,6 +23,7 @@ import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.FrontendappTheme
+import com.example.frontendapp.ui.theme.composables.ListItems.NegocioListItem
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 

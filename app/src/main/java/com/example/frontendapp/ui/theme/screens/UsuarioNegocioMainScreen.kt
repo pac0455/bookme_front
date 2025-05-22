@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,15 +35,14 @@ import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.TopBarBussines
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import androidx.core.content.ContextCompat
-import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.ui.theme.composables.FakeBussinesMainViewModel
 import com.example.frontendapp.ui.theme.composables.NegocioList
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 
 @Composable
 fun UsuarioNegocioMainScreen(
     navController: NavController,
-    bussinesMainViewModel: BussinesMainViewModel
+    viewModel: BussinesMainViewModel
 ) {
     val context = LocalContext.current
     val locationPermissionLauncher = rememberLauncherForActivityResult(
@@ -108,7 +108,7 @@ fun UsuarioNegocioMainScreen(
             }
 
             // Aquí se llama a tu listado dinámico
-            NegocioList(bussinesMainViewModel = bussinesMainViewModel, navController = navController)
+            NegocioList(bussinesMainViewModel = viewModel, navController = navController)
         }
     }
 }
@@ -118,8 +118,8 @@ fun UsuarioNegocioMainScreen(
 @Composable
 fun MAinBussinesingPreview() {
     FrontendappTheme {
-        UsuarioNegocioMainScreen(navController = rememberNavController(), BussinesMainViewModel(
-            NegocioRemoteSource(RetrofitInstance.negocioApi)
-        ))
+        val fakeViewModel = remember { FakeBussinesMainViewModel() }
+
+        UsuarioNegocioMainScreen(navController = rememberNavController(), viewModel = fakeViewModel)
     }
 }

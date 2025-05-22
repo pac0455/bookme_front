@@ -71,6 +71,27 @@ class NegocioApiTest {
             fail("Login fallido: ${(loginResult as? Resource.Error)?.message}")
         }
     }
+
+    @Test
+    fun `obtener servicios de negocio`() = runBlocking {
+        assertNotNull("Debe existir negocio creado", createdNegocioId)
+
+        val result = negocioRemoteSource.getServiciosByNegocioId(createdNegocioId!!)
+
+        when (result) {
+            is Resource.Success -> {
+                println("Servicios del negocio:")
+                result.data?.forEach { println(it) }
+            }
+            is Resource.Error -> {
+                fail("Error al obtener servicios: ${result.message}")
+            }
+            else -> {}
+        }
+
+        assertTrue(result is Resource.Success)
+    }
+
     @Test
     fun `crear negocio con horarios y verificar persistencia`() = runBlocking {
         // Autenticación previa si es necesario (ya lo tienes en setup)
@@ -270,6 +291,25 @@ class NegocioApiTest {
 
         assertTrue(result is Resource.Success)
     }
+    @Test
+    fun `obtener reservas de negocio`() = runBlocking {
+        assertNotNull("Debe existir negocio creado", createdNegocioId)
+
+        val result = negocioRemoteSource.getReservasByNegocioId(createdNegocioId!!)
+
+        when (result) {
+            is Resource.Success -> {
+                println("Reservas del negocio:")
+                result.data?.forEach { println(it) }
+            }
+            is Resource.Error -> {
+                fail("Error al obtener reservas: ${result.message}")
+            }
+            else -> {}
+        }
+
+        assertTrue(result is Resource.Success)
+    }
 
     @Test
     fun `eliminar negocio`() = runBlocking {
@@ -285,6 +325,26 @@ class NegocioApiTest {
 
         assertTrue(result is Resource.Success)
     }
+    @Test
+    fun `obtener reservas detalladas de negocio`() = runBlocking {
+        assertNotNull("Debe existir negocio creado", createdNegocioId)
+
+        val result = negocioRemoteSource.getReservasDetalladasByNegocioId(createdNegocioId!!)
+
+        when (result) {
+            is Resource.Success -> {
+                println("Reservas detalladas del negocio:")
+                result.data?.forEach { println(it) }
+            }
+            is Resource.Error -> {
+                fail("Error al obtener reservas detalladas: ${result.message}")
+            }
+            else -> {}
+        }
+
+        assertTrue(result is Resource.Success)
+    }
+
     @Test
     fun `obtener negocios por usuario`() = runBlocking {
         val result = negocioRemoteSource.getNegociosByUserId()

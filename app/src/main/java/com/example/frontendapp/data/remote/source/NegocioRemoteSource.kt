@@ -1,6 +1,9 @@
 package com.example.frontendapp.data.remote.source
 
 import com.example.frontendapp.data.model.Negocio
+import com.example.frontendapp.data.model.Reserva
+import com.example.frontendapp.data.model.ReservaDetallada
+import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.remote.api.NegocioApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import retrofit2.Response
@@ -60,11 +63,7 @@ class NegocioRemoteSource(
     suspend fun updateNegocioByNombre(negocio: Negocio): Resource<Unit> {
         return try {
             val response = negocioApi.updateByNombre(negocio.nombre, negocio)
-            if (response.isSuccessful) {
-                Resource.Success(Unit)
-            } else {
-                Resource.Error("Error ${response.code()}: ${response.message()}")
-            }
+           handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Excepción: ${e.localizedMessage}")
         }
@@ -77,30 +76,45 @@ class NegocioRemoteSource(
 
         return try {
             val response = negocioApi.update(id, negocio)
-            if (response.isSuccessful) {
-                Resource.Success(Unit)
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
-            }
+            handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")
+        }
+    }
+    suspend fun getReservasDetalladasByNegocioId(id: Int): Resource<List<ReservaDetallada>> {
+        return try {
+            val response = negocioApi.getReservasDetalladas(id)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error al obtener reservas detalladas: ${e.message}")
         }
     }
 
     suspend fun deleteNegocio(id: Int): Resource<Unit> {
         return try {
             val response = negocioApi.delete(id)
-            if (response.isSuccessful) {
-                Resource.Success(Unit)
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
-            }
+            handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")
         }
     }
+    suspend fun getServiciosByNegocioId(id: Int): Resource<List<Servicio>> {
+        return try {
+            val response = negocioApi.getServiciosByNegocioId(id)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error al obtener servicios: ${e.message}")
+        }
+    }
+    suspend fun getReservasByNegocioId(id: Int): Resource<List<Reserva>> {
+        return try {
+            val response = negocioApi.getReservasByNegocioId(id)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error al obtener reservas: ${e.message}")
+        }
+    }
+
 
     private fun <T> handleResponse(response: Response<T>): Resource<T> {
         return if (response.isSuccessful) {
@@ -108,7 +122,9 @@ class NegocioRemoteSource(
             if (result != null) {
                 Resource.Success(result)
             } else {
-                Resource.Error("Respuesta vacía del servidor")
+                // Manejo especial para 204 No Content
+                @Suppress("UNCHECKED_CAST")
+                Resource.Success(Unit as T) // Solo válido si T es Unit
             }
         } else {
             val errorBody = response.errorBody()?.string()
