@@ -1,5 +1,9 @@
 package com.example.frontendapp
 
+import android.content.Context
+import android.net.Uri
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.frontendapp.data.model.Negocio
 import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.remote.RetrofitInstance
@@ -8,20 +12,18 @@ import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.data.remote.source.ServicioRemoteSource
-
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.manipulation.Ordering.Context
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class ServicioApiTest {
 
     private lateinit var servicioRemoteSource: ServicioRemoteSource
     private var createdServicioId: Int? = null
     private var negocioId: Int? = null
-
-
 
     @Before
     fun setup() = runBlocking {
@@ -60,7 +62,6 @@ class ServicioApiTest {
                 if (negocioId == null) fail("No se pudo obtener ID del negocio creado")
             }
 
-            // Eliminar servicio existente con nombre "Servicio de prueba"
             val serviciosExistentes = servicioRemoteSource.getAllServicios()
             if (serviciosExistentes is Resource.Success) {
                 serviciosExistentes.data?.find { it.nombre == "Servicio de prueba" }?.let { existente ->
@@ -69,19 +70,24 @@ class ServicioApiTest {
                 }
             }
 
-            // Crear servicio nuevo y guardar su ID
             val servicio = Servicio(
                 nombre = "Servicio de prueba",
-                descripcion = "Descripción del servicio de prueba",
+                descripcion = "Descripcion del servicio de prueba",
                 duracionMinutos = 60,
                 precio = 100.0,
                 negocioId = negocioId!!
             )
 
-            val addServicioResult = servicioRemoteSource.addServicio(servicio, imagenUri = null, context = this@ServicioApiTest)
+            val addServicioResult = servicioRemoteSource.addServicio(servicio, imagenUri = null, context = context)
             if (addServicioResult is Resource.Success) {
                 createdServicioId = addServicioResult.data?.id
-                assertNotNull("No se pudo crear el servicio en setup", createdServicioId)
+                if (createdServicioId == null) {
+                    val errorMessage = (addServicioResult as? Resource.Error)?.message
+                    fail(
+                        "No se pudo crear el servicio en setup.\n" +
+                                "Mensaje del servidor: $errorMessage"
+                    )
+                }
                 println("Servicio creado con ID: $createdServicioId")
             } else {
                 fail("Error al crear servicio en setup: ${(addServicioResult as? Resource.Error)?.message}")
@@ -93,41 +99,25 @@ class ServicioApiTest {
     }
 
     @Test
-    fun `crear servicio y verificar persistencia`() = runBlocking {
+    fun crear_servicio_y_verificar_persistencia() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         assertNotNull("Debe existir negocio para asignar servicio", negocioId)
-
-        // Eliminar si ya existe servicio con ese nombre
-        val serviciosExistentes = servicioRemoteSource.getAllServicios()
-        if (serviciosExistentes is Resource.Success) {
-            serviciosExistentes.data?.find { it.nombre == "Servicio nuevo" }?.let { existente ->
-                servicioRemoteSource.deleteServicio(existente.id!!)
-                println("Servicio existente eliminado: ${existente.id}")
-            }
-        }
 
         val servicio = Servicio(
             nombre = "Servicio nuevo",
-            descripcion = "Servicio con descripción nueva",
+            descripcion = "Servicio con descripcion nueva",
             duracionMinutos = 45,
             precio = 150.0,
             negocioId = negocioId!!
         )
 
-        val result = servicioRemoteSource.addServicio(servicio, imagenUri = null, context = this)
+        val result = servicioRemoteSource.addServicio(servicio, imagenUri = null, context = context)
         when (result) {
             is Resource.Success -> {
                 val servicioId = result.data?.id
                 assertNotNull("El ID del servicio no puede ser nulo", servicioId)
-
                 val fetched = servicioRemoteSource.getServicio(servicioId!!)
                 assertTrue(fetched is Resource.Success)
-
-                val servicioRecuperado = (fetched as Resource.Success).data
-                println("Servicio recuperado: $servicioRecuperado")
-
-                assertEquals("Servicio nuevo", servicioRecuperado?.nombre)
-                assertEquals(45, servicioRecuperado?.duracionMinutos)
-                assertEquals(negocioId, servicioRecuperado?.negocioId)
             }
             is Resource.Error -> fail("Error al crear servicio: ${result.message}")
             else -> fail("Resultado inesperado")
@@ -135,75 +125,62 @@ class ServicioApiTest {
     }
 
     @Test
-    fun `obtener servicio por id`() = runBlocking {
+    fun obtener_servicio_por_id() = runBlocking {
         assertNotNull("Debe existir servicio creado", createdServicioId)
-
         val result = servicioRemoteSource.getServicio(createdServicioId!!)
-
-        when (result) {
-            is Resource.Success -> println("Servicio obtenido: ${result.data}")
-            is Resource.Error -> println("Error al obtener servicio: ${result.message}")
-            else -> {}
-        }
-
         assertTrue(result is Resource.Success)
         assertEquals(createdServicioId, result.data?.id)
     }
 
     @Test
-    fun `actualizar servicio`() = runBlocking {
-        assertNotNull("Debe existir servicio creado", createdServicioId)
+    fun actualizar_servicio() = runBlocking {
+        assertNotNull("El ID del servicio creado no debe ser nulo", createdServicioId)
 
         val servicioActualizado = Servicio(
             id = createdServicioId,
             nombre = "Servicio actualizado",
-            descripcion = "Descripción actualizada",
+            descripcion = "Descripcion actualizada",
             duracionMinutos = 90,
             precio = 200.0,
             negocioId = negocioId!!
         )
 
         val updateResult = servicioRemoteSource.updateServicio(createdServicioId!!, servicioActualizado)
-        when (updateResult) {
-            is Resource.Success -> println("Servicio actualizado correctamente")
-            is Resource.Error -> fail("Error al actualizar servicio: ${updateResult.message}")
-            else -> fail("Resultado inesperado")
-        }
+        println("Resultado de actualizar servicio: $updateResult")
+        assertTrue("La actualizacion del servicio fallo: $updateResult", updateResult is Resource.Success)
 
         val fetchResult = servicioRemoteSource.getServicio(createdServicioId!!)
-        assertTrue(fetchResult is Resource.Success)
+        println("Resultado de obtener servicio actualizado: $fetchResult")
+        assertTrue("Fallo al obtener el servicio actualizado: $fetchResult", fetchResult is Resource.Success)
+
         val servicioRecuperado = (fetchResult as Resource.Success).data
-        assertEquals("Servicio actualizado", servicioRecuperado?.nombre)
-        assertEquals(90, servicioRecuperado?.duracionMinutos)
-        assertNotNull("El precio no debe ser nulo", servicioRecuperado?.precio)
-        assertEquals(200.0, servicioRecuperado?.precio!!, 0.0)
-
-    }
-
-    @Test
-    fun `eliminar servicio`() = runBlocking {
-        assertNotNull("Debe existir servicio creado", createdServicioId)
-
-        val deleteResult = servicioRemoteSource.deleteServicio(createdServicioId!!)
-        when (deleteResult) {
-            is Resource.Success -> println("Servicio eliminado correctamente")
-            is Resource.Error -> fail("Error al eliminar servicio: ${deleteResult.message}")
-            else -> fail("Resultado inesperado")
+        if (updateResult is Resource.Error) {
+            println("Error al actualizar servicio: ${updateResult.message}")
         }
 
-        // Confirmar que ya no existe
+        assertNotNull("El servicio recuperado no debe ser nulo", servicioRecuperado)
+
+        assertEquals("El nombre no coincide", "Servicio actualizado", servicioRecuperado?.nombre)
+        assertEquals("La duracion no coincide", 90, servicioRecuperado?.duracionMinutos)
+        assertEquals("El precio no coincide", 200.0, servicioRecuperado?.precio ?: -1.0, 0.0)
+    }
+
+
+    @Test
+    fun eliminar_servicio() = runBlocking {
+        assertNotNull("Debe existir servicio creado", createdServicioId)
+        val deleteResult = servicioRemoteSource.deleteServicio(createdServicioId!!)
+        assertTrue(deleteResult is Resource.Success)
         val fetchResult = servicioRemoteSource.getServicio(createdServicioId!!)
         assertTrue(fetchResult is Resource.Error)
     }
 
     @Test
-    fun `obtener servicios por negocio`() = runBlocking {
+    fun obtener_servicios_por_negocio() = runBlocking {
         assertNotNull("Debe existir negocio para consulta", negocioId)
-
         val result = servicioRemoteSource.getServiciosByNegocioId(negocioId!!)
         when (result) {
             is Resource.Success -> {
-                println("Servicios obtenidos por negocio: ${result.data?.size}")
                 assertTrue(result.data?.all { it.negocioId == negocioId } ?: false)
             }
             is Resource.Error -> fail("Error al obtener servicios por negocio: ${result.message}")

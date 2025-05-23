@@ -1,5 +1,7 @@
 package com.example.frontendapp.ui.theme.viewmodels
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.Servicio
@@ -13,9 +15,17 @@ import kotlinx.coroutines.launch
 open class ServicioViewModel(
     private val servicioRemoteSource: ServicioRemoteSource
 ) : ViewModel() {
+    private val _imagenUri = MutableStateFlow<Uri?>(null)
+    val imagenUri: StateFlow<Uri?> = _imagenUri
+
 
     protected val _servicioState = MutableStateFlow(Servicio(negocioId = -1))
     val servicioState: StateFlow<Servicio> = _servicioState
+
+    fun setImagenUri(uri: Uri?) {
+        _imagenUri.value = uri
+    }
+
     fun setNombre(nombre: String) {
         _servicioState.value = _servicioState.value.copy(nombre = nombre)
     }
@@ -114,21 +124,28 @@ open class ServicioViewModel(
     }
 
     open fun addServicio(
+        context: Context,
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {},
         onLoading: () -> Unit = {},
     ) {
         viewModelScope.launch {
             onLoading()
-            val response = servicioRemoteSource.addServicio(_servicioState.value)
+
+            val servicio = _servicioState.value
+            val imagen = _imagenUri.value
+
+            val response = servicioRemoteSource.addServicio(servicio, imagen, context)
+
             _servicioCreatedState.value = response
             when (response) {
                 is Resource.Success -> onSuccess()
-                is Resource.Error -> onError(response.message ?: "Error desconocido" )
+                is Resource.Error -> onError(response.message ?: "Error desconocido")
                 else -> {}
             }
         }
     }
+
 
     fun getServicioById(
         id: Int,

@@ -1,9 +1,12 @@
 package com.example.frontendapp.data.remote.source
 
+import android.content.Context
+import android.net.Uri
 import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.model.ServicioDetalleDto
 import com.example.frontendapp.data.remote.api.ServicioApi
 import com.example.frontendapp.data.remote.reponses.Resource
+import org.json.JSONObject
 import retrofit2.Response
 
 class ServicioRemoteSource(
@@ -19,17 +22,31 @@ class ServicioRemoteSource(
         }
     }
 
-    suspend fun addServicio(servicio: Servicio): Resource<Servicio> {
-        val validationError = validateServicio(servicio)
-        if (validationError != null) return Resource.Error(validationError)
-
+    suspend fun addServicio(servicio: Servicio, imagenUri: Uri? = null, context: Context): Resource<Servicio> {
         return try {
-            val response = servicioApi.add(servicio)
+            val nombre = ImageHelper.createPartFromString(servicio.nombre ?: "")
+            val descripcion = ImageHelper.createPartFromString(servicio.descripcion ?: "")
+            val duracion = ImageHelper.createPartFromString(servicio.duracionMinutos?.toString() ?: "0")
+            val precio = ImageHelper.createPartFromString(servicio.precio?.toString() ?: "0.0")
+            val negocioId = ImageHelper.createPartFromString(servicio.negocioId.toString())
+
+            val imagenPart = if (imagenUri != null) ImageHelper.prepareImagePart(context, imagenUri) else null
+
+            val response = servicioApi.addServicio(
+                nombre,
+                descripcion,
+                duracion,
+                precio,
+                negocioId,
+                imagenPart
+            )
             handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")
         }
     }
+
+
 
     suspend fun getServicio(id: Int): Resource<Servicio> {
         return try {
@@ -95,17 +112,24 @@ class ServicioRemoteSource(
             if (result != null) {
                 Resource.Success(result)
             } else {
-                // Para respuestas con no content (204), devolver Success con un valor Unit (si es Unit)
                 @Suppress("UNCHECKED_CAST")
                 if (response.code() == 204) {
                     Resource.Success(Unit as T)
                 } else {
-                    Resource.Error("Respuesta vacía del servidor.")
+                    Resource.Error("Respuesta vacia del servidor.")
                 }
             }
         } else {
-            val errorBody = response.errorBody()?.string()
-            Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
+            val rawError = response.errorBody()?.string()
+            val errorMessage = try {
+                JSONObject(rawError ?: "").optString("message", "Error desconocido del servidor.")
+            } catch (e: Exception) {
+                rawError ?: "Error desconocido del servidor."
+            }
+
+            Resource.Error("Error del servidor: ${response.code()} - $errorMessage")
         }
     }
+
+
 }

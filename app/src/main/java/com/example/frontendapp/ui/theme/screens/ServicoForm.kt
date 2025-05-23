@@ -99,15 +99,24 @@ fun ServicioForm(
                     servicioViewModel.addServicio(
                         onLoading = {},
                         onSuccess = {
-                            Toast.makeText(context, "Servicio agregado exitosamente", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Servicio agregado exitosamente",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             navController.popBackStack()
                             isLoading = false
                         },
                         onError = { errorMessage ->
-                            Toast.makeText(context, "Error al agregar servicio: $errorMessage", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Error al agregar servicio: $errorMessage",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             Log.d("ERROR AL INSERTAR", errorMessage)
                             isLoading = false
-                        }
+                        },
+                        context = context
                     )
                 },
                 text = if (isLoading) "Cargando..." else "Añadir",

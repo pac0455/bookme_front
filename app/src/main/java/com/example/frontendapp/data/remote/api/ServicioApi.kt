@@ -2,6 +2,8 @@ package com.example.frontendapp.data.remote.api
 
 import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.model.ServicioDetalleDto
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -13,8 +15,17 @@ interface ServicioApi {
     @GET("api/servicio/{id}")
     suspend fun get(@Path("id") id: Int): Response<Servicio>
 
+    @Multipart
     @POST("api/servicio")
-    suspend fun add(@Body servicio: Servicio): Response<Servicio>
+    suspend fun addServicio(
+        @Part("nombre") nombre: RequestBody,
+        @Part("descripcion") descripcion: RequestBody,
+        @Part("duracionMinutos") duracionMinutos: RequestBody,
+        @Part("precio") precio: RequestBody,
+        @Part("negocioId") negocioId: RequestBody,
+        @Part imagen: MultipartBody.Part? // null si no hay imagen
+    ): Response<Servicio>
+
 
     @PUT("api/servicio/{id}")
     suspend fun update(@Path("id") id: Int, @Body servicio: Servicio): Response<Unit>

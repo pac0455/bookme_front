@@ -34,7 +34,7 @@ object RetrofitInstance {
 
     val userApi: UserApi by lazy {
         Retrofit.Builder()
-            .baseUrl(server)
+            .baseUrl(serverPracticas)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -43,7 +43,7 @@ object RetrofitInstance {
 
     val negocioApi: NegocioApi by lazy {
         Retrofit.Builder()
-            .baseUrl(server)
+            .baseUrl(serverPracticas)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -51,7 +51,7 @@ object RetrofitInstance {
     }
     val servicioApi: ServicioApi by lazy {
         Retrofit.Builder()
-            .baseUrl(server)
+            .baseUrl(serverPracticas)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
