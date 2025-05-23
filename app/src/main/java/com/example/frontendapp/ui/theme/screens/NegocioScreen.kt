@@ -1,24 +1,27 @@
 package com.example.frontendapp.ui.theme.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,23 +34,24 @@ import coil.compose.AsyncImage
 import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Horario
 import com.example.frontendapp.data.model.Negocio
-import com.example.frontendapp.data.model.ReservaDetallada
-import com.example.frontendapp.data.model.ServicioConPago
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.composables.FakeReservasViewModel
-import com.example.frontendapp.ui.theme.composables.ListItems.ReservaListItem
-import com.example.frontendapp.ui.theme.composables.ListaReservas
+import com.example.frontendapp.ui.theme.composables.ListItems.ListaReservas
 import com.example.frontendapp.ui.theme.composables.QuickActionsExpandable
+import com.example.frontendapp.ui.theme.composables.list.ListaServicios
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 enum class ContentType {
     RESERVAS,
-    CALENDARIO,
+    SERVICIOS,
     SUBSCRIPTOR,
     GALLERIA,
 }
@@ -56,10 +60,11 @@ enum class ContentType {
 fun NegocioScreen(
     viewModel: NegocioViewModel,
     navController: NavController,
-    reservasViewModel: ReservasViewModel
+    reservasViewModel: ReservasViewModel,
+    serviciosViewModel_negocioScreen: ServicioViewModel
 ) {
     val negocio by viewModel.negocioState.collectAsState()
-    var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.CALENDARIO) }
+    var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.RESERVAS) }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -104,7 +109,7 @@ fun NegocioScreen(
             IconButton(
                 onClick = { navController.popBackStack() },
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(top = 24.dp, start = 16.dp)
                     .align(Alignment.TopStart)
             ) {
                 Icon(
@@ -128,7 +133,10 @@ fun NegocioScreen(
         AnimatedContentArea(
             modifier = Modifier.weight(1f),
             selectedContent = selectedContent,
-            reservasViewModel = reservasViewModel
+            reservasViewModel = reservasViewModel,
+            serviciosViewModel_negocioScreen = serviciosViewModel_negocioScreen,
+            negocio = negocio,
+            navController = navController
         )
     }
 }
@@ -137,9 +145,14 @@ fun NegocioScreen(
 fun AnimatedContentArea(
     selectedContent: ContentType?,
     reservasViewModel: ReservasViewModel,
-    modifier: Modifier = Modifier
+    negocio: Negocio,
+    serviciosViewModel_negocioScreen: ServicioViewModel,
+    modifier: Modifier = Modifier,
+    navController: NavController,
+
 ) {
-    Box(modifier = modifier.padding(16.dp)) {
+    val context = LocalContext.current
+    Box(modifier = modifier.fillMaxSize()) {
         AnimatedContent(
             targetState = selectedContent,
             transitionSpec = {
@@ -157,9 +170,28 @@ fun AnimatedContentArea(
         ) { targetContent ->
             when (targetContent) {
                 ContentType.RESERVAS -> ListaReservas(viewModel = reservasViewModel)
-                ContentType.CALENDARIO -> ListaReservas(viewModel = reservasViewModel)
+                ContentType.SERVICIOS -> ListaServicios(serviciosViewModel_negocioScreen, negocioId = negocio.id)
                 ContentType.SUBSCRIPTOR -> Text("Contenido de Subscriptores", style = MaterialTheme.typography.bodyLarge)
                 else -> Text("Selecciona una sección", style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+
+        // FloatingActionButtaon abajo a la izquierd
+        if (selectedContent == ContentType.SERVICIOS) {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate(NavigationItem.SERVICIO_FORM.route)
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                containerColor = Principal_variacion3
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add, // Puedes cambiar el icono a uno más apropiado
+                    contentDescription = "Agregar servicio",
+                    tint = Color.White
+                )
             }
         }
     }
@@ -193,6 +225,7 @@ class FakeNegocioViewModel : NegocioViewModel(NegocioRemoteSource(RetrofitInstan
 
 
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun PreviewNegocioScreen() {
@@ -202,6 +235,7 @@ fun PreviewNegocioScreen() {
     NegocioScreen(
         viewModel = viewModel,
         navController = navController,
-        reservasViewModel = remember { FakeReservasViewModel() }
+        reservasViewModel = remember { FakeReservasViewModel() },
+        serviciosViewModel_negocioScreen = FakeServicioViewModel()
     )
 }

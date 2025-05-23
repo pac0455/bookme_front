@@ -19,7 +19,7 @@ open class NegocioViewModel(private val negocioRemoteSource: NegocioRemoteSource
 
 
     // Estado de la llamada api
-    private val _negocioCreteState = MutableStateFlow<Resource<Negocio>>(Resource.None<Negocio>())
+    private val _negocioCreteState = MutableStateFlow<Resource<Negocio>>(Resource.None())
     val negocioApiState: StateFlow<Resource<Negocio>> = _negocioCreteState
 
 

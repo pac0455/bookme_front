@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables
+package com.example.frontendapp.ui.theme.composables.Btn
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -22,9 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.ui.theme.FrontendappTheme
-import com.example.frontendapp.ui.theme.Principal_variacion2
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.Principal_variacion4
+import com.example.frontendapp.ui.theme.composables.BtnStyle1
 
 @Composable
 fun DaySelector(

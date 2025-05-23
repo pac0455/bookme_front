@@ -1,6 +1,8 @@
 package com.example.frontendapp.data.remote
 
+import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.remote.api.NegocioApi
+import com.example.frontendapp.data.remote.api.ServicioApi
 import com.example.frontendapp.data.remote.api.UserApi
 import okhttp3.OkHttpClient
 
@@ -11,6 +13,7 @@ object RetrofitInstance {
     private var jwtToken: String? = null
     private val server= "http://192.168.18.3:5000/"
     private val serverPracticas= "http://172.16.83.165:5000/"
+    private val localhost = "https://localhost:7211"
 
     private val serverTest = "https://localhost:7211/"
 
@@ -31,7 +34,7 @@ object RetrofitInstance {
 
     val userApi: UserApi by lazy {
         Retrofit.Builder()
-            .baseUrl(serverPracticas)
+            .baseUrl(server)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -40,10 +43,18 @@ object RetrofitInstance {
 
     val negocioApi: NegocioApi by lazy {
         Retrofit.Builder()
-            .baseUrl(serverPracticas)
+            .baseUrl(server)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(NegocioApi::class.java)
+    }
+    val servicioApi: ServicioApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(server)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ServicioApi::class.java)
     }
 }

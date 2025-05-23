@@ -17,22 +17,26 @@ import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
 import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.NegocioScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
+import com.example.frontendapp.ui.theme.screens.ServicioForm
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 
 @Composable
 fun Navigator(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     startDestination: String = NavigationItem.MAIN.route,
-    loginViewModel: LoginViewModel,
-    registerViewModel: RegisterViewModel,
-    negocioViewModel: NegocioViewModel,
-    bussinesMainViewModel: BussinesMainViewModel,
-    reservasViewModel: ReservasViewModel
+    loginScreenViewModel: LoginViewModel,
+    registerScreenViewModel: RegisterViewModel,
+    negocioFormViewModel: NegocioViewModel,
+    usuarioNegocioMainViewModel: BussinesMainViewModel,
+    reservasNegocioScreenViewModel: ReservasViewModel,
+    serviciosNegocioScreenViewModel: ServicioViewModel,
+    servicioViewModeServicioForm: ServicioViewModel
 ) {
     NavHost(
         modifier = modifier,
@@ -43,26 +47,29 @@ fun Navigator(
             MainScreen(navController)
         }
         composable(NavigationItem.REGISTER.route) {
-            RegisterScreen(navController, registerViewModel)
+            RegisterScreen(navController, registerScreenViewModel)
         }
         composable(NavigationItem.NEGOCIO_CLIENTE.route) {
-            NegocioClienteScrenn(navController, registerViewModel)
+            NegocioClienteScrenn(navController, registerScreenViewModel)
         }
         composable(NavigationItem.LOGIN.route) {
-            LoginScreen(navController, loginViewModel)
+            LoginScreen(navController, loginScreenViewModel)
         }
         composable(NavigationItem.LOCATION.route) {
-            negocioViewModel.resetNegocio()
-            NegocioFormScreen(navController, negocioViewModel)
+            negocioFormViewModel.resetNegocio()
+            NegocioFormScreen(navController, negocioFormViewModel)
         }
         composable(NavigationItem.BUSSINES_MAIN.route) {
-            UsuarioNegocioMainScreen(navController, bussinesMainViewModel)
+            UsuarioNegocioMainScreen(navController, usuarioNegocioMainViewModel)
         }
         composable(NavigationItem.MAP_SELECT.route) {
-            MapaScreen(navController, negocioViewModel)
+            MapaScreen(navController, negocioFormViewModel)
         }
         composable(NavigationItem.HORARIO_FORM.route) {
-            HorarioForm(navController, negocioViewModel)
+            HorarioForm(navController, negocioFormViewModel)
+        }
+        composable(NavigationItem.SERVICIO_FORM.route) {
+            ServicioForm(navController, servicioViewModeServicioForm)
         }
         composable(
             route = "${Screen.NEGOCIO.name}/{negocioId}",
@@ -70,22 +77,28 @@ fun Navigator(
         ) { backStackEntry ->
             val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: 0
 
-            // Aquí puedes usar LaunchedEffect para llamar la carga solo cuando cambie el negocioId
             LaunchedEffect(negocioId) {
-                if (negocioId != 0) {
-                    negocioViewModel.loadNegocioById(
+                val currentNegocio = negocioFormViewModel.negocioState.value
+                if (negocioId != 0 && (currentNegocio == null || currentNegocio.id != negocioId)) {
+                    negocioFormViewModel.loadNegocioById(
                         id = negocioId,
-                        onLoading = { /* mostrar loading UI si quieres */ },
-                        onSuccess = { /* ocultar loading UI */ },
-                        onError = { mensaje -> /* mostrar error UI */ }
+                        onLoading = { },
+                        onSuccess = { },
+                        onError = { mensaje -> }
                     )
                 }
             }
 
-            NegocioScreen(viewModel = negocioViewModel, reservasViewModel= reservasViewModel, navController = navController)
+
+
+            NegocioScreen(
+                navController = navController,
+                viewModel = negocioFormViewModel,
+                reservasViewModel = reservasNegocioScreenViewModel,
+                serviciosViewModel_negocioScreen = serviciosNegocioScreenViewModel,
+            )
         }
     }
 }
-
 
 //reource: https://medium.com/@KaushalVasava/navigation-in-jetpack-compose-full-guide-beginner-to-advanced-950c1133740

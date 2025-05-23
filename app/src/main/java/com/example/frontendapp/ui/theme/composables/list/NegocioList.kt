@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables
+package com.example.frontendapp.ui.theme.composables.list
 
 
 import android.annotation.SuppressLint
@@ -18,14 +18,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.frontendapp.data.model.Negocio
-import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.composables.ListItems.NegocioListItem
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeBussinesMainViewModel
 
 
 @Composable
@@ -74,43 +72,9 @@ fun NegocioList(navController: NavController,bussinesMainViewModel: BussinesMain
             }
         }
 
-        else -> {
-            // Nada por defecto
-        }
+        else -> { }
     }
 }
-class FakeBussinesMainViewModel : BussinesMainViewModel(
-    negocioRemoteSource = NegocioRemoteSource(RetrofitInstance.negocioApi)
-) {
-    init {
-        _negociosUsuario.value = listOf(
-            Negocio(
-                id = 1,
-                nombre = "Tienda Natura",
-                descripcion = "Productos naturales",
-                direccion = "Calle Falsa 123",
-                latitud = 40.1,
-                longitud = -3.1,
-                categoria = "Herbolario"
-            ),
-            Negocio(
-                id = 2,
-                nombre = "Bar Central",
-                descripcion = "Cafetería tradicional",
-                direccion = "Calle Real 456",
-                latitud = 40.2,
-                longitud = -3.2,
-                categoria = "Bar"
-            )
-        )
-        _negociosState.value = Resource.Success(_negociosUsuario.value)
-    }
-
-    override fun loadNegociosByUser() {
-        // No hacer nada
-    }
-}
-
 
 
 

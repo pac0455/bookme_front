@@ -47,9 +47,9 @@ import com.example.frontendapp.data.model.Horario
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.Principal
-import com.example.frontendapp.ui.theme.composables.DaySelector
+import com.example.frontendapp.ui.theme.composables.Btn.DaySelector
 import com.example.frontendapp.ui.theme.composables.list.HorarioList
-import com.example.frontendapp.ui.theme.composables.TimePickerInputButton
+import com.example.frontendapp.ui.theme.composables.Btn.TimePickerInputButton
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 

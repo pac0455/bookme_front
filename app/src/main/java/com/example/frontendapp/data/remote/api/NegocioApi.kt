@@ -38,9 +38,6 @@ interface NegocioApi {
     @PUT("$controller/ByNombre/{nombre}")
     suspend fun updateByNombre(@Path("nombre") nombre: String, @Body negocio: Negocio): Response<Unit>
 
-    @GET("$controller/{id}/servicios")
-    suspend fun getServiciosByNegocioId(@Path("id") negocioId: Int): Response<List<Servicio>>
-
     @GET("$controller/{id}/reservas")
     suspend fun getReservasByNegocioId(@Path("id") negocioId: Int): Response<List<Reserva>>
     @GET("$controller/{id}/reservas/detalladas")

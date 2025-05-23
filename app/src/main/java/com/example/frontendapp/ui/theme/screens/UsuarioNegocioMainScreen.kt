@@ -35,9 +35,9 @@ import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.TopBarBussines
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import androidx.core.content.ContextCompat
-import com.example.frontendapp.ui.theme.composables.FakeBussinesMainViewModel
-import com.example.frontendapp.ui.theme.composables.NegocioList
+import com.example.frontendapp.ui.theme.composables.list.NegocioList
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeBussinesMainViewModel
 
 @Composable
 fun UsuarioNegocioMainScreen(

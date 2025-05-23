@@ -98,14 +98,14 @@ class NegocioRemoteSource(
             Resource.Error("Error de red: ${e.message}")
         }
     }
-    suspend fun getServiciosByNegocioId(id: Int): Resource<List<Servicio>> {
-        return try {
-            val response = negocioApi.getServiciosByNegocioId(id)
-            handleResponse(response)
-        } catch (e: Exception) {
-            Resource.Error("Error al obtener servicios: ${e.message}")
-        }
-    }
+//    suspend fun getServiciosByNegocioId(id: Int): Resource<List<Servicio>> {
+//        return try {
+//            val response = negocioApi.getServiciosByNegocioId(id)
+//            handleResponse(response)
+//        } catch (e: Exception) {
+//            Resource.Error("Error al obtener servicios: ${e.message}")
+//        }
+//    }
     suspend fun getReservasByNegocioId(id: Int): Resource<List<Reserva>> {
         return try {
             val response = negocioApi.getReservasByNegocioId(id)

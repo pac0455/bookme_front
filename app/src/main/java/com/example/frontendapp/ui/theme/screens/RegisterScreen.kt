@@ -28,7 +28,7 @@ import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomTextField
-import com.example.frontendapp.ui.theme.composables.GoogleButton
+import com.example.frontendapp.ui.theme.composables.Btn.GoogleButton
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 

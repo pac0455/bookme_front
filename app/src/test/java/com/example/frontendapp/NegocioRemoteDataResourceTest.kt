@@ -72,25 +72,7 @@ class NegocioApiTest {
         }
     }
 
-    @Test
-    fun `obtener servicios de negocio`() = runBlocking {
-        assertNotNull("Debe existir negocio creado", createdNegocioId)
 
-        val result = negocioRemoteSource.getServiciosByNegocioId(createdNegocioId!!)
-
-        when (result) {
-            is Resource.Success -> {
-                println("Servicios del negocio:")
-                result.data?.forEach { println(it) }
-            }
-            is Resource.Error -> {
-                fail("Error al obtener servicios: ${result.message}")
-            }
-            else -> {}
-        }
-
-        assertTrue(result is Resource.Success)
-    }
 
     @Test
     fun `crear negocio con horarios y verificar persistencia`() = runBlocking {

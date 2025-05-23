@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.composables.list
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.frontendapp.ui.theme.FrontendappTheme
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun HorarioList(
     horarios: List<Horario>,
@@ -52,7 +54,6 @@ fun HorarioList(
     }
     else {
         val multipleSelection = horariosMarcados.size > 1
-
             horarios.groupBy { it.diaSemana }
                 .forEach { (dia, lista) ->
                     Text(

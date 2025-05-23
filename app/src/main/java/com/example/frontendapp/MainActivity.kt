@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.source.ServicioRemoteSource
 import com.example.frontendapp.ui.theme.navigation.Navigator
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
@@ -24,6 +25,7 @@ import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 
 
 //https://www.youtube.com/watch?v=IX1GkpV71pw
@@ -43,26 +45,30 @@ class MainActivity : ComponentActivity() {
                     // Repos
                     val authRepo = remember { AuthRemoteDataResource(RetrofitInstance.userApi) }
                     val negocioRepo = remember { NegocioRemoteSource(RetrofitInstance.negocioApi) }
+                    val servicioRepo = remember { ServicioRemoteSource(RetrofitInstance.servicioApi) }
 
                     // Factory
-                    val factory = remember { AppViewModelFactory(authRepo, negocioRepo) }
+                    val factory = remember { AppViewModelFactory(authRepo, negocioRepo, servicioRepo) }
 
-                    // ViewModels
-                    val loginViewModel: LoginViewModel = viewModel(factory = factory)
-                    val registerViewModel: RegisterViewModel = viewModel(factory = factory)
-                    val negocioViewModel: NegocioViewModel = viewModel(factory = factory)
-                    val bussinesMainViewModel: BussinesMainViewModel = viewModel(factory = factory)
-                    val reservasViewModel: ReservasViewModel = viewModel(factory= factory)
-
+                    // ViewModels renombrados según su pantalla
+                    val loginScreenViewModel: LoginViewModel = viewModel(factory = factory)
+                    val registerScreenViewModel: RegisterViewModel = viewModel(factory = factory)
+                    val negocioFormViewModel: NegocioViewModel = viewModel(factory = factory)
+                    val usuarioNegocioMainViewModel: BussinesMainViewModel = viewModel(factory = factory)
+                    val reservasNegocioScreenViewModel: ReservasViewModel = viewModel(factory = factory)
+                    val serviciosNegocioScreenViewModel: ServicioViewModel = viewModel(factory = factory)
+                    val servicioViewModeServicioForm: ServicioViewModel = viewModel(factory = factory)
 
                     // Navegación
                     Navigator(
                         navController = navController,
-                        loginViewModel = loginViewModel,
-                        registerViewModel = registerViewModel,
-                        negocioViewModel = negocioViewModel,
-                        bussinesMainViewModel = bussinesMainViewModel,
-                        reservasViewModel = reservasViewModel
+                        loginScreenViewModel = loginScreenViewModel,
+                        registerScreenViewModel = registerScreenViewModel,
+                        negocioFormViewModel = negocioFormViewModel,
+                        usuarioNegocioMainViewModel = usuarioNegocioMainViewModel,
+                        reservasNegocioScreenViewModel = reservasNegocioScreenViewModel,
+                        serviciosNegocioScreenViewModel = serviciosNegocioScreenViewModel,
+                        servicioViewModeServicioForm = servicioViewModeServicioForm
                     )
                 }
             }
@@ -72,9 +78,11 @@ class MainActivity : ComponentActivity() {
 
 
 
+
 class AppViewModelFactory(
     private val authRepo: AuthRemoteDataResource,
     private val negocioRepo: NegocioRemoteSource,
+    private  val servicioApi: ServicioRemoteSource
 
 ) : ViewModelProvider.Factory {
 
@@ -86,6 +94,8 @@ class AppViewModelFactory(
             modelClass.isAssignableFrom(NegocioViewModel::class.java) -> NegocioViewModel(negocioRepo) as T
             modelClass.isAssignableFrom(BussinesMainViewModel::class.java) -> BussinesMainViewModel(negocioRepo) as T
             modelClass.isAssignableFrom(ReservasViewModel::class.java) -> ReservasViewModel(negocioRepo) as T
+            modelClass.isAssignableFrom(ServicioViewModel::class.java) -> ServicioViewModel(servicioApi) as T
+
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

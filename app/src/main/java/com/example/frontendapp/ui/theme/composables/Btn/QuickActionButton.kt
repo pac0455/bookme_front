@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables
+package com.example.frontendapp.ui.theme.composables.Btn
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background

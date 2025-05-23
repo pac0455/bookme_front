@@ -1,12 +1,11 @@
 package com.example.frontendapp.ui.theme.composables
 
-
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,7 +27,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.frontendapp.ui.theme.FrontendappTheme
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTextField(
@@ -39,6 +37,7 @@ fun CustomTextField(
     isPassword: Boolean = false,
     enabled: Boolean = true,
     onValueChange: (String) -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default // Add keyboard options parameter
 ) {
     TextField(
         value = value,
@@ -56,6 +55,7 @@ fun CustomTextField(
         },
         enabled = enabled,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        keyboardOptions = keyboardOptions, // Set keyboard options here
         modifier = modifier
             .fillMaxWidth()
             .background(Color.Transparent),
@@ -68,24 +68,23 @@ fun CustomTextField(
 
 @Preview(showBackground = true)
 @Composable
-fun CustomTextFieldPreview(){
+fun CustomTextFieldPreview() {
     FrontendappTheme {
         Surface(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
             val example = remember { mutableStateOf("") }
             Box(
                 modifier = Modifier.fillMaxWidth(0.5f).fillMaxHeight(0.5f),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 CustomTextField(
                     Modifier.fillMaxWidth(0.8f),
                     Icons.Default.AccountCircle,
                     "Nombre",
                     example.value,
-                    onValueChange =  { example.value = it },
+                    onValueChange = { example.value = it },
+                    keyboardOptions = KeyboardOptions.Default // You can customize this as needed
                 )
             }
-
-
         }
     }
 }

@@ -30,7 +30,7 @@ import com.example.frontendapp.R
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.BtnStyle1
-import com.example.frontendapp.ui.theme.composables.MySwitch
+import com.example.frontendapp.ui.theme.composables.Btn.MySwitch
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

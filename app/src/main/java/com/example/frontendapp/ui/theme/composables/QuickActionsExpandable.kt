@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.ui.theme.Principal_variacion6
+import com.example.frontendapp.ui.theme.composables.Btn.QuickActionButton
 import com.example.frontendapp.ui.theme.screens.ContentType
 
 @Composable
@@ -50,7 +51,7 @@ fun QuickActionsExpandable(
     //Lista de iconos que se va a recorrer
     val allActions = listOf(
         Pair(ContentType.RESERVAS, Icons.Default.Notifications),
-        Pair(ContentType.CALENDARIO, Icons.Default.CalendarMonth),
+        Pair(ContentType.SERVICIOS, Icons.Default.CalendarMonth),
         Pair(ContentType.SUBSCRIPTOR, Icons.Filled.Stars),
         Pair(ContentType.GALLERIA, Icons.Filled.PhotoAlbum),
 
