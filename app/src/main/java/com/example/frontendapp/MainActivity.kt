@@ -54,7 +54,9 @@ class MainActivity : ComponentActivity() {
                     val loginScreenViewModel: LoginViewModel = viewModel(factory = factory)
                     val registerScreenViewModel: RegisterViewModel = viewModel(factory = factory)
                     val negocioFormViewModel: NegocioViewModel = viewModel(factory = factory)
-                    val usuarioNegocioMainViewModel: BussinesMainViewModel = viewModel(factory = factory)
+                    /*val usuarioNegocioMainViewModel: BussinesMainViewModel = viewModel(factory = factory)*/
+                    val usuarioNegocioMainViewModel: NegocioViewModel = viewModel(factory = factory)
+
                     val reservasNegocioScreenViewModel: ReservasViewModel = viewModel(factory = factory)
                     val serviciosNegocioScreenViewModel: ServicioViewModel = viewModel(factory = factory)
                     val servicioViewModeServicioForm: ServicioViewModel = viewModel(factory = factory)
@@ -68,7 +70,6 @@ class MainActivity : ComponentActivity() {
                         usuarioNegocioMainViewModel = usuarioNegocioMainViewModel,
                         reservasNegocioScreenViewModel = reservasNegocioScreenViewModel,
                         serviciosNegocioScreenViewModel = serviciosNegocioScreenViewModel,
-                        servicioViewModeServicioForm = servicioViewModeServicioForm
                     )
                 }
             }

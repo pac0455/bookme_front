@@ -29,7 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.composables.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.Btn.MySwitch
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import androidx.compose.runtime.getValue

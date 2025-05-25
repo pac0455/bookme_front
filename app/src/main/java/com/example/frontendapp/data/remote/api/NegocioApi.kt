@@ -4,12 +4,15 @@ import com.example.frontendapp.data.model.Negocio
 import com.example.frontendapp.data.model.Reserva
 import com.example.frontendapp.data.model.ReservaDetallada
 import com.example.frontendapp.data.model.Servicio
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 
@@ -42,7 +45,12 @@ interface NegocioApi {
     suspend fun getReservasByNegocioId(@Path("id") negocioId: Int): Response<List<Reserva>>
     @GET("$controller/{id}/reservas/detalladas")
     suspend fun getReservasDetalladas(@Path("id") negocioId: Int): Response<List<ReservaDetallada>>
-
+    @Multipart
+    @PUT("$controller/{id}/imagen")
+    suspend fun updateNegocioImagen(
+        @Path("id") id: Int,
+        @Part nuevaImagen: MultipartBody.Part
+    ): Response<Negocio>
 
 
 }

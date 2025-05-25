@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.frontendapp.data.model.Negocio
 import com.example.frontendapp.data.model.Servicio
+import com.example.frontendapp.data.model.ServicioUpdateRequest
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.request.LoginRequest
@@ -136,8 +137,10 @@ class ServicioApiTest {
     fun actualizar_servicio() = runBlocking {
         assertNotNull("El ID del servicio creado no debe ser nulo", createdServicioId)
 
-        val servicioActualizado = Servicio(
-            id = createdServicioId,
+        val id = createdServicioId ?: return@runBlocking // Prevención extra por seguridad
+
+        // Crear el objeto ServicioUpdateRequest (sin id)
+        val servicioActualizado = ServicioUpdateRequest(
             nombre = "Servicio actualizado",
             descripcion = "Descripcion actualizada",
             duracionMinutos = 90,
@@ -145,26 +148,30 @@ class ServicioApiTest {
             negocioId = negocioId!!
         )
 
-        val updateResult = servicioRemoteSource.updateServicio(createdServicioId!!, servicioActualizado)
+        val updateResult = servicioRemoteSource.updateServicio(id, servicioActualizado)
         println("Resultado de actualizar servicio: $updateResult")
-        assertTrue("La actualizacion del servicio fallo: $updateResult", updateResult is Resource.Success)
 
-        val fetchResult = servicioRemoteSource.getServicio(createdServicioId!!)
-        println("Resultado de obtener servicio actualizado: $fetchResult")
-        assertTrue("Fallo al obtener el servicio actualizado: $fetchResult", fetchResult is Resource.Success)
-
-        val servicioRecuperado = (fetchResult as Resource.Success).data
         if (updateResult is Resource.Error) {
             println("Error al actualizar servicio: ${updateResult.message}")
         }
 
+        assertTrue("La actualizacion del servicio fallo: $updateResult", updateResult is Resource.Success)
+
+        val fetchResult = servicioRemoteSource.getServicio(id)
+        if (fetchResult is Resource.Success) {
+            println("Servicio actualizado: ${fetchResult.data}")
+        } else {
+            println("Error al obtener servicio actualizado: $fetchResult")
+        }
+        assertTrue("Fallo al obtener el servicio actualizado: $fetchResult", fetchResult is Resource.Success)
+
+        val servicioRecuperado = (fetchResult as Resource.Success).data
         assertNotNull("El servicio recuperado no debe ser nulo", servicioRecuperado)
 
         assertEquals("El nombre no coincide", "Servicio actualizado", servicioRecuperado?.nombre)
         assertEquals("La duracion no coincide", 90, servicioRecuperado?.duracionMinutos)
         assertEquals("El precio no coincide", 200.0, servicioRecuperado?.precio ?: -1.0, 0.0)
     }
-
 
     @Test
     fun eliminar_servicio() = runBlocking {

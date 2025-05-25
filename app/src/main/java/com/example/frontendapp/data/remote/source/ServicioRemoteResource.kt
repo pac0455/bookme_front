@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.model.ServicioDetalleDto
+import com.example.frontendapp.data.model.ServicioUpdateRequest
 import com.example.frontendapp.data.remote.api.ServicioApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import org.json.JSONObject
@@ -21,6 +22,18 @@ class ServicioRemoteSource(
             else -> null
         }
     }
+    suspend fun updateImagenServicio(id: Int, imagenUri: Uri, context: Context): Resource<Unit> {
+        return try {
+            val imagenPart = ImageHelper.prepareImagePart(context, imagenUri)
+            if (imagenPart == null) return Resource.Error("No se pudo procesar la imagen.")
+
+            val response = servicioApi.updateImagenServicio(id, imagenPart)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error al actualizar imagen: ${e.message}")
+        }
+    }
+
 
     suspend fun addServicio(servicio: Servicio, imagenUri: Uri? = null, context: Context): Resource<Servicio> {
         return try {
@@ -66,13 +79,20 @@ class ServicioRemoteSource(
         }
     }
 
-    suspend fun updateServicio(id: Int, servicio: Servicio): Resource<Unit> {
-        val validationError = validateServicio(servicio)
+    suspend fun updateServicio(id: Int, servicio: ServicioUpdateRequest): Resource<Servicio> {
+        val validate= Servicio(
+            duracionMinutos = servicio.duracionMinutos,
+            negocioId = servicio.negocioId,
+            nombre = servicio.nombre,
+            descripcion = servicio.descripcion,
+            precio = servicio.precio
+        )
+        val validationError = validateServicio(validate)
         if (validationError != null) return Resource.Error(validationError)
 
         return try {
-            val response = servicioApi.update(id, servicio)
-            handleResponse(response)
+            val response = servicioApi.updateServicio(id, servicio)
+            handleResponse(response)  // Aquí aprovechas tu función para manejar todo
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")
         }

@@ -31,32 +31,31 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.composables.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.TopBarBussines
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import androidx.core.content.ContextCompat
 import com.example.frontendapp.ui.theme.composables.list.NegocioList
-import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeBussinesMainViewModel
+import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 
 @Composable
 fun UsuarioNegocioMainScreen(
     navController: NavController,
-    viewModel: BussinesMainViewModel
+    viewModel: NegocioViewModel
 ) {
     val context = LocalContext.current
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (!isGranted) {
-            Toast.makeText(context, "Si no se permite la ubicación no se podrá registrar un negocio", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Si no se permite la ubicación no se podrá ubicar tu posición", Toast.LENGTH_LONG).show()
         }
 
         val permisoConcedido = ContextCompat.checkSelfPermission(
             context, android.Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        navController.navigate(NavigationItem.LOCATION.route)
     }
 
     Scaffold(
@@ -67,7 +66,10 @@ fun UsuarioNegocioMainScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
+                    //Dentro del launch tambien
                     locationPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    viewModel.startNewNegocio()
+                    navController.navigate(NavigationItem.LOCATION.route)
                 },
                 modifier = Modifier.size(60.dp),
                 shape = RoundedCornerShape(100.dp),
@@ -75,7 +77,7 @@ fun UsuarioNegocioMainScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Seleccionar ubicación",
+                    contentDescription = "Añadir negocio",
                     tint = Color.White
                 )
             }
@@ -118,7 +120,7 @@ fun UsuarioNegocioMainScreen(
 @Composable
 fun MAinBussinesingPreview() {
     FrontendappTheme {
-        val fakeViewModel = remember { FakeBussinesMainViewModel() }
+        val fakeViewModel = remember { FakeNegocioViewModel() }
 
         UsuarioNegocioMainScreen(navController = rememberNavController(), viewModel = fakeViewModel)
     }

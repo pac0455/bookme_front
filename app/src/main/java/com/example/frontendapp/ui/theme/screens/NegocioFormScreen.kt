@@ -1,9 +1,11 @@
 package com.example.frontendapp.ui.theme.screens
 
 
+import android.annotation.SuppressLint
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.DropdownMenuItem
@@ -47,16 +50,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
-import com.example.frontendapp.ui.theme.Principal
 import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.Principal_variacion4
-import com.example.frontendapp.ui.theme.Principal_variacion5
-import com.example.frontendapp.ui.theme.composables.BtnIconRounded
-import com.example.frontendapp.ui.theme.composables.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.Btn.BtnIconRounded
+import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomMultilineTextField
 import com.example.frontendapp.ui.theme.composables.CustomTextField
-import com.example.frontendapp.ui.theme.composables.IconPosition
+import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.google.android.gms.maps.model.LatLng
 
 import java.util.Locale
@@ -66,6 +67,11 @@ import java.util.Locale
 fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioViewModel, enableGeocoder: Boolean = true ) {
     val context = LocalContext.current
     val negocio = negocioViewModel.negocioState.collectAsState().value
+    val isEdit = negocioViewModel.isEditMode.collectAsState().value
+    val tituloPantalla = if (isEdit) "Editar Negocio" else "Crear Negocio"
+
+
+
     val geoCoder = remember(context, enableGeocoder) {
         if (enableGeocoder) Geocoder(context, Locale.getDefault()) else null
     }
@@ -112,7 +118,7 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
                     containerColor = Principal_variacion3,
                     titleContentColor = Color.White
                 ),
-                title = { Text("Registro de negocio") },
+                title = { Text(tituloPantalla) },
                 navigationIcon = {
                     IconButton (onClick = { navController.popBackStack() }) {
                         Icon(
@@ -128,10 +134,13 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
             BtnStyle1(
                 text = "Siguiente",
                 onClick = {
-                    navController.navigate(NavigationItem.HORARIO_FORM.route)
+                    Log.d("NegocioFormScreen", "Navegando a HORARIO_FORM con datos: nombre=${negocio.nombre}, direccion=${negocio.direccion}, categoria=${negocio.categoria}")
+                    val modo = if (isEdit) "editar" else "crear"
+                    navController.navigate(NavigationItem.HORARIO_FORM.createRoute(modo))
+
                 },
                 iconPosition = IconPosition.END,
-                icon = Icons.Default.ArrowForward,
+                icon = Icons.AutoMirrored.Filled.ArrowForward,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -231,17 +240,14 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
 }
 
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun NegocioFormScreenPreview() {
-    // 1. Creas una instancia REAL de NegocioViewModel
-
-
-    // 3. Pasas la instancia real al composable
     FrontendappTheme {
         NegocioFormScreen(
-            navController = rememberNavController(),// <- Tipo correcto: NegocioViewModel,
-            negocioViewModel = NegocioViewModel(NegocioRemoteSource(RetrofitInstance.negocioApi)),
+            navController = rememberNavController(),//
+            negocioViewModel = FakeNegocioViewModel(),
             enableGeocoder = false  // Desactivas Geocoder para el preview
         )
     }

@@ -1,49 +1,42 @@
 package com.example.frontendapp.ui.theme.screens
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import com.example.frontendapp.R
-import com.example.frontendapp.data.model.Horario
 import com.example.frontendapp.data.model.Negocio
-import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.ListItems.ListaReservas
+import com.example.frontendapp.ui.theme.composables.modal.ModalSelectorDeImagen
 import com.example.frontendapp.ui.theme.composables.QuickActionsExpandable
-import com.example.frontendapp.ui.theme.composables.list.ListaServicios
+import com.example.frontendapp.ui.theme.composables.list.ServicioList
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
 import kotlinx.coroutines.delay
@@ -64,7 +57,13 @@ fun NegocioScreen(
     serviciosViewModel_negocioScreen: ServicioViewModel
 ) {
     val negocio by viewModel.negocioState.collectAsState()
+    val negocioUri by viewModel.selectedImageUri.collectAsState()
     var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.RESERVAS) }
+    var imagenConfirmada by remember { mutableStateOf<Uri?>(null) }
+
+    //Crear la url para imagen
+    val urlNegocio=viewModel.getNegocioImageUrl()
+    val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -91,19 +90,34 @@ fun NegocioScreen(
                     )
                 }
 
-                negocio.logoUrl?.let { logoUrl ->
-                    AsyncImage(
-                        model = logoUrl,
-                        contentDescription = "Logo negocio",
-                        placeholder = painterResource(R.drawable.ic_launcher_background),
-                        error = painterResource(R.drawable.ic_launcher_background),
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, Color.White, CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                }
+                ModalSelectorDeImagen(
+                    logoUrl = urlNegocio,
+                    imagenConfirmada = imagenConfirmada,
+                    onImagenSeleccionada = { uri ->
+                        Log.d("NegocioScreen", "Imagen seleccionada URI: $uri")
+                        viewModel.setSelectedImageUri(uri)
+                    },
+                    onAccept = { uri, onSuccessCallback ->
+                        viewModel.updateNegocioImagen(
+                            id = negocio.id,
+                            context = context,
+                            onLoading = {
+                                Toast.makeText(context, "Subiendo imagen...", Toast.LENGTH_SHORT).show()
+                                Log.d("NegocioScreen", "Subida de imagen iniciada para negocio ID: ${negocio.id}")
+                            },
+                            onError = { mensajeError ->
+                                Toast.makeText(context, "Error: $mensajeError", Toast.LENGTH_LONG).show()
+                                Log.e("NegocioScreen", "Error al subir imagen: $mensajeError")
+                            },
+                            onSuccess = { negocioActualizado ->
+                                Toast.makeText(context, "Imagen actualizada correctamente", Toast.LENGTH_SHORT).show()
+                                negocio.logoUrl = negocioActualizado.logoUrl
+                                imagenConfirmada = uri
+                                onSuccessCallback()
+                            }
+                        )
+                    }
+                )
             }
 
             IconButton(
@@ -136,7 +150,8 @@ fun NegocioScreen(
             reservasViewModel = reservasViewModel,
             serviciosViewModel_negocioScreen = serviciosViewModel_negocioScreen,
             negocio = negocio,
-            navController = navController
+            navController = navController,
+            negocioViewModel = viewModel
         )
     }
 }
@@ -149,9 +164,9 @@ fun AnimatedContentArea(
     serviciosViewModel_negocioScreen: ServicioViewModel,
     modifier: Modifier = Modifier,
     navController: NavController,
+    negocioViewModel: NegocioViewModel
 
 ) {
-    val context = LocalContext.current
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedContent(
             targetState = selectedContent,
@@ -170,7 +185,7 @@ fun AnimatedContentArea(
         ) { targetContent ->
             when (targetContent) {
                 ContentType.RESERVAS -> ListaReservas(viewModel = reservasViewModel)
-                ContentType.SERVICIOS -> ListaServicios(serviciosViewModel_negocioScreen, negocioId = negocio.id)
+                ContentType.SERVICIOS -> ServicioList(serviciosViewModel_negocioScreen, negocioId = negocio.id, navController = navController)
                 ContentType.SUBSCRIPTOR -> Text("Contenido de Subscriptores", style = MaterialTheme.typography.bodyLarge)
                 else -> Text("Selecciona una sección", style = MaterialTheme.typography.bodyLarge)
             }
@@ -180,7 +195,19 @@ fun AnimatedContentArea(
         if (selectedContent == ContentType.SERVICIOS) {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate(NavigationItem.SERVICIO_FORM.route)
+                    // Obtén el negocio actual del NegocioViewModel
+                    val negocioActual = negocioViewModel.negocioState.value
+                    if (negocioActual.id != 0) {
+                        serviciosViewModel_negocioScreen.resetServicio()
+                        // Establece el negocioId en ServicioViewModel
+                        serviciosViewModel_negocioScreen.setNegocioId(negocioActual.id)
+
+                        // Navega a la pantalla del formulario de servicio
+                        navController.navigate(NavigationItem.SERVICIO_FORM.create)
+                    } else {
+                        // Manejo opcional si no hay negocio seleccionado
+                        // Por ejemplo mostrar un mensaje de error
+                    }
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -188,40 +215,18 @@ fun AnimatedContentArea(
                 containerColor = Principal_variacion3
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add, // Puedes cambiar el icono a uno más apropiado
+                    imageVector = Icons.Default.Add,
                     contentDescription = "Agregar servicio",
                     tint = Color.White
                 )
             }
+
         }
+
     }
 }
 
-class FakeNegocioViewModel : NegocioViewModel(NegocioRemoteSource(RetrofitInstance.negocioApi)) {
-    override fun loadNegocioById(
-        id: Int,
-        onLoading: () -> Unit,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        onLoading()
-        viewModelScope.launch {
-            delay(500)
-            _negocioState.value = Negocio(
-                id = id,
-                nombre = "Centro Estético BellaVida",
-                descripcion = "Ofrecemos servicios de estética avanzada, masajes y tratamientos faciales. Atención personalizada.",
-                direccion = "Calle del Sol, 123 - Madrid",
-                categoria = "Estética",
-                horarioAtencion = listOf(
-                    Horario(id = 1, idNegocio = id, diaSemana = "Lunes", horaInicio = "09:00", horaFin = "13:00"),
-                    Horario(id = 2, idNegocio = id, diaSemana = "Lunes", horaInicio = "17:00", horaFin = "20:00")
-                )
-            )
-            onSuccess()
-        }
-    }
-}
+
 
 
 

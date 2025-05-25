@@ -2,6 +2,7 @@ package com.example.frontendapp.data.remote.api
 
 import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.model.ServicioDetalleDto
+import com.example.frontendapp.data.model.ServicioUpdateRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -26,9 +27,19 @@ interface ServicioApi {
         @Part imagen: MultipartBody.Part? // null si no hay imagen
     ): Response<Servicio>
 
+    @Multipart
+    @PUT("api/servicio/{id}/imagen")
+    suspend fun updateImagenServicio(
+        @Path("id") id: Int,
+        @Part imagen: MultipartBody.Part
+    ): Response<Unit>
 
     @PUT("api/servicio/{id}")
-    suspend fun update(@Path("id") id: Int, @Body servicio: Servicio): Response<Unit>
+    suspend fun updateServicio(
+        @Path("id") id: Int,
+        @Body servicio: ServicioUpdateRequest
+    ): Response<Servicio>
+
 
     @DELETE("api/servicio/{id}")
     suspend fun delete(@Path("id") id: Int): Response<Unit>

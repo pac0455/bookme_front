@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables
+package com.example.frontendapp.ui.theme.composables.Btn
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,8 +35,9 @@ enum class IconPosition{
 @Composable
 fun BtnStyle1(
     modifier: Modifier = Modifier,
-
-    iconSize: Dp = 34.dp,    onClick: () -> Unit,
+    isLoading: Boolean = false,
+    iconSize: Dp = 34.dp,
+    onClick: () -> Unit,
     text: String = "Ejemplo",
     icon: ImageVector? = null,
     iconPosition: IconPosition? = IconPosition.START,
@@ -50,6 +51,9 @@ fun BtnStyle1(
         Alignment.End -> Arrangement.End
         else -> Arrangement.Center
     }
+
+    val displayText = if (isLoading) "Cargando..." else text
+    val displayIcon = if (isLoading) Icons.Default.HourglassEmpty else icon
 
     Button(
         modifier = modifier
@@ -65,30 +69,31 @@ fun BtnStyle1(
             contentColor = Color.White
         ),
         shape = shape,
-        onClick = onClick
+        onClick = onClick,
+        enabled = !isLoading // opcional: deshabilitar mientras carga
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = if (text.isEmpty()) Arrangement.Center else horizontalArrangement,
+            horizontalArrangement = if (displayText.isEmpty()) Arrangement.Center else horizontalArrangement,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (icon != null && (iconPosition == IconPosition.START || text.isEmpty())) {
+            if (displayIcon != null && (iconPosition == IconPosition.START || displayText.isEmpty())) {
                 Icon(
-                    imageVector = icon,
+                    imageVector = displayIcon,
                     contentDescription = null,
                     modifier = Modifier
-                        .padding(end = if (text.isNotEmpty()) 8.dp else 0.dp)
+                        .padding(end = if (displayText.isNotEmpty()) 8.dp else 0.dp)
                         .size(iconSize)
                 )
             }
 
-            if (text.isNotEmpty()) {
-                Text(text)
+            if (displayText.isNotEmpty()) {
+                Text(displayText)
             }
 
-            if (icon != null && iconPosition == IconPosition.END && text.isNotEmpty()) {
+            if (displayIcon != null && iconPosition == IconPosition.END && displayText.isNotEmpty()) {
                 Icon(
-                    imageVector = icon,
+                    imageVector = displayIcon,
                     contentDescription = null,
                     modifier = Modifier
                         .padding(start = 8.dp)
@@ -98,6 +103,7 @@ fun BtnStyle1(
         }
     }
 }
+
 
 
 

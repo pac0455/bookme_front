@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.example.frontendapp.ui.theme.composables.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -46,21 +46,26 @@ fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel)
     var selectedLocation by remember { mutableStateOf<LatLng?>(null) }
 
     LaunchedEffect(Unit) {
-        //revisar permisos
+        println("MapaScreen: Comprobando permisos de ubicación")
         val permisoConcedido = ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-        //Sino paro la ejcucion asi
-        if (!permisoConcedido) return@LaunchedEffect
+        if (!permisoConcedido) {
+            println("MapaScreen: Permiso de ubicación NO concedido")
+            return@LaunchedEffect
+        }
+        println("MapaScreen: Permiso de ubicación concedido")
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            //Con `let` solo si no es nulo ejecuto su bloque de codigo
             location?.let {
                 val nuevaUbicacion = LatLng(it.latitude, it.longitude)
                 ubicacion = nuevaUbicacion
-                //Actualizo la camara de google maps
+                println("MapaScreen: Ubicación actual obtenida: $nuevaUbicacion")
                 cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(nuevaUbicacion, 15f))
-            } ?: Toast.makeText(context, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
+            } ?: run {
+                println("MapaScreen: Ubicación no disponible")
+                Toast.makeText(context, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -70,7 +75,8 @@ fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel)
             cameraPositionState = cameraPositionState,
             uiSettings = uiSettings.value,
             onMapClick = { latLng ->
-                selectedLocation = latLng // solo guardamos el punto tocado
+                selectedLocation = latLng
+                println("MapaScreen: Usuario seleccionó ubicación: $latLng")
             }
         ) {
             selectedLocation?.let { location ->
@@ -81,23 +87,26 @@ fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel)
             }
         }
 
-        // Botón de aceptar
         Box(
             contentAlignment = Alignment.BottomEnd,
             modifier=Modifier.fillMaxSize()
-        ){
+        ) {
             BtnStyle1(
                 modifier = Modifier.padding(bottom = 82.dp),
                 icon = Icons.Default.Check,
                 onClick = {
+                    println("MapaScreen: Botón aceptar pulsado")
                     selectedLocation?.let {
+                        println("MapaScreen: Ubicación seleccionada confirmada: $it")
                         negocioViewModel.setUbicacion(it.latitude, it.longitude)
                         navController.popBackStack()
-
-                    } ?: Toast.makeText(context, "Selecciona un punto primero", Toast.LENGTH_SHORT).show()
+                        println("MapaScreen: Navegando atrás con popBackStack()")
+                    } ?: run {
+                        println("MapaScreen: No hay ubicación seleccionada, mostrando Toast")
+                        Toast.makeText(context, "Selecciona un punto primero", Toast.LENGTH_SHORT).show()
+                    }
                 }
             )
         }
-
     }
 }

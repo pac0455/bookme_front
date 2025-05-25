@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,12 +61,14 @@ import com.example.frontendapp.data.model.Negocio
 fun NegocioListItem(
     negocio: Negocio,
     onEditClick: (Negocio) -> Unit = {},
-    onDeleteClick: (Negocio) -> Unit = {}
+    onDeleteClick: (Negocio) -> Unit = {},
+    onCLickVer:(Negocio) -> Unit = {},
+    show: Boolean = false,
 
 ) {
     val estadoActivo = negocio.activo == true
     val colorEstado = if (estadoActivo) Color(0xFF4CAF50) else Color(0xFFF44336) // Verde o rojo
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(show) }
 
     Column(
         modifier = Modifier
@@ -184,6 +187,20 @@ fun NegocioListItem(
 
                     }
                 }
+                Spacer(modifier = Modifier.width(16.dp))
+                TextButton(onClick = { onCLickVer(negocio) }) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Ir",
+                            modifier = Modifier.size(18.dp),
+                            tint = Color.Blue
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Configurar", color = Color.Blue)
+
+                    }
+                }
             }
         }
     }
@@ -205,7 +222,7 @@ fun NegocioListItemPreview() {
         var myPadding = innerPadding
         myPadding = PaddingValues(top = 8.dp, start = 1.dp)
         Box(modifier = Modifier.padding(myPadding)) {
-            NegocioListItem(negocio)
+            NegocioListItem(negocio, show = true)
         }
     }
 }

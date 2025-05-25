@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.ui.theme.FrontendappTheme
-import com.example.frontendapp.ui.theme.composables.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -52,18 +52,22 @@ import com.example.frontendapp.ui.theme.composables.list.HorarioList
 import com.example.frontendapp.ui.theme.composables.Btn.TimePickerInputButton
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HorarioForm(
     navController: NavController,
-    negocioViewModel: NegocioViewModel
+    negocioViewModel: NegocioViewModel,
+    modo: String
 )
 {
 
-
+    val esCreacion = modo == "crear"
 
     val negocio = negocioViewModel.negocioState.collectAsState().value
+    // Log para ver qué datos llegan desde el ViewModel
+    Log.d("HorarioForm", "Datos recibidos: nombre=${negocio.nombre}, direccion=${negocio.direccion}, categoria=${negocio.categoria}, horarios=${negocio.horarioAtencion}")
 
     val diasVisuales = listOf("L", "M", "X", "J", "V", "S", "D")
     val diasInternos = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
@@ -105,22 +109,47 @@ fun HorarioForm(
 
         bottomBar = {
             BtnStyle1(
-                text = "Crear",
+                text = if (esCreacion) "Crear" else "Actualizar",
                 onClick = {
-                    negocioViewModel.addNegocioDB(
-                        onLoading = {
-                            Log.d("Loading necgocio", "Cargando el negocio ${negocio.toString()}")
-                            Toast.makeText(context, "Creando negocio...", Toast.LENGTH_SHORT).show()
-                        },
-                        onSuccess = {
-                            Toast.makeText(context, "Negocio creado correctamente", Toast.LENGTH_SHORT).show()
-                            navController.navigate(NavigationItem.BUSSINES_MAIN.route)
-                        },
-                        onError = { errorMsg ->
-                            Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
-                            Log.d("Negocio error","Error: $errorMsg" )
+                    if (esCreacion) {
+                        negocioViewModel.addNegocioDB(
+                            onLoading = {
+                                Log.d("Create Negocio", "Creando el negocio: $negocio")
+                                Toast.makeText(context, "Creando negocio...", Toast.LENGTH_SHORT).show()
+                            },
+                            onSuccess = {
+                                Toast.makeText(context, "Negocio creado correctamente", Toast.LENGTH_SHORT).show()
+                                navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                            },
+                            onError = { errorMsg ->
+                                Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                                Log.e("Create Negocio", "Error: $errorMsg")
+                            }
+                        )
+                    } else {
+                        val negocioId = negocio.id
+                        if (negocioId == null) {
+                            Toast.makeText(context, "No se encontró el ID del negocio para actualizar", Toast.LENGTH_LONG).show()
+                            Log.e("Update Negocio", "Falta el ID del negocio")
+                            return@BtnStyle1
                         }
-                    )
+
+                        negocioViewModel.updateNegocioById(
+                            id = negocioId,
+                            onLoading = {
+                                Log.d("Update Negocio", "Actualizando el negocio: $negocio")
+                                Toast.makeText(context, "Actualizando negocio...", Toast.LENGTH_SHORT).show()
+                            },
+                            onSuccess = {
+                                Toast.makeText(context, "Negocio actualizado correctamente", Toast.LENGTH_SHORT).show()
+                                navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                            },
+                            onError = { errorMsg ->
+                                Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                                Log.e("Update Negocio", "Error: $errorMsg")
+                            }
+                        )
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -128,8 +157,6 @@ fun HorarioForm(
                     .navigationBarsPadding()
             )
         }
-
-
     ) { inner ->
         Column(
             modifier = Modifier
@@ -270,6 +297,6 @@ fun HorarioForm(
 @Composable
 fun PreviewHorarioForm(){
 FrontendappTheme {
-            HorarioForm(rememberNavController(),  NegocioViewModel(NegocioRemoteSource(RetrofitInstance.negocioApi)))
+            HorarioForm(rememberNavController(),  FakeNegocioViewModel(), modo = "crear")
     }
 }

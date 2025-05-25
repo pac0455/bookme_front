@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -33,11 +34,19 @@ fun Navigator(
     loginScreenViewModel: LoginViewModel,
     registerScreenViewModel: RegisterViewModel,
     negocioFormViewModel: NegocioViewModel,
-    usuarioNegocioMainViewModel: BussinesMainViewModel,
+    usuarioNegocioMainViewModel: NegocioViewModel,
     reservasNegocioScreenViewModel: ReservasViewModel,
     serviciosNegocioScreenViewModel: ServicioViewModel,
-    servicioViewModeServicioForm: ServicioViewModel
 ) {
+    LaunchedEffect(Unit) {
+        Log.d("NAVIGATION_DEBUG", "Navigator parameters received:")
+        Log.d("NAVIGATION_DEBUG", "loginScreenViewModel: ${loginScreenViewModel.hashCode()}")
+        Log.d("NAVIGATION_DEBUG", "registerScreenViewModel: ${registerScreenViewModel.hashCode()}")
+        Log.d("NAVIGATION_DEBUG", "negocioFormViewModel: ${negocioFormViewModel.hashCode()}")
+        Log.d("NAVIGATION_DEBUG", "usuarioNegocioMainViewModel: ${usuarioNegocioMainViewModel.hashCode()}")
+        Log.d("NAVIGATION_DEBUG", "reservasNegocioScreenViewModel: ${reservasNegocioScreenViewModel.hashCode()}")
+        Log.d("NAVIGATION_DEBUG", "serviciosNegocioScreenViewModel: ${serviciosNegocioScreenViewModel.hashCode()}")
+    }
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -56,7 +65,6 @@ fun Navigator(
             LoginScreen(navController, loginScreenViewModel)
         }
         composable(NavigationItem.LOCATION.route) {
-            negocioFormViewModel.resetNegocio()
             NegocioFormScreen(navController, negocioFormViewModel)
         }
         composable(NavigationItem.BUSSINES_MAIN.route) {
@@ -65,12 +73,30 @@ fun Navigator(
         composable(NavigationItem.MAP_SELECT.route) {
             MapaScreen(navController, negocioFormViewModel)
         }
-        composable(NavigationItem.HORARIO_FORM.route) {
-            HorarioForm(navController, negocioFormViewModel)
+        composable(
+            route = NavigationItem.SERVICIO_FORM.route,
+            arguments = listOf(navArgument("modo") { defaultValue = "crear" })
+        ) { backStackEntry ->
+            val modo = backStackEntry.arguments?.getString("modo") ?: "crear"
+            ServicioForm(
+                navController = navController,
+                servicioViewModel = serviciosNegocioScreenViewModel,
+                modo = modo
+            )
         }
-        composable(NavigationItem.SERVICIO_FORM.route) {
-            ServicioForm(navController, servicioViewModeServicioForm)
+
+        composable(
+            route = NavigationItem.SERVICIO_FORM.route,
+            arguments = listOf(navArgument("modo") { defaultValue = "crear" })
+        ) { backStackEntry ->
+            val modo = backStackEntry.arguments?.getString("modo") ?: "crear"
+            ServicioForm(
+                navController = navController,
+                servicioViewModel = serviciosNegocioScreenViewModel,
+                modo = modo
+            )
         }
+
         composable(
             route = "${Screen.NEGOCIO.name}/{negocioId}",
             arguments = listOf(navArgument("negocioId") { type = NavType.IntType })

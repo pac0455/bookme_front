@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.Principal_variacion4
-import com.example.frontendapp.ui.theme.composables.BtnStyle1
 
 @Composable
 fun DaySelector(

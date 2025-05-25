@@ -2,10 +2,12 @@ package com.example.frontendapp.ui.theme.viewmodels
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.model.ServicioDetalleDto
+import com.example.frontendapp.data.model.ServicioUpdateRequest
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.ServicioRemoteSource
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,8 +56,16 @@ open class ServicioViewModel(
         _servicioState.value = _servicioState.value.copy(negocioId = negocioId)
     }
 
+    //Construir la url a la que se va a atacar para la imagen
+    fun getServicioImageUrl(): String? {
+        val id = _servicioState.value.id
+        return if (id != -1) { // o cualquier valor que consideres inválido para id
+            "http://192.168.18.3:5000/api/servicio/$id/imagen"
+        } else {
+            null
+        }
+    }
 
-    // Existing methods...
 
 
     protected open val _servicioListState = MutableStateFlow<Resource<List<Servicio>>>(Resource.None())
@@ -67,8 +77,8 @@ open class ServicioViewModel(
     protected val _servicioDeletedState = MutableStateFlow<Resource<Unit>>(Resource.None())
     val servicioDeletedState: StateFlow<Resource<Unit>> = _servicioDeletedState
 
-    protected val _servicioUpdatedState = MutableStateFlow<Resource<Unit>>(Resource.None())
-    val servicioUpdatedState: StateFlow<Resource<Unit>> = _servicioUpdatedState
+    protected val _servicioUpdatedState = MutableStateFlow<Resource<Servicio>>(Resource.None())
+    val servicioUpdatedState: StateFlow<Resource<Servicio>> = _servicioUpdatedState
 
     protected val _servicioFetchedState = MutableStateFlow<Resource<Servicio>>(Resource.None())
     val servicioFetchedState: StateFlow<Resource<Servicio>> = _servicioFetchedState
@@ -146,7 +156,44 @@ open class ServicioViewModel(
         }
     }
 
+    fun updateImagenServicio(
+        id: Int,
+        context: Context,
+        imagenUri: Uri?,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {},
+        onLoading: () -> Unit = {},
+    ) {
+        viewModelScope.launch {
+            onLoading()
 
+            if (imagenUri == null) {
+                onError("La imagen no puede ser nula.")
+                return@launch
+            }
+
+            val response = servicioRemoteSource.updateImagenServicio(id, imagenUri, context)
+
+            if (response is Resource.Success) {
+                // Guardar la Uri en el stateFlow privado
+                _imagenUri.value = imagenUri
+
+                // Después de actualizar la imagen, opcionalmente puedes obtener el servicio actualizado para mantener el estado actualizado
+                val fetchResponse = servicioRemoteSource.getServicio(id)
+
+                _servicioUpdatedState.value = fetchResponse
+
+                when (fetchResponse) {
+                    is Resource.Success -> onSuccess()
+                    is Resource.Error -> onError(fetchResponse.message ?: "Error al obtener servicio actualizado después de actualizar la imagen")
+                    else -> {}
+                }
+            } else if (response is Resource.Error) {
+                _servicioUpdatedState.value = Resource.Error(response.message ?: "Error al actualizar la imagen")
+                onError(response.message ?: "Error desconocido al actualizar la imagen.")
+            }
+        }
+    }
     fun getServicioById(
         id: Int,
         onSuccess: () -> Unit = {},
@@ -201,28 +248,49 @@ open class ServicioViewModel(
     }
 
     fun updateServicio(
-        id: Int,
-        servicio: Servicio,
         onSuccess: () -> Unit = {},
-        onError: () -> Unit = {},
+        onError: (String) -> Unit = {},
         onLoading: () -> Unit = {},
     ) {
         viewModelScope.launch {
             onLoading()
-            val response = servicioRemoteSource.updateServicio(id, servicio)
+
+            val currentServicio = _servicioState.value
+            val id = currentServicio.id
+
+            if (id == null) {
+                onError("ID del servicio no disponible.")
+                return@launch
+            }
+
+            // Aquí imprimimos el servicio antes de enviarlo
+            val servicioJson = com.google.gson.Gson().toJson(currentServicio)
+            Log.d("ServicioForm", "Enviando servicio para actualizar: $servicioJson")
+            val servicioSinImagen= ServicioUpdateRequest(
+                id = currentServicio.id,
+                duracionMinutos = currentServicio.duracionMinutos,
+                nombre = currentServicio.nombre,
+                descripcion = currentServicio.descripcion,
+                negocioId = currentServicio.negocioId,
+                precio = currentServicio.precio,
+
+            )
+            val response = servicioRemoteSource.updateServicio(id, servicioSinImagen)
             _servicioUpdatedState.value = response
+
             when (response) {
                 is Resource.Success -> onSuccess()
-                is Resource.Error -> onError()
+                is Resource.Error -> onError(response.message ?: "Error desconocido")
                 else -> {}
             }
         }
     }
 
+
     fun deleteServicio(
         id: Int,
         onSuccess: () -> Unit = {},
-        onError: () -> Unit = {},
+        onError: (String) -> Unit = {},
         onLoading: () -> Unit = {},
     ) {
         viewModelScope.launch {
@@ -231,7 +299,7 @@ open class ServicioViewModel(
             _servicioDeletedState.value = response
             when (response) {
                 is Resource.Success -> onSuccess()
-                is Resource.Error -> onError()
+                is Resource.Error -> onError(response.message ?: "Error inesperado")
                 else -> {}
             }
         }
@@ -243,6 +311,9 @@ open class ServicioViewModel(
         _servicioUpdatedState.value = Resource.None()
         _servicioFetchedState.value = Resource.None()
         _servicioListState.value = Resource.None()
+    }
+    fun resetServicio(){
+        _servicioState.value = Servicio()
     }
 
     fun updateServicioState(servicio: Servicio) {

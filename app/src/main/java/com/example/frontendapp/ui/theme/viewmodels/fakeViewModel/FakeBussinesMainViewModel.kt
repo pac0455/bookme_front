@@ -6,19 +6,24 @@ import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
+import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class FakeBussinesMainViewModel : BussinesMainViewModel(
+
+
+
+class FakeNegocioViewModel : NegocioViewModel(
     negocioRemoteSource = NegocioRemoteSource(RetrofitInstance.negocioApi)
 ) {
 
-    override fun loadNegociosByUser() {
+    override fun getNegociosByUserId(): Job {
+        return viewModelScope.launch {
+            _negociosByUserIdState.value = Resource.Loading()
 
-            _negociosState.value = Resource.Loading()
-
-
+            delay(500) // Simula latencia
 
             val negociosFalsos = listOf(
                 Negocio(
@@ -43,9 +48,24 @@ class FakeBussinesMainViewModel : BussinesMainViewModel(
                 )
             )
 
-            _negociosUsuario.value = negociosFalsos
-            _negociosState.value = Resource.Success(negociosFalsos)
+            _negociosByUserIdState.value = Resource.Success(negociosFalsos)
+        }
+    }
 
+    override fun deleteNegocio(
+        negocioId: Int,
+        onLoading: () -> Unit,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ): Job {
+        return viewModelScope.launch {
+            _deleteNegocioState.value = Resource.Loading()
+
+            delay(300) // Simula latencia
+
+            _deleteNegocioState.value = Resource.Success(Unit)
+        }
     }
 }
+
 

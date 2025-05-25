@@ -1,12 +1,16 @@
 package com.example.frontendapp.data.remote.source
 
+import android.content.Context
+import android.net.Uri
 import com.example.frontendapp.data.model.Negocio
 import com.example.frontendapp.data.model.Reserva
 import com.example.frontendapp.data.model.ReservaDetallada
 import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.remote.api.NegocioApi
 import com.example.frontendapp.data.remote.reponses.Resource
+import okhttp3.RequestBody
 import retrofit2.Response
+import java.io.File
 
 class NegocioRemoteSource(
     private val negocioApi: NegocioApi
@@ -114,6 +118,21 @@ class NegocioRemoteSource(
             Resource.Error("Error al obtener reservas: ${e.message}")
         }
     }
+    suspend fun updateNegocioImagen(id: Int, imageUri: Uri, context: Context): Resource<Negocio> {
+        val imagePart = ImageHelper.prepareSingleImagePart(context, imageUri)
+        if (imagePart == null) {
+            return Resource.Error("No se pudo preparar la imagen para subir.")
+        }
+        return try {
+            val response = negocioApi.updateNegocioImagen(id, imagePart)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error al subir la imagen: ${e.localizedMessage ?: e.message}")
+        }
+    }
+
+
+
 
 
     private fun <T> handleResponse(response: Response<T>): Resource<T> {

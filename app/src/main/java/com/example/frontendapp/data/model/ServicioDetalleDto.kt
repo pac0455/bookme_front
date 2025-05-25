@@ -11,5 +11,6 @@ data class ServicioDetalleDto(
     val categoria: String?,
     val valoracionPromedio: Double,
     val numeroValoraciones: Int,
-    val numeroReservas: Int
+    val numeroReservas: Int,
+    val imagen: String? = null
 )

@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables
+package com.example.frontendapp.ui.theme.composables.Btn
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size

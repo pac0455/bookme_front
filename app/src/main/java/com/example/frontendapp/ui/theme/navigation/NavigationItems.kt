@@ -20,8 +20,17 @@ sealed class NavigationItem(val route: String) {
     data object LOCATION : NavigationItem(Screen.LOCATION.name)
     data object BUSSINES_MAIN : NavigationItem(Screen.BUSSINES_MAIN.name)
     data object MAP_SELECT: NavigationItem(Screen.MAP_SELECT.name)
-    data object HORARIO_FORM: NavigationItem(Screen.HORARIO_FORM.name)
-    data object SERVICIO_FORM: NavigationItem(Screen.SERVICIO_FORM.name)
+    data object HORARIO_FORM : NavigationItem("${Screen.HORARIO_FORM.name}/{modo}") {
+        fun createRoute(modo: String): String = "${Screen.HORARIO_FORM.name}/$modo"
+    }
+
+    data object SERVICIO_FORM : NavigationItem("${Screen.SERVICIO_FORM.name}/{modo}") {
+        fun createRoute(modo: String): String = "${Screen.SERVICIO_FORM.name}/$modo"
+        // Rutas predefinidas
+        val create = createRoute("crear")
+        val edit = createRoute("editar")
+    }
+
 
     data object NEGOCIO: NavigationItem("${Screen.NEGOCIO.name}/{negocioId}") {
         fun createRoute(negocioId: Int): String = "${Screen.NEGOCIO.name}/$negocioId"
