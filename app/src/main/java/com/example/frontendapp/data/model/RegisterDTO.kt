@@ -19,9 +19,9 @@ data class RegisterDTO(
     val isNegocio: Boolean
 ) {
     companion object {
-        /**
-         * Crea un RegisterDTO a partir de un objeto Usuario
-         */
+
+//        Crea un RegisterDTO a partir de un objeto Usuario
+
         fun fromUsuario(usuario: Usuario): RegisterDTO {
             return RegisterDTO(
                 username = usuario.username ?: "",

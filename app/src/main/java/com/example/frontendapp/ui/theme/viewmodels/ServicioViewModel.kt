@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.model.ServicioDetalleDto
 import com.example.frontendapp.data.model.ServicioUpdateRequest
+import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.ServicioRemoteSource
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,16 +60,16 @@ open class ServicioViewModel(
     //Construir la url a la que se va a atacar para la imagen
     fun getServicioImageUrl(): String? {
         val id = _servicioState.value.id
+
         return if (id != -1) { // o cualquier valor que consideres inválido para id
-            "http://192.168.18.3:5000/api/servicio/$id/imagen"
+            "${RetrofitInstance.getIp()}api/servicio/$id/imagen"
         } else {
             null
         }
     }
     fun getServicioImageUrl(id: String?): String? {
-        val id = _servicioState.value.id
-        return if (id != -1) { // o cualquier valor que consideres inválido para id
-            "http://192.168.18.3:5000/api/servicio/$id/imagen"
+        return if (!id.isNullOrEmpty()) {
+            "${RetrofitInstance.getIp()}api/servicio/$id/imagen"
         } else {
             null
         }

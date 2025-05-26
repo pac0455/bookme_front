@@ -1,6 +1,7 @@
 package com.example.frontendapp.ui.theme.screens
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,8 +53,11 @@ import com.example.frontendapp.data.dto.GridButtonItem
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 import com.example.frontendapp.ui.theme.composables.list.NegocioList
+import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
+import com.example.frontendapp.R
+import com.example.frontendapp.ui.theme.composables.Btn.onClick
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,6 +67,7 @@ fun UsuarioNegocioMainScreen(
     viewModel: NegocioViewModel
 ) {
     val context = LocalContext.current
+    var show by remember { mutableStateOf(false) }
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -67,6 +75,10 @@ fun UsuarioNegocioMainScreen(
             Toast.makeText(context, "Si no se permite la ubicación no se podrá ubicar tu posición", Toast.LENGTH_LONG).show()
         }
     }
+    BackHandler {
+        show = true
+    }
+
 
     Scaffold(
         topBar = {
@@ -106,14 +118,19 @@ fun UsuarioNegocioMainScreen(
                         text = "Logout",
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
                         containerColor = Color.Red,
-                        onClick = {
-                            RetrofitInstance.setToken("")
-                            navController.navigate(NavigationItem.LOGIN.route){
-                                popUpTo(0)
-                            }
-                        }
+                        onClick = {show=true}
                     )
                 )
+            )
+            LogoutConfirmationDialog(
+                onDismiss = {show=false},
+                onConfirmLogout = {
+                    show=false
+                    RetrofitInstance.setToken("")
+                    RetrofitInstance.setRoles(listOf())
+                },
+                showDialog = show,
+                imageRes = R.mipmap.detener
             )
             NegociosHeader()
 

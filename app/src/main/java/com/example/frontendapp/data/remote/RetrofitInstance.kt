@@ -17,10 +17,17 @@ object RetrofitInstance {
 
     private val serverTest = "https://localhost:7211/"
 
+    private  val ip = serverPracticas
+    private var roles: List<String> = emptyList()
+
+
+    fun getToken(): String? = jwtToken
+    fun setRoles(rolesList: List<String>) { roles = rolesList }
+    fun getRoles(): List<String> = roles
     // Llama a esta función para actualizar el token cuando inicies sesión o refresques
-    fun setToken(token: String) {
-        jwtToken = token
-    }
+    fun setToken(token: String) { jwtToken = token }
+    fun getIp(): String { return ip}
+
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor { chain ->
@@ -34,7 +41,7 @@ object RetrofitInstance {
 
     val userApi: UserApi by lazy {
         Retrofit.Builder()
-            .baseUrl(server)
+            .baseUrl(ip)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -43,7 +50,7 @@ object RetrofitInstance {
 
     val negocioApi: NegocioApi by lazy {
         Retrofit.Builder()
-            .baseUrl(server)
+            .baseUrl(ip)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -51,7 +58,7 @@ object RetrofitInstance {
     }
     val servicioApi: ServicioApi by lazy {
         Retrofit.Builder()
-            .baseUrl(server)
+            .baseUrl(ip)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

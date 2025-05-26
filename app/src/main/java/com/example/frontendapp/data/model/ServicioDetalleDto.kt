@@ -1,5 +1,7 @@
 package com.example.frontendapp.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class ServicioDetalleDto(
     val id: Int,
     val negocioId: Int,
@@ -12,5 +14,6 @@ data class ServicioDetalleDto(
     val valoracionPromedio: Double,
     val numeroValoraciones: Int,
     val numeroReservas: Int,
+    @SerializedName("imagenUrl")
     val imagen: String? = null
 )

@@ -9,8 +9,14 @@ sealed class Resource<T>(
     val message: String? = null,
     val validationResponse: ValidationErrorResponse? = null
 ) {
-    class Success<T>(data: T) : Resource<T>(data) //resultado correcto.
-    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)//ocurrió un error
-    class Loading<T> : Resource<T>()  // llamada en curso.
-    class None<T> : Resource<T>() //recurso no llamado
+    class Success<T>(data: T) : Resource<T>(data)
+
+    class Error<T>(
+        message: String,
+        data: T? = null,
+        validationResponse: ValidationErrorResponse? = null
+    ) : Resource<T>(data, message, validationResponse)
+
+    class Loading<T> : Resource<T>()
+    class None<T> : Resource<T>()
 }

@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -97,12 +99,15 @@ fun ServicioImagePicker(
         )
     }
 
-    val imageRequest = remember(imageDto) {
-        ImageRequest.Builder(context)
+    val imageRequest by produceState<ImageRequest?>(initialValue = null, imageDto) {
+        delay(500) // 👍 funciona perfectamente dentro de produceState
+        value = ImageRequest.Builder(context)
             .data(imageDto.url)
             .memoryCacheKey(imageDto.cacheKey)
             .build()
     }
+
+
 
     val painter = rememberAsyncImagePainter(imageRequest)
     val painterState = painter.state

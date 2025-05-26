@@ -6,9 +6,11 @@ import androidx.compose.foundation.BorderStroke
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,12 +19,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
@@ -33,6 +43,8 @@ import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.Btn.GoogleButton
+import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
+import com.example.frontendapp.ui.theme.composables.text.TextNavigate
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 
@@ -43,7 +55,18 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: RegisterViewM
     val uiState by usuarioViewModel.uiState.collectAsState()
     val validationState by usuarioViewModel.validationState.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
+    val nombreFocus = remember { FocusRequester() }
+    val emailFocus = remember { FocusRequester() }
+    val telefonoFocus = remember { FocusRequester() }
+    val contrasenaFocus = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
+
+
+    LaunchedEffect(Unit) {
+        usuarioViewModel.resetUi()
+    }
+    //Resetear el estado cada vez que entr
     Scaffold(
         topBar = {
             Box(
@@ -76,51 +99,64 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: RegisterViewM
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 CustomTextField(
+                    modifier = Modifier.focusRequester(nombreFocus),
                     icon = Icons.Default.Person,
                     label = "Nombre",
                     value = uiState.username ?: "",
                     onValueChange = {
-                        Log.d("RegisterScreen", "Nombre actualizado: $it")
-                        usuarioViewModel.setNombre(it)
+                        val cleaned = it.filterNot { c -> c.isWhitespace() } // Elimina espacios, tabs y saltos de línea
+                        usuarioViewModel.setNombre(cleaned)
                     },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { emailFocus.requestFocus() }),
                     errorMessage = validationState.data?.errors?.get("username")
                 )
+
                 CustomTextField(
+                    modifier = Modifier.focusRequester(emailFocus),
                     icon = Icons.Default.Email,
                     label = "Correo",
                     value = uiState.email ?: "",
                     onValueChange = {
-                        Log.d("RegisterScreen", "Correo actualizado: $it")
-                        usuarioViewModel.setCorreo(it)
+                        usuarioViewModel.setCorreo(it.filterNot { c -> c == '\n' || c == '\t' })
                     },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { telefonoFocus.requestFocus() }),
                     errorMessage = validationState.data?.errors?.get("email")
                 )
+
                 CustomTextField(
+                    modifier = Modifier.focusRequester(telefonoFocus),
                     icon = Icons.Default.Phone,
                     label = "Teléfono",
                     value = uiState.phoneNumber ?: "",
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     onValueChange = { input ->
-                        if (input.length <= 9 && input.all { it.isDigit() }) {
-                            Log.d("RegisterScreen", "Teléfono actualizado: $input")
-                            usuarioViewModel.setTelefono(input)
-                        } else {
-                            Log.d("RegisterScreen", "Teléfono inválido: $input")
+                        val cleaned = input.filterNot { c -> c == '\n' || c == '\t' }
+                        if (cleaned.length <= 9 && cleaned.all { it.isDigit() }) {
+                            usuarioViewModel.setTelefono(cleaned)
                         }
                     },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { contrasenaFocus.requestFocus() }),
                     errorMessage = validationState.data?.errors?.get("phoneNumber")
                 )
+
                 CustomTextField(
+                    modifier = Modifier.focusRequester(contrasenaFocus),
                     icon = Icons.Default.RemoveRedEye,
                     label = "Contraseña",
                     value = uiState.password ?: "",
                     isPassword = true,
                     onValueChange = {
-                        Log.d("RegisterScreen", "Contraseña actualizada")
-                        usuarioViewModel.setContrasena(it)
+                        val cleaned = it.filterNot { c -> c.isWhitespace() }
+                        usuarioViewModel.setContrasena(cleaned)
                     },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     errorMessage = validationState.data?.errors?.get("password")
                 )
+
+               TextNavigate("¿Ya tientes cuenta? Logueate",navController, NavigationItem.LOGIN.route)
             }
 
             // Sección de botones

@@ -10,6 +10,7 @@ import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
 
 class AuthRemoteDataResourceTest {
@@ -178,6 +179,7 @@ class AuthRemoteDataResourceTest {
     }
     @Test
     fun `register negocio successfully and delete`() = runBlocking {
+        val gson = Gson()
 
         val usuarioNegocio = Usuario(
             email = "negocio_test@bookme.com",
@@ -188,55 +190,87 @@ class AuthRemoteDataResourceTest {
         )
 
         // 1. Intentar borrar al usuario si existe
-        val deleteResult = authRemoteDataResource.delete(usuarioNegocio.email ?:"")
+        val deleteResult = authRemoteDataResource.delete(usuarioNegocio.email ?: "")
         if (deleteResult is Resource.Success) {
-            println("🧹 usuarioNegocio anterior eliminado antes del test.")
+            println("🧹 Usuario anterior eliminado antes del test.")
+        } else if (deleteResult is Resource.Error) {
+            println("⚠️ No se pudo eliminar usuario anterior (puede no existir): ${deleteResult.message}")
         }
 
+        // 2. Registrar el nuevo negocio
         val result = authRemoteDataResource.registerNegocio(usuarioNegocio)
+
+        // 3. Imprimir el resultado completo como JSON
+        println("📦 Respuesta completa: ${gson.toJson(result)}")
 
         when (result) {
             is Resource.Success -> {
-                val id = result.data?.usuario?.id
-                println("✅ Negocio registrado con ID: $id")
+                val usuarioRegistrado = result.data?.usuario
+                println("✅ Usuario registrado: ${gson.toJson(usuarioRegistrado)}")
+
+                // Validaciones
+                assertNotNull(usuarioRegistrado?.id, "El ID no debe ser null")
+                assertTrue("El ID no debe estar vacío", usuarioRegistrado?.id!!.isNotBlank())
+
+                assertEquals(usuarioNegocio.email, usuarioRegistrado.email)
             }
             is Resource.Error -> {
                 println("❌ Error en registro negocio: ${result.message}")
+                fail("Fallo en registro: ${result.message}")
             }
-            else -> {}
+            else -> fail("Resultado inesperado del registro")
         }
-
-        assertTrue(result is Resource.Success)
     }
 
     @Test
     fun `register cliente successfully`() = runBlocking {
+        val gson = Gson()
+
         val usuarioCliente = Usuario(
-            email = "cliente_test@bookme.com",
+            email = "juan@gmail.com",
             password = "Cliente123!",
-            username = "ClienteTest",
-            phoneNumber = "699999999",
+            username = "JuanAntonio",
+            phoneNumber = "722613458",
+            isNegocio = false
         )
+
+        // 1. Borrar si ya existe
         val deleteResponse = authRemoteDataResource.delete(usuarioCliente.email ?: "")
-        if(deleteResponse is Resource.Success){
+        if (deleteResponse is Resource.Success) {
             println("🧹 Cliente ${usuarioCliente.email} limpiado")
+        } else if (deleteResponse is Resource.Error) {
+            println("⚠️ No se pudo eliminar cliente anterior (puede no existir): ${deleteResponse.message}")
         }
 
+        // 2. Registrar nuevo cliente
         val result = authRemoteDataResource.registerCliente(usuarioCliente)
+
+        // 3. Mostrar respuesta completa
+        println("📦 Respuesta completa: ${gson.toJson(result)}")
 
         when (result) {
             is Resource.Success -> {
-                val id = result.data?.usuario?.id
-                println("✅ Cliente registrado con ID: $id")
+                val usuarioRegistrado = result.data?.usuario
+                println("✅ Cliente registrado: ${gson.toJson(usuarioRegistrado)}")
 
+                // Validaciones
+                assertNotNull(usuarioRegistrado?.id, "El ID no debe ser null")
+                assertTrue("El ID no debe estar vacío", usuarioRegistrado?.id!!.isNotBlank())
 
+                assertEquals(usuarioCliente.email, usuarioRegistrado.email)
             }
             is Resource.Error -> {
                 println("❌ Error en registro cliente: ${result.message}")
-            }
-            else -> {}
-        }
 
-        assertTrue(result is Resource.Success)
+                // Mostrar errores de validación si existen
+                result.validationResponse?.errors?.forEach { (campo, mensaje) ->
+                    println("🛑 Error [$campo]: $mensaje")
+                }
+
+                fail("Fallo en registro: ${result.message}")
+            }
+            else -> fail("Resultado inesperado del registro")
+        }
     }
+
 }

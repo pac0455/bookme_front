@@ -7,63 +7,72 @@ import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.data.dto.ValidationErrorResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private  val auth: AuthRemoteDataResource): ViewModel() {
+class LoginViewModel(private val auth: AuthRemoteDataResource) : ViewModel() {
     // Estado del usuario
     private val _usuarioState = MutableStateFlow(Usuario())
     val usuarioState: StateFlow<Usuario> = _usuarioState
 
-
-    //Estado de la respuesta, si esta cargando, si hubo un error o si fue exitoso
+    // Estado de la respuesta general
     private val _loginState = MutableStateFlow<Resource<LoginRegisterResultDTO>>(Resource.None())
     val loginState: StateFlow<Resource<LoginRegisterResultDTO>> = _loginState
 
-    // Métodos para actualizar el estado del usuario
+    // Estado de errores de validación del backend
+    private val _validationErrors = MutableStateFlow<Map<String, String>>(emptyMap())
+    val validationErrors: StateFlow<Map<String, String>> = _validationErrors
+
     fun setNombre(nombre: String) {
-        _usuarioState.update { currentState ->
-            currentState.copy(username = nombre)
-        }
+        _usuarioState.update { it.copy(username = nombre) }
     }
 
     fun setEmail(email: String) {
-        _usuarioState.update { currentState ->
-            currentState.copy(email = email)
-        }
+        _usuarioState.update { it.copy(email = email) }
     }
 
     fun setPassword(password: String) {
-        _usuarioState.update { currentState ->
-            currentState.copy(password = password)
-        }
+        _usuarioState.update { it.copy(password = password) }
     }
 
-    fun reset(){
+    fun reset() {
         _usuarioState.value = Usuario()
+        _validationErrors.value = emptyMap()
     }
+
     fun loginUsuario(
         onLoading: (() -> Unit)? = null,
         onSuccess: ((LoginRegisterResultDTO) -> Unit)? = null,
-        onError: ((String) -> Unit)? = null
+        onError: ((String) -> Unit)? = null,
+        onValidationError: ((Map<String, String>) -> Unit)? = null
     ) {
         viewModelScope.launch {
             val user = _usuarioState.value
-
-            // Notificar que está cargando
             onLoading?.invoke()
             _loginState.value = Resource.Loading()
 
             try {
                 val result = auth.login(LoginRequest(user.email, user.password))
-                if (result is Resource.Success && result.data != null) {
-                    _loginState.value = result
-                    onSuccess?.invoke(result.data)
-                } else if (result is Resource.Error) {
-                    _loginState.value = result
-                    onError?.invoke(result.message ?: "Error desconocido")
+                when (result) {
+                    is Resource.Success -> {
+                        _loginState.value = result
+                        _validationErrors.value = emptyMap()
+                        onSuccess?.invoke(result.data!!)
+                    }
+                    is Resource.Error -> {
+                        _loginState.value = result
+                        val validation = result.validationResponse?.errors
+                        if (!validation.isNullOrEmpty()) {
+                            _validationErrors.value = validation
+                            onValidationError?.invoke(validation)
+                        } else {
+                            onError?.invoke(result.message ?: "Error desconocido")
+                        }
+                    }
+                    else -> Unit
                 }
             } catch (e: Exception) {
                 val errorMsg = e.message ?: "Error inesperado"
@@ -72,5 +81,4 @@ class LoginViewModel(private  val auth: AuthRemoteDataResource): ViewModel() {
             }
         }
     }
-
 }

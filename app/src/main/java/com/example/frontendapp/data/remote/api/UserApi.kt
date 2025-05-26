@@ -1,5 +1,6 @@
 package com.example.frontendapp.data.remote.api
 
+import com.example.frontendapp.data.dto.ApiResponse
 import com.example.frontendapp.data.dto.ValidationErrorResponse
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.RegisterDTO
@@ -33,7 +34,9 @@ interface UserApi {
 
     // Registro tradicional
     @POST("$controller/register")
-    suspend fun signup(@Body usuario: Usuario): Response<LoginRegisterResultDTO>
+    suspend fun signup(@Body usuario: RegisterDTO): Response<ApiResponse<LoginRegisterResultDTO>>
+
+
     //GetAll
     @GET(controller)
     suspend fun getAll(): Response <List<Usuario>>

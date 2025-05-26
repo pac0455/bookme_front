@@ -9,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.frontendapp.ui.theme.screens.ClienteMainScreen
 import com.example.frontendapp.ui.theme.screens.UsuarioNegocioMainScreen
 import com.example.frontendapp.ui.theme.screens.HorarioForm
 import com.example.frontendapp.ui.theme.screens.LoginScreen
@@ -71,6 +72,9 @@ fun Navigator(
         }
         composable(NavigationItem.MAP_SELECT.route) {
             MapaScreen(navController, negocioFormViewModel)
+        }
+        composable(NavigationItem.CLIENTE_MAIN_SCREEN.route) {
+            ClienteMainScreen(navController,reservasNegocioScreenViewModel)
         }
         composable(
             route = "HORARIO_FORM/{modo}",

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -49,19 +50,26 @@ fun CustomTextField(
     enabled: Boolean = true,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    errorMessage: String? = null // Nuevo parámetro para el mensaje de error
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    errorMessage: String? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
-    Column {
+    Box(modifier = modifier) {
         TextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = {
+                if (!it.contains('\n') && !it.contains('\t')) {
+                    onValueChange(it)
+                }
+            },
             label = { Text(label) },
             trailingIcon = {
                 if (isPassword) {
-                    val visibilityIcon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
-                    val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                    val visibilityIcon =
+                        if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                    val description =
+                        if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = visibilityIcon,
@@ -79,25 +87,28 @@ fun CustomTextField(
                 }
             },
             enabled = enabled,
-            visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+            visualTransformation = if (isPassword && !passwordVisible)
+                PasswordVisualTransformation()
+            else
+                VisualTransformation.None,
             keyboardOptions = keyboardOptions,
-            modifier = modifier
+            keyboardActions = keyboardActions,
+            modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.Transparent)
-                .border(1.dp, if (errorMessage != null) Color.Red else Color.Transparent), // Borde rojo si hay error
+                .border(1.dp, if (errorMessage != null) Color.Red else Color.Transparent),
             colors = TextFieldDefaults.textFieldColors(
                 unfocusedIndicatorColor = Color.Black,
                 containerColor = Color.Transparent
             ),
         )
 
-        // Mostrar el mensaje de error si existe
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier.padding(start = 16.dp, top = 60.dp)
             )
         }
     }

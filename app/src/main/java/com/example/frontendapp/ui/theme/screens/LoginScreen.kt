@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.HourglassEmpty
@@ -51,19 +53,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
 import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.ui.theme.composables.text.TextNavigate
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 
 @Composable
-fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
+fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
     val loginState by loginViewModel.loginState.collectAsState()
+    val usuario by loginViewModel.usuarioState.collectAsState()
+    val validationErrors by loginViewModel.validationErrors.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
 
-    val usuario by loginViewModel.usuarioState.collectAsState()
-    val context = LocalContext.current
+    val emailFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
 
+
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -90,21 +101,23 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
                 .padding(innerPadding)
                 .padding(24.dp),
             verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.CenterHorizontally,
-
-
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-            Column (
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-
-
                 CustomTextField(
                     icon = Icons.Default.Person,
-                    label = "Usuario",
+                    label = "Correo electrónico",
                     value = usuario.email.orEmpty(),
-                    onValueChange = { loginViewModel.setEmail(it) }
+                    onValueChange = { loginViewModel.setEmail(it) },
+                    errorMessage = validationErrors["email"],
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = {
+                        passwordFocusRequester.requestFocus()
+                    }),
+                    modifier = Modifier.focusRequester(emailFocusRequester)
                 )
 
                 CustomTextField(
@@ -112,35 +125,43 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
                     label = "Contraseña",
                     value = usuario.password.orEmpty(),
                     isPassword = true,
-                    onValueChange = { loginViewModel.setPassword(it) }
+                    onValueChange = { loginViewModel.setPassword(it) },
+                    errorMessage = validationErrors["password"],
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onNext = {
+                        emailFocusRequester.requestFocus()
+                    }),
+                    modifier = Modifier.focusRequester(passwordFocusRequester)
                 )
-
             }
-
+            TextNavigate("¿No tienes cuenta? Registrate",navController, NavigationItem.REGISTER.route)
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BtnStyle1(
                     onClick = {
                         loginViewModel.loginUsuario(
                             onLoading = {
-                                isLoading=true
+                                isLoading = true
                                 Log.d("Login", "Cargando...")
                             },
                             onSuccess = { result ->
-                                isLoading=false
-                                Log.d("Login", "Éxito: ${result.usuario}")
+                                isLoading = false
+                                Log.d("Login", "Éxito: $result")
                                 RetrofitInstance.setToken(result.token)
                                 val roles = result.roles
                                 when {
-                                    roles.contains("CLIENTE") -> navController.navigate(NavigationItem.MAIN.route)
+                                    roles.contains("CLIENTE") -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
                                     roles.contains("NEGOCIO") -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
                                 }
                                 loginViewModel.reset()
                             },
                             onError = { error ->
-                                isLoading=false
+                                isLoading = false
                                 Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                                Log.d("LoginScreen",error)
+                                Log.d("LoginScreen", error)
+                            },
+                            onValidationError = { errores ->
+                                Log.d("LoginScreen", "Errores de validación: $errores")
                             }
                         )
                     },
@@ -151,15 +172,15 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
                 CustomBox(
                     borderTop = true,
                     borderBottom = true,
-                    msg = "or"
+                    msg = "o"
                 )
 
-                GoogleButton(LocalContext.current)
+                GoogleButton(context)
             }
-
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {

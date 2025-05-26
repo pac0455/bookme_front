@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -180,7 +181,7 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
-                    if (negocio.direccion.isNullOrEmpty()) {
+                    if (negocio.direccion.isEmpty()) {
                         negocio.direccion = "Pulsa el icono para poder insertar una dirección"
                     }
 
@@ -189,7 +190,8 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
                         value = negocio.direccion,
                         enabled = false,
                         onValueChange = { negocioViewModel.setDireccion(it) },
-                        label = "Dirección"
+                        label = "Dirección",
+
                     )
 
                     BtnIconRounded(
@@ -197,8 +199,9 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
                         onClick = {
                             navController.navigate(NavigationItem.MAP_SELECT.route)
                         },
-                        size = 56.dp,        //  tamaño fijo del botón
-                        iconSize = 24.dp     //  tamaño visible del icono
+                        modifier = Modifier.size(56.dp),
+                        size = 56.dp,
+                        iconSize = 24.dp
                     )
                 }
 

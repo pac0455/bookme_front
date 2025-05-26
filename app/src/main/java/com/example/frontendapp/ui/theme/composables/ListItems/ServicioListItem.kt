@@ -1,6 +1,7 @@
 package com.example.frontendapp.ui.theme.composables.ListItems
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -53,11 +54,14 @@ fun ServicioListItem(
     onDeleteClick: (ServicioDetalleDto) -> Unit = {},
     onEditNavigate: () -> Unit = {} // Llamar a la navegación hacia pantalla edición
 ) {
+    Log.d("ServicioListItem", "Recibido: $servicioDetalleDto")
+
     val colorEstado = when {
         servicioDetalleDto.valoracionPromedio < 3.0 -> Color(0xFFF44336) // rojo menor a 3
         servicioDetalleDto.valoracionPromedio < 4.0 -> Color(0xFFFFC107) // amarillo entre 3 y 4
         else -> Color(0xFF4CAF50) // verde de 4 a 5
     }
+    val imagenUrl = viewModel.getServicioImageUrl(servicioDetalleDto.id.toString())
 
 
     var expanded by remember { mutableStateOf(false) }
@@ -76,7 +80,7 @@ fun ServicioListItem(
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             ServicioImagePicker(
-                id = servicioDetalleDto.id,
+                imageUrl = imagenUrl,
                 modifier = Modifier
                     .size(70.dp)
                     .clip(CircleShape),

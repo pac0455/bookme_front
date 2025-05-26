@@ -2,6 +2,7 @@ package com.example.frontendapp.ui.theme.screens
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +64,24 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    BackHandler {
+        navController.navigate(NavigationItem.LOGIN.route) {
+            popUpTo(0) // Limpia todo el back stack
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val token = RetrofitInstance.getToken()
+        val roles = RetrofitInstance.getRoles()
+        if (!token.isNullOrBlank()) {
+            when {
+                roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route) { popUpTo(0) }
+                roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route) { popUpTo(0) }
+            }
+        }
+    }
+
+
     Scaffold(
         topBar = {
             Box(
@@ -102,8 +122,8 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
                 text = "Soy un cliente",
                 checked = isClient,
                 onCheckedChange = {
-                    isClient = true
-                    isBusiness = false
+                    isClient = !isClient
+                    isBusiness = !isBusiness
                 }
             )
 
@@ -111,8 +131,8 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
                 text = "Soy un negocio",
                 checked = isBusiness,
                 onCheckedChange = {
-                    isBusiness = true
-                    isClient = false
+                    isBusiness = !isBusiness
+                    isClient = !isClient
                 }
             )
 
@@ -131,7 +151,6 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
                             onLoading = { isLoading = true },
                             onSuccess = { result ->
                                 isLoading = false
-
                                 // Verificar si el token no es nulo antes de establecerlo
                                 result.token?.let { token ->
                                     Log.d("NegocioClienteScrenn", "Token recibido: $token")
@@ -140,7 +159,7 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
 
                                 val roles = result.roles
                                 when {
-                                    roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.MAIN.route)
+                                    roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
                                     roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
                                 }
                             },

@@ -32,6 +32,11 @@ class RegisterViewModel(private val auth: AuthRemoteDataResource) : ViewModel() 
     private val _validationState = MutableStateFlow<Resource<ValidationErrorResponse>>(Resource.None())
     val validationState: StateFlow<Resource<ValidationErrorResponse>> = _validationState
 
+    fun resetUi(){
+        _uiState.value = Usuario()
+        _registerResult.value = Resource.None()
+        _validationState.value = Resource.None()
+    }
     // Métodos para actualizar el estado del usuario
     fun setNombre(nombre: String) {
         _uiState.update { currentState ->

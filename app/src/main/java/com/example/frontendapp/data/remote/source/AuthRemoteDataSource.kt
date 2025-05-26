@@ -1,5 +1,6 @@
 package com.example.frontendapp.data.remote.source
 
+import com.example.frontendapp.data.dto.ApiResponse
 import com.example.frontendapp.data.dto.ValidationErrorResponse
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.RegisterDTO
@@ -14,149 +15,134 @@ import retrofit2.Response
 
 class AuthRemoteDataResource(private val userApi: UserApi) {
 
-
-    private fun validateRegisterUser(user: Usuario): String? {
-        return when {
-            user.username.isNullOrBlank() -> "El nombre de usuario no puede estar vacío."
-            user.email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
-            user.password.isNullOrBlank() -> "La contraseña no puede estar vacía."
-            user.phoneNumber.isNullOrBlank() -> "EL telefono no puede estar vacía."
-            else -> null // Sin errores
-        }
+    private fun validateLogin(usuario: Usuario): String? = when {
+        usuario.email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
+        usuario.password.isNullOrBlank() -> "La contraseña no puede estar vacía."
+        else -> null
     }
 
-    private fun validateLogin(usuario: Usuario): String? {
-        return when {
-            usuario.email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
-            usuario.password.isNullOrBlank() -> "La contraseña no puede estar vacía."
-            else -> null // Sin errores
-        }
-    }
-    // Método para registrar un usuario
     suspend fun signupWithGoogle(usuario: Usuario) {
-        // Implementación para registrar al usuario
+        // Implementación futura
     }
 
-    // Método para iniciar sesión con Google
     suspend fun loginWithGoogle(token: String) {
-        // Implementación para iniciar sesión con Google
+        // Implementación futura
     }
 
-    suspend fun getAll(): Resource<List<Usuario>> {
-        return try {
-            val response = userApi.getAll()
-
-            if (response.isSuccessful){
-                Resource.Success(response.body() ?: emptyList())
-            }else{
-                val errorBody = response.errorBody()?.string()
-                Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
-            }
-        }catch (ex : Exception){
-            Resource.Error(ex.message ?: "error al cargar todos los usuarios")
+    suspend fun getAll(): Resource<List<Usuario>> = try {
+        val response = userApi.getAll()
+        if (response.isSuccessful) {
+            Resource.Success(response.body() ?: emptyList())
+        } else {
+            Resource.Error("Error del servidor: ${response.code()} - ${response.errorBody()?.string() ?: "Desconocido"}")
         }
+    } catch (ex: Exception) {
+        Resource.Error(ex.message ?: "Error al cargar los usuarios")
     }
-    suspend fun delete(idUser: String): Resource<String> {
-        return try {
-            val response = userApi.delete(idUser)
 
-            if (response.isSuccessful) {
-                val result = response.body()
-                if (result != null) {
-                    Resource.Success(result.message)
-                } else {
-                    Resource.Error("Respuesta vacía del servidor")
-                }
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
-            }
-        } catch (ex: Exception) {
-            Resource.Error(ex.message ?: "Error al eliminar el usuario")
+    suspend fun delete(email: String): Resource<String> = try {
+        val response = userApi.delete(email)
+        if (response.isSuccessful) {
+            response.body()?.let { Resource.Success(it.message) }
+                ?: Resource.Error("Respuesta vacía del servidor")
+        } else {
+            Resource.Error("Error del servidor: ${response.code()} - ${response.errorBody()?.string() ?: "Desconocido"}")
         }
+    } catch (ex: Exception) {
+        Resource.Error(ex.message ?: "Error al eliminar el usuario")
     }
 
-    suspend fun validateRegistration(registerDTO: RegisterDTO): Resource<ValidationErrorResponse> {
-        return try {
-            val response = userApi.validateRegistration(registerDTO)
-            handleResponse(response)
-        } catch (ex: Exception) {
-            Resource.Error("Error de red: ${ex.message}")
-        }
+    suspend fun validateRegistration(registerDTO: RegisterDTO): Resource<ValidationErrorResponse> = try {
+        val response = userApi.validateRegistration(registerDTO)
+        handleResponse(response)
+    } catch (ex: Exception) {
+        Resource.Error("Error de red: ${ex.message}")
     }
 
+    suspend fun registerCliente(baseUsuario: Usuario): Resource<LoginRegisterResultDTO> =
+        registerUser(baseUsuario.copy(isNegocio = false))
 
+    suspend fun registerNegocio(baseUsuario: Usuario): Resource<LoginRegisterResultDTO> =
+        registerUser(baseUsuario.copy(isNegocio = true))
 
-    //Metodo para registrar un usuario
-    //Resource<String>> es como decir devuelve un objeto que tenfnga diferentes estados dependiendo de la solicitud
-    suspend fun registerUser(usuario: Usuario): Resource<LoginRegisterResultDTO> {
-        return try {
-            val response = userApi.signup(usuario)
-            handleResponse(response)
-        } catch (e: Exception) {
-            Resource.Error("Excepción de red o inesperada: ${e.localizedMessage}")
-        }
+    suspend fun registerUser(usuario: Usuario): Resource<LoginRegisterResultDTO> = try {
+        val response = userApi.signup(usuario.toRegisterDTO())
+        wrapperHandleResponse(response)
+    } catch (e: Exception) {
+        Resource.Error("Excepción de red o inesperada: ${e.localizedMessage}")
     }
-
-
-    suspend fun registerCliente(baseUsuario: Usuario): Resource<LoginRegisterResultDTO> {
-        val usuario = baseUsuario.copy(isNegocio = false)
-        return registerUser(usuario)
-    }
-
 
     suspend fun login(login: LoginRequest): Resource<LoginRegisterResultDTO> {
-        val usuario = Usuario(
-            email = login.email,
-            password = login.password
-        )
-        val validationError = validateLogin(usuario)
-        if (validationError != null) {
-            return Resource.Error(validationError)
-        }
+        val usuario = Usuario(email = login.email, password = login.password)
+        validateLogin(usuario)?.let { return Resource.Error(it) }
 
         return try {
             val response = userApi.login(login)
-
-            if (response.isSuccessful) {
-                val loginResult = response.body()!!
-                Resource.Success(loginResult)
-            } else {
-                val errorMessage = response.errorBody()?.string()
-                Resource.Error("Error del servidor: ${response.code()} - ${errorMessage ?: "Desconocido"}")
-            }
+            handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")
         }
     }
-    suspend fun registerNegocio(baseUsuario: Usuario): Resource<LoginRegisterResultDTO> {
-        val usuario = baseUsuario.copy(isNegocio = true)
-        return registerUser(usuario)
-    }
-
-    private fun <T> handleResponse(response: Response<T>): Resource<T> {
-        return if (response.isSuccessful) {
-            val result = response.body()
-            if (result != null) {
-                Resource.Success(result)
+    private fun <T> wrapperHandleResponse(response: Response<ApiResponse<T>>): Resource<T> {
+        if (response.isSuccessful) {
+            val body = response.body()
+            return if (body?.success == true && body.data != null) {
+                Resource.Success(body.data)
             } else {
-                @Suppress("UNCHECKED_CAST")
-                if (response.code() == 204) {
-                    Resource.Success(Unit as T)
-                } else {
-                    Resource.Error("Respuesta vacia del servidor.")
-                }
+                Resource.Error(body?.message ?: "Respuesta del servidor inválida.")
             }
+        }
+
+        val rawError = response.errorBody()?.string()
+        val validationError = try {
+            Gson().fromJson(rawError, ValidationErrorResponse::class.java)
+        } catch (e: Exception) {
+            null
+        }
+
+        return if (validationError != null && !validationError.errors.isNullOrEmpty()) {
+            Resource.Error(
+                message = validationError.errors.values.firstOrNull() ?: "Error de validación.",
+                validationResponse = validationError
+            )
         } else {
-            val rawError = response.errorBody()?.string()
-            val errorMessage = try {
+            val fallbackMessage = try {
                 JSONObject(rawError ?: "").optString("message", "Error desconocido del servidor.")
             } catch (e: Exception) {
                 rawError ?: "Error desconocido del servidor."
             }
-
-            Resource.Error("Error del servidor: ${response.code()} - $errorMessage")
+            Resource.Error("Error del servidor: ${response.code()} - $fallbackMessage")
         }
     }
 
+
+    private fun <T> handleResponse(response: Response<T>): Resource<T> {
+        if (response.isSuccessful) {
+            val result = response.body()
+            return if (result != null) Resource.Success(result)
+            else if (response.code() == 204) Resource.Success(Unit as T)
+            else Resource.Error("Respuesta vacía del servidor.")
+        }
+
+        val rawError = response.errorBody()?.string()
+        val validationError = try {
+            Gson().fromJson(rawError, ValidationErrorResponse::class.java)
+        } catch (e: Exception) {
+            null
+        }
+
+        return if (validationError != null && !validationError.errors.isNullOrEmpty()) {
+            Resource.Error(
+                message = validationError.errors.values.firstOrNull() ?: "Error de validación.",
+                validationResponse = validationError
+            )
+        } else {
+            val fallbackMessage = try {
+                JSONObject(rawError ?: "").optString("message", "Error desconocido del servidor.")
+            } catch (e: Exception) {
+                rawError ?: "Error desconocido del servidor."
+            }
+            Resource.Error("Error del servidor: ${response.code()} - $fallbackMessage")
+        }
+    }
 }

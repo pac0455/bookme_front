@@ -9,6 +9,7 @@ import com.example.frontendapp.data.model.Negocio
 import com.example.frontendapp.data.model.Horario
 import com.example.frontendapp.data.model.Reserva
 import com.example.frontendapp.data.model.ReservaDetallada
+import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.data.remote.reponses.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -119,16 +120,18 @@ open class NegocioViewModel(
     }
     //Construir la url a la que se va a atacar para la imagen
     fun getNegocioImageUrl(): String? {
+        val ipAddress = RetrofitInstance.getIp()
         val id = _negocioState.value.id
         return if (id != -1) { // o cualquier valor que consideres inválido para id
-            "http://192.168.18.3:5000/api/negocio/$id/imagen"
+            "${ipAddress}api/negocio/$id/imagen"
         } else {
             null
         }
     }
     fun getNegocioImageUrl(id: Int): String? {
+        val ipAddress = RetrofitInstance.getIp()
         return if (id != -1) { // o cualquier valor que consideres inválido para id
-            "http://192.168.18.3:5000/api/negocio/$id/imagen"
+            "${ipAddress}api/negocio/$id/imagen"
         } else {
             null
         }

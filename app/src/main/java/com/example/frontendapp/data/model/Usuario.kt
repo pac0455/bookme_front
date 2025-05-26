@@ -31,10 +31,10 @@ data class Usuario(
 )
 fun Usuario.toRegisterDTO(): RegisterDTO {
     return RegisterDTO(
-        username = this.username ?: "",
-        email = this.email ?: "",
-        phoneNumber = this.phoneNumber ?: "",
-        password = this.password ?: "",
-        isNegocio = this.isNegocio ?: false
+        username = this.username?.trim() ?: "",
+        email = this.email?.trim() ?: "",
+        phoneNumber = this.phoneNumber?.trim() ?: "",
+        password = this.password?.trim() ?: "",
+        isNegocio = this.isNegocio
     )
 }
