@@ -2,6 +2,7 @@ package com.example.frontendapp.ui.theme.composables.Btn
 
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,7 +29,7 @@ import com.example.frontendapp.ui.theme.Principal_variacion3
 
 
 enum class IconPosition{
-    START,END
+    START,END, TOP, BOTTOM
 }
 
 
@@ -45,17 +46,11 @@ fun BtnStyle1(
     containerColor: Color = Principal_variacion3,
     shape: Shape = RectangleShape
 ) {
-    val horizontalArrangement = when (horizontalAlignment) {
-        Alignment.Start -> Arrangement.Start
-        Alignment.CenterHorizontally -> Arrangement.Center
-        Alignment.End -> Arrangement.End
-        else -> Arrangement.Center
-    }
-
     val displayText = if (isLoading) "Cargando..." else text
     val displayIcon = if (isLoading) Icons.Default.HourglassEmpty else icon
 
     Button(
+        onClick = onClick,
         modifier = modifier
             .padding(8.dp)
             .shadow(
@@ -64,53 +59,84 @@ fun BtnStyle1(
                 clip = false,
                 spotColor = Color.Black
             ),
+        shape = shape,
+        enabled = !isLoading,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = Color.White
-        ),
-        shape = shape,
-        onClick = onClick,
-        enabled = !isLoading // opcional: deshabilitar mientras carga
+        )
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = if (displayText.isEmpty()) Arrangement.Center else horizontalArrangement,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (displayIcon != null && (iconPosition == IconPosition.START || displayText.isEmpty())) {
-                Icon(
-                    imageVector = displayIcon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = if (displayText.isNotEmpty()) 8.dp else 0.dp)
-                        .size(iconSize)
-                )
+        when (iconPosition) {
+            IconPosition.TOP, IconPosition.BOTTOM -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = horizontalAlignment,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    if (displayIcon != null && iconPosition == IconPosition.TOP) {
+                        Icon(
+                            imageVector = displayIcon,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(iconSize)
+                                .padding(bottom = if (displayText.isNotEmpty()) 4.dp else 0.dp)
+                        )
+                    }
+
+                    if (displayText.isNotEmpty()) {
+                        Text(displayText)
+                    }
+
+                    if (displayIcon != null && iconPosition == IconPosition.BOTTOM) {
+                        Icon(
+                            imageVector = displayIcon,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(iconSize)
+                                .padding(top = if (displayText.isNotEmpty()) 4.dp else 0.dp)
+                        )
+                    }
+                }
             }
 
-            if (displayText.isNotEmpty()) {
-                Text(displayText)
-            }
+            IconPosition.START, IconPosition.END, null -> {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = when (horizontalAlignment) {
+                        Alignment.Start -> Arrangement.Start
+                        Alignment.End -> Arrangement.End
+                        else -> Arrangement.Center
+                    },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (displayIcon != null && (iconPosition == IconPosition.START || displayText.isEmpty())) {
+                        Icon(
+                            imageVector = displayIcon,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(end = if (displayText.isNotEmpty()) 8.dp else 0.dp)
+                                .size(iconSize)
+                        )
+                    }
 
-            if (displayIcon != null && iconPosition == IconPosition.END && displayText.isNotEmpty()) {
-                Icon(
-                    imageVector = displayIcon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .size(iconSize)
-                )
+                    if (displayText.isNotEmpty()) {
+                        Text(displayText)
+                    }
+
+                    if (displayIcon != null && iconPosition == IconPosition.END && displayText.isNotEmpty()) {
+                        Icon(
+                            imageVector = displayIcon,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(iconSize)
+                        )
+                    }
+                }
             }
         }
     }
 }
-
-
-
-
-
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun BtnPreview() {

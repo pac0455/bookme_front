@@ -128,9 +128,9 @@ fun UsuarioNegocioMainScreen(
                     show=false
                     RetrofitInstance.setToken("")
                     RetrofitInstance.setRoles(listOf())
+                    navController.navigate(NavigationItem.LOGIN.route)
                 },
                 showDialog = show,
-                imageRes = R.mipmap.detener
             )
             NegociosHeader()
 
@@ -138,7 +138,7 @@ fun UsuarioNegocioMainScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f) // Asegura que la lista ocupe el espacio restante
+                    .weight(1f)
             ) {
                 NegocioList(
                     bussinesMainViewModel = viewModel,

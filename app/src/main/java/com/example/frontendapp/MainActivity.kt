@@ -30,6 +30,7 @@ import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 
 //https://www.youtube.com/watch?v=IX1GkpV71pw
 //https://medium.com/@kiwi47/create-a-flexible-and-customizable-calendar-view-in-android-with-jetpack-compose-56dfb911c2ab
+//https://www.youtube.com/watch?v=9r4st6dmyNE -> tabItems
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

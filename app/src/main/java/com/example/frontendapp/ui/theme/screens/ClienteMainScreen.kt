@@ -15,37 +15,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.example.frontendapp.R
-import com.example.frontendapp.data.model.Negocio
-import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.composables.animatedContent.NegocioTabsWithContentBottom
-import com.example.frontendapp.ui.theme.composables.list.ListaReservas
-import com.example.frontendapp.ui.theme.composables.list.ServicioList
-import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
+import com.example.frontendapp.data.dto.TabItem
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
-import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 
 @SuppressLint("ViewModelConstructorInComposable")
@@ -55,7 +40,36 @@ fun ClienteMainScreen(
     reservasViewModel: ReservasViewModel,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    var selectedTab by remember { mutableStateOf(ContentType.SERVICIOS) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+    // Tabs
+    val tabItems = listOf(
+        TabItem(
+            title = "Negocio",
+            unSelectedIcon = Icons.Outlined.Storefront,
+            selectedIcon = Icons.Filled.Store
+        ),
+        TabItem(
+            title = "Reservas",
+            unSelectedIcon = Icons.Outlined.Storefront,
+            selectedIcon = Icons.Filled.Store
+        ),
+        TabItem(
+            title = "Mis reservas",
+            unSelectedIcon = Icons.Outlined.Storefront,
+            selectedIcon = Icons.Filled.Store
+        )
+    )
+    val pagerState = rememberPagerState { tabItems.size }
+
+    LaunchedEffect(selectedTabIndex) {
+        pagerState.animateScrollToPage(selectedTabIndex)
+    }
+    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+        if (!pagerState.isScrollInProgress) {
+            selectedTabIndex = pagerState.currentPage
+        }
+    }
 
     // Interceptar botón atrás
     BackHandler {
@@ -73,47 +87,67 @@ fun ClienteMainScreen(
             navController.navigate(NavigationItem.LOGIN.route) {
                 popUpTo(0)
             }
-        },
-        imageRes = R.mipmap.detener
+        }
     )
-    Scaffold { innerPadding ->
-        Column(
-            Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .navigationBarsPadding()
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+    ) {
+        // HorizontalPager con tamaño explícito
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f) // Esto asegura que ocupe el espacio restante
+        ) { index ->
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = tabItems[index].title)
+            }
+        }
+
+        // TabRow con tamaño explícito
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            modifier = Modifier.fillMaxWidth() // Asegúrate de que tenga un tamaño explícito
         ) {
-            NegocioTabsWithContentBottom(
-                selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it }
-            ) { currentTab ->
-                AnimatedContent(
-                    targetState = currentTab,
-                    transitionSpec = {
-                        val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
-                        (slideInHorizontally(
-                            animationSpec = tween(durationMillis = 500),
-                            initialOffsetX = { fullWidth -> direction * fullWidth }
-                        ) + fadeIn(animationSpec = tween(500)) + scaleIn(initialScale = 0.9f)) togetherWith
-                                (slideOutHorizontally(
-                                    animationSpec = tween(durationMillis = 500),
-                                    targetOffsetX = { fullWidth -> -direction * fullWidth }
-                                ) + fadeOut(animationSpec = tween(500)) + scaleOut(targetScale = 1.1f))
-                    },
-                    label = "ClienteTabsAnimation"
-                ) { targetContent ->
-                    when (targetContent) {
-                        ContentType.RESERVAS -> Text("Vista de Servicios", style = MaterialTheme.typography.bodyLarge)
-                        ContentType.SERVICIOS -> Text("Vista de Servicios", style = MaterialTheme.typography.bodyLarge)
-                        ContentType.SUBSCRIPTOR -> Text("Vista de Suscriptores", style = MaterialTheme.typography.bodyLarge)
-                        else -> Text("Selecciona una sección", style = MaterialTheme.typography.bodyLarge)
+            tabItems.forEachIndexed { index, item ->
+                Tab(
+                    selected = index == selectedTabIndex,
+                    onClick = { selectedTabIndex = index },
+                    modifier = Modifier.background(
+                        if (index == selectedTabIndex) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) // Color de fondo cuando está seleccionado
+                        else MaterialTheme.colorScheme.surface // Color de fondo cuando no está seleccionado
+                    ),
+                    text = {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = if (index == selectedTabIndex) {
+                                    item.selectedIcon
+                                } else item.unSelectedIcon,
+                                contentDescription = item.title,
+                            )
+                            Text(
+                                text = item.title,
+                                style = if (index == selectedTabIndex) {
+                                    MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+                                } else {
+                                    MaterialTheme.typography.bodyMedium
+                                }
+                            )
+                        }
                     }
-                }
+                )
             }
         }
     }
 }
-
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)

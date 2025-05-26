@@ -2,9 +2,11 @@ package com.example.frontendapp.ui.theme.composables.animatedContent
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Star
@@ -23,22 +25,26 @@ import com.example.frontendapp.ui.theme.screens.ContentType
 fun NegocioTabsWithContentBottom(
     selectedTab: ContentType,
     onTabSelected: (ContentType) -> Unit,
-    content: @Composable (ContentType) -> Unit
+    content: @Composable (ContentType) -> Unit,
+    paddingValues: PaddingValues
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
         // Contenido principal
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .navigationBarsPadding()
         ) {
             content(selectedTab)
         }
 
         // Tab bar abajo
         TabRow(
-            modifier = Modifier.navigationBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
             selectedTabIndex = selectedTab.ordinal,
             containerColor = Principal_variacion3,
             contentColor = Color.White
