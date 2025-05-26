@@ -1,10 +1,16 @@
 package com.example.frontendapp.data.remote.source
 
+import com.example.frontendapp.data.dto.ValidationErrorResponse
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
+import com.example.frontendapp.data.model.RegisterDTO
 import com.example.frontendapp.data.model.Usuario
+import com.example.frontendapp.data.model.toRegisterDTO
 import com.example.frontendapp.data.remote.api.UserApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.request.LoginRequest
+import com.google.gson.Gson
+import org.json.JSONObject
+import retrofit2.Response
 
 class AuthRemoteDataResource(private val userApi: UserApi) {
 
@@ -57,7 +63,7 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
             if (response.isSuccessful) {
                 val result = response.body()
                 if (result != null) {
-                    Resource.Success(result.message.toString())
+                    Resource.Success(result.message)
                 } else {
                     Resource.Error("Respuesta vacía del servidor")
                 }
@@ -70,34 +76,28 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
         }
     }
 
+    suspend fun validateRegistration(registerDTO: RegisterDTO): Resource<ValidationErrorResponse> {
+        return try {
+            val response = userApi.validateRegistration(registerDTO)
+            handleResponse(response)
+        } catch (ex: Exception) {
+            Resource.Error("Error de red: ${ex.message}")
+        }
+    }
+
+
 
     //Metodo para registrar un usuario
     //Resource<String>> es como decir devuelve un objeto que tenfnga diferentes estados dependiendo de la solicitud
     suspend fun registerUser(usuario: Usuario): Resource<LoginRegisterResultDTO> {
-        // Validar los datos del usuario
-        val validationError = validateRegisterUser(usuario)
-        if (validationError != null) {
-            return Resource.Error(validationError)
-        }
-
         return try {
             val response = userApi.signup(usuario)
-
-            if (response.isSuccessful) {
-                val result = response.body()
-                if (result != null) {
-                    Resource.Success(result)
-                } else {
-                    Resource.Error("Respuesta vacía del servidor")
-                }
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Resource.Error("Error del servidor: ${response.code()} - ${errorBody ?: "Desconocido"}")
-            }
+            handleResponse(response)
         } catch (e: Exception) {
-            Resource.Error("Error de red: ${e.message}")
+            Resource.Error("Excepción de red o inesperada: ${e.localizedMessage}")
         }
     }
+
 
     suspend fun registerCliente(baseUsuario: Usuario): Resource<LoginRegisterResultDTO> {
         val usuario = baseUsuario.copy(isNegocio = false)
@@ -134,6 +134,29 @@ class AuthRemoteDataResource(private val userApi: UserApi) {
         return registerUser(usuario)
     }
 
+    private fun <T> handleResponse(response: Response<T>): Resource<T> {
+        return if (response.isSuccessful) {
+            val result = response.body()
+            if (result != null) {
+                Resource.Success(result)
+            } else {
+                @Suppress("UNCHECKED_CAST")
+                if (response.code() == 204) {
+                    Resource.Success(Unit as T)
+                } else {
+                    Resource.Error("Respuesta vacia del servidor.")
+                }
+            }
+        } else {
+            val rawError = response.errorBody()?.string()
+            val errorMessage = try {
+                JSONObject(rawError ?: "").optString("message", "Error desconocido del servidor.")
+            } catch (e: Exception) {
+                rawError ?: "Error desconocido del servidor."
+            }
 
+            Resource.Error("Error del servidor: ${response.code()} - $errorMessage")
+        }
+    }
 
 }

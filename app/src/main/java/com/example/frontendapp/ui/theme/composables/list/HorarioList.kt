@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import com.example.frontendapp.data.model.Horario
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -54,75 +56,80 @@ fun HorarioList(
     }
     else {
         val multipleSelection = horariosMarcados.size > 1
-            horarios.groupBy { it.diaSemana }
-                .forEach { (dia, lista) ->
+        val groupedHorarios = horarios.groupBy { it.diaSemana }
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 300.dp) // Ajusta la altura máxima visible
+                .padding(vertical = 8.dp)
+        ) {
+            groupedHorarios.forEach { (dia, lista) ->
+                item {
                     Text(
                         text = dia,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
+                }
 
-                    lista.forEach { horario ->
-                        val isMarked = horariosMarcados.contains(horario)
-                        val bgColor = if (isMarked) Color(0xFFD0EBFF) else Color(0xFFF5F5F5)
-                        var expanded by remember { mutableStateOf(false) }
+                items(lista) { horario ->
+                    val isMarked = horariosMarcados.contains(horario)
+                    val bgColor = if (isMarked) Color(0xFFD0EBFF) else Color(0xFFF5F5F5)
 
-                        Card(
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = bgColor),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = bgColor),
-                            elevation = CardDefaults.cardElevation(4.dp)
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                modifier = Modifier.weight(1f)
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
+                                Checkbox(
+                                    checked = isMarked,
+                                    onCheckedChange = {
+                                        if (it) horariosMarcados.add(horario)
+                                        else horariosMarcados.remove(horario)
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("${horario.horaInicio} - ${horario.horaFin}")
+                            }
+
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                if (horariosMarcados.count() <= 1) {
+                                    IconButton(onClick = { onEditar(horario) }) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Editar")
+                                    }
+                                }
+                                IconButton(
+                                    onClick = {
+                                        val aEliminar = if (isMarked) horariosMarcados.toList() else listOf(horario)
+                                        onEliminar(aEliminar)
+                                    },
                                 ) {
-                                    Checkbox(
-                                        checked = isMarked,
-                                        onCheckedChange = {
-                                            if (it) horariosMarcados.add(horario)
-                                            else horariosMarcados.remove(horario)
-                                        }
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("${horario.horaInicio} - ${horario.horaFin}")
+                                    val darkRed = Color.Red.copy(alpha = 1f).darken(0.2f)
+                                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = darkRed)
                                 }
-                                //Iconos
-                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    // Botón de editar (solo actúa sobre este horario)
-                                    if(horariosMarcados.count() <= 1){
-                                        IconButton(onClick = { onEditar(horario) }) {
-                                            Icon(Icons.Default.Edit, contentDescription = "Editar")
-                                        }
-                                    }
-                                   // Botón de eliminar (actúa en lote si hay seleccionados, si no, solo este)
-                                    IconButton(
-                                        onClick = {
-                                            val aEliminar = if (isInSelectionMode) horariosMarcados.toList() else listOf(horario)
-                                            onEliminar(aEliminar)
-                                        },
-
-                                    ) {
-                                        val darkRed = Color.Red.copy(alpha = 1f).darken(0.2f)
-
-                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = darkRed)
-                                    }
-                                }
+                            }
                         }
                     }
                 }
             }
+        }
     }
-    }
+}
 
 fun Color.darken(factor: Float): Color {
     val hsv = FloatArray(3)

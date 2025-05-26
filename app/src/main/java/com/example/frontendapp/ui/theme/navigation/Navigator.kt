@@ -19,7 +19,6 @@ import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.NegocioScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.screens.ServicioForm
-import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
@@ -64,7 +63,7 @@ fun Navigator(
         composable(NavigationItem.LOGIN.route) {
             LoginScreen(navController, loginScreenViewModel)
         }
-        composable(NavigationItem.LOCATION.route) {
+        composable(NavigationItem.NEGOCIO_FORM_SCREEN.route) {
             NegocioFormScreen(navController, negocioFormViewModel)
         }
         composable(NavigationItem.BUSSINES_MAIN.route) {
@@ -74,16 +73,17 @@ fun Navigator(
             MapaScreen(navController, negocioFormViewModel)
         }
         composable(
-            route = NavigationItem.SERVICIO_FORM.route,
+            route = "HORARIO_FORM/{modo}",
             arguments = listOf(navArgument("modo") { defaultValue = "crear" })
         ) { backStackEntry ->
             val modo = backStackEntry.arguments?.getString("modo") ?: "crear"
-            ServicioForm(
+            HorarioForm(
                 navController = navController,
-                servicioViewModel = serviciosNegocioScreenViewModel,
-                modo = modo
+                modo = modo,
+                negocioViewModel = negocioFormViewModel
             )
         }
+
 
         composable(
             route = NavigationItem.SERVICIO_FORM.route,
@@ -98,7 +98,7 @@ fun Navigator(
         }
 
         composable(
-            route = "${Screen.NEGOCIO.name}/{negocioId}",
+            route = "${Screen.NEGOCIO_CONFIG.name}/{negocioId}",
             arguments = listOf(navArgument("negocioId") { type = NavType.IntType })
         ) { backStackEntry ->
             val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: 0

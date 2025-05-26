@@ -65,6 +65,14 @@ open class ServicioViewModel(
             null
         }
     }
+    fun getServicioImageUrl(id: String?): String? {
+        val id = _servicioState.value.id
+        return if (id != -1) { // o cualquier valor que consideres inválido para id
+            "http://192.168.18.3:5000/api/servicio/$id/imagen"
+        } else {
+            null
+        }
+    }
 
 
 
@@ -135,7 +143,7 @@ open class ServicioViewModel(
 
     open fun addServicio(
         context: Context,
-        onSuccess: () -> Unit = {},
+        onSuccess: (Servicio) -> Unit = {},
         onError: (String) -> Unit = {},
         onLoading: () -> Unit = {},
     ) {
@@ -146,10 +154,18 @@ open class ServicioViewModel(
             val imagen = _imagenUri.value
 
             val response = servicioRemoteSource.addServicio(servicio, imagen, context)
-
+            Log.d("SERVICIOVIEWMODEL","Uri de la imagen insertada: $imagen")
             _servicioCreatedState.value = response
+
+            Log.d("SERVICIOVIEWMODEL","Nueva imagen de servicio en : ${getServicioImageUrl(_servicioCreatedState.value.data?.id?.toString())}")
+
             when (response) {
-                is Resource.Success -> onSuccess()
+                is Resource.Success -> {
+                    // Aquí pasamos el servicio creado al onSuccess
+                    response.data?.let {
+                        onSuccess(it)
+                    } ?: onError("Servicio creado es nulo")
+                }
                 is Resource.Error -> onError(response.message ?: "Error desconocido")
                 else -> {}
             }

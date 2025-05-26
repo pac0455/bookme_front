@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.ListItems
+package com.example.frontendapp.ui.theme.composables.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.frontendapp.ui.theme.composables.ListItems.ReservaListItem
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 

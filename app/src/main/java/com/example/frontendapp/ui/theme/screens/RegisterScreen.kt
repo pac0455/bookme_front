@@ -1,5 +1,7 @@
 package com.example.frontendapp.ui.theme.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 
 import androidx.compose.foundation.background
@@ -7,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -17,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -34,8 +38,11 @@ import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 
 
 @Composable
-fun RegisterScreen(navController: NavController, usuarioViewModel:  RegisterViewModel) {
+fun RegisterScreen(navController: NavController, usuarioViewModel: RegisterViewModel) {
     val context = LocalContext.current
+    val uiState by usuarioViewModel.uiState.collectAsState()
+    val validationState by usuarioViewModel.validationState.collectAsState()
+    var isLoading by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -64,48 +71,90 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  RegisterView
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            //Seccion de inputs
+            // Sección de inputs
             Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
-            ){
-                val uiState by usuarioViewModel.uiState.collectAsState()
-
+            ) {
                 CustomTextField(
                     icon = Icons.Default.Person,
                     label = "Nombre",
                     value = uiState.username ?: "",
-                    onValueChange = { usuarioViewModel.setNombre(it) }
+                    onValueChange = {
+                        Log.d("RegisterScreen", "Nombre actualizado: $it")
+                        usuarioViewModel.setNombre(it)
+                    },
+                    errorMessage = validationState.data?.errors?.get("username")
                 )
                 CustomTextField(
                     icon = Icons.Default.Email,
                     label = "Correo",
                     value = uiState.email ?: "",
-                    onValueChange = { usuarioViewModel.setCorreo(it) }
+                    onValueChange = {
+                        Log.d("RegisterScreen", "Correo actualizado: $it")
+                        usuarioViewModel.setCorreo(it)
+                    },
+                    errorMessage = validationState.data?.errors?.get("email")
                 )
                 CustomTextField(
                     icon = Icons.Default.Phone,
-                    label = "Telefono",
+                    label = "Teléfono",
                     value = uiState.phoneNumber ?: "",
-                    onValueChange = { usuarioViewModel.setTelefono(it) }
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    onValueChange = { input ->
+                        if (input.length <= 9 && input.all { it.isDigit() }) {
+                            Log.d("RegisterScreen", "Teléfono actualizado: $input")
+                            usuarioViewModel.setTelefono(input)
+                        } else {
+                            Log.d("RegisterScreen", "Teléfono inválido: $input")
+                        }
+                    },
+                    errorMessage = validationState.data?.errors?.get("phoneNumber")
                 )
                 CustomTextField(
-                    icon = Icons.Default.Lock,
+                    icon = Icons.Default.RemoveRedEye,
                     label = "Contraseña",
                     value = uiState.password ?: "",
                     isPassword = true,
-                    onValueChange = { usuarioViewModel.setContrasena(it) }
+                    onValueChange = {
+                        Log.d("RegisterScreen", "Contraseña actualizada")
+                        usuarioViewModel.setContrasena(it)
+                    },
+                    errorMessage = validationState.data?.errors?.get("password")
                 )
             }
-            //Seccion de buttons
+
+            // Sección de botones
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                BtnStyle1(onClick = {
-                    navController.navigate(NavigationItem.NEGOCIO_CLIENTE)
-                }, text = "Siguiente")
+                BtnStyle1(
+                    text = if (isLoading) "Cargando..." else "Siguiente",
+                    icon = if (isLoading) Icons.Default.HourglassEmpty else Icons.Default.ArrowForwardIos,
+                    onClick = {
+                        Log.d("RegisterScreen", "Botón 'Siguiente' presionado")
+                        usuarioViewModel.validateRegistration(
+                            onLoading = {
+                                Log.d("RegisterScreen", "Validación iniciada")
+                                isLoading = true
+                            },
+                            onSuccess = { validationResponse ->
+                                Log.d("RegisterScreen", "Validación exitosa: $validationResponse")
+                                isLoading = false
+                                if (validationResponse.success) {
+                                    navController.navigate(NavigationItem.NEGOCIO_CLIENTE.route)
+                                }
+                            },
+                            onError = { errorMessage ->
+                                Log.e("RegisterScreen", "Error en la validación: $errorMessage")
+                                isLoading = false
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    },
+                )
                 val indicatorWidth = remember { mutableStateOf(1f) } // Grosor de la línea
                 Column(
-                    modifier = Modifier.padding(16.dp),// Añadiendo un margen de 16dp
+                    modifier = Modifier.padding(16.dp), // Añadiendo un margen de 16dp
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     // Borde superior
@@ -116,7 +165,9 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  RegisterView
                             .border(BorderStroke(indicatorWidth.value.dp, Color.Black))
                     )
                     // Contenido central
-                    Box(modifier = Modifier.padding(vertical = 8.dp)) { Text(text = "Tambien puedes registrarte con ...") }
+                    Box(modifier = Modifier.padding(vertical = 8.dp)) {
+                        Text(text = "También puedes registrarte con ...")
+                    }
                     // Borde inferior
                     Box(
                         modifier = Modifier
@@ -130,6 +181,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel:  RegisterView
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun RegisterScreenPreview() {

@@ -126,6 +126,14 @@ open class NegocioViewModel(
             null
         }
     }
+    fun getNegocioImageUrl(id: Int): String? {
+        return if (id != -1) { // o cualquier valor que consideres inválido para id
+            "http://192.168.18.3:5000/api/negocio/$id/imagen"
+        } else {
+            null
+        }
+    }
+
 
 
     // -------------------------
@@ -275,16 +283,31 @@ open class NegocioViewModel(
     private fun horaToMinutos(hora: String) = hora.split(":").let { it[0].toInt() * 60 + it[1].toInt() }
     private fun normalizarFin(inicio: Int, fin: Int) = if (fin <= inicio) fin + 1440 else fin
 
-    fun haySolapamientoEnDias(dias: List<String>, inicio: String, fin: String): Boolean {
+    fun haySolapamientoEnDias(
+        dias: List<String>,
+        inicio: String,
+        fin: String,
+        ignorar: Horario? = null
+    ): Boolean {
         val nuevoInicio = horaToMinutos(inicio)
         val nuevoFin = normalizarFin(nuevoInicio, horaToMinutos(fin))
+
         return dias.any { dia ->
-            _negocioState.value.horarioAtencion.orEmpty().any {
-                it.diaSemana == dia && nuevoInicio < normalizarFin(horaToMinutos(it.horaInicio), horaToMinutos(it.horaFin)) &&
-                        nuevoFin > horaToMinutos(it.horaInicio)
+            _negocioState.value.horarioAtencion.orEmpty().any { existente ->
+                if (ignorar != null && existente == ignorar) {
+                    return@any false // Ignora el horario que se está editando
+                }
+
+                existente.diaSemana == dia &&
+                        nuevoInicio < normalizarFin(
+                    horaToMinutos(existente.horaInicio),
+                    horaToMinutos(existente.horaFin)
+                ) &&
+                        nuevoFin > horaToMinutos(existente.horaInicio)
             }
         }
     }
+
 
     fun esFinAntesDeInicio(inicio: String, fin: String): Boolean {
         return horaToMinutos(fin) < horaToMinutos(inicio)

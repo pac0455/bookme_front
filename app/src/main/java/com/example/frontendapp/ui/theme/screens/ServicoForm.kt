@@ -2,11 +2,8 @@ package com.example.frontendapp.ui.theme.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.frontendapp.data.model.Servicio
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.ImageHelper
 import com.example.frontendapp.ui.theme.Principal_variacion3
@@ -131,28 +127,30 @@ fun ServicioForm(
                 onClick = {
                     isLoading = true
 
-                    val onSuccessUpdateServicio = {
+                    val onErrorUpdateServicio: (String) -> Unit = { errorMsg ->
+                        isLoading = false
+                        Toast.makeText(context, "Error actualizando servicio: $errorMsg", Toast.LENGTH_SHORT).show()
+                    }
+
+                    val onSuccessUpdateServicio = { id: Int ->
                         Log.d("ServicioForm", "Servicio actualizado con éxito, ahora actualizando imagen")
 
-                        // Asumiendo que servicio.id y servicioViewModel.imagenUri están disponibles
-                        val imagenUri = servicioViewModel.imagenUri.value  // O método para obtener Uri
+                        val imagenUri = servicioViewModel.imagenUri.value
+                        val servicioId = servicio.id ?: id // Usa servicio.id si no es null, si no el id recibido
+
                         if (imagenUri != null) {
                             servicioViewModel.updateImagenServicio(
-                                id = servicio.id!!,
+                                id = servicioId,
                                 context = context,
                                 imagenUri = imagenUri,
-                                onLoading = {
-                                    // Puedes manejar estado de loading si quieres
-                                },
+                                onLoading = { /* Aquí puedes manejar loading si quieres */ },
                                 onSuccess = {
                                     Log.d("ServicioForm", "Imagen actualizada con éxito")
                                     isLoading = false
                                     navController.popBackStack()
                                     servicioViewModel.resetStates()
-                                    Toast.makeText(context, "Servicio e imagen actualizados correctamente", Toast.LENGTH_SHORT).show()
                                 },
                                 onError = { errorMsg ->
-                                    Log.d("ServicioForm", "Enviando imagen desde $imagenUri")
                                     Log.d("ServicioForm", "Error actualizando imagen: $errorMsg")
                                     isLoading = false
                                     Toast.makeText(context, "Servicio actualizado pero error al actualizar imagen: $errorMsg", Toast.LENGTH_SHORT).show()
@@ -161,26 +159,18 @@ fun ServicioForm(
                                 }
                             )
                         } else {
-                            // Si no hay imagen para actualizar, solo cerrar
+                            // No hay imagen para actualizar, solo cerrar
                             isLoading = false
                             navController.popBackStack()
                             servicioViewModel.resetStates()
-                            Toast.makeText(context, "Servicio actualizado correctamente", Toast.LENGTH_SHORT).show()
                         }
-                    }
-
-                    val onErrorUpdateServicio: (String) -> Unit = { errorMsg ->
-                        isLoading = false
-                        Toast.makeText(context, "Error actualizando servicio: $errorMsg", Toast.LENGTH_SHORT).show()
                     }
 
                     if (esCreacion) {
                         servicioViewModel.addServicio(
-                            onLoading = {},
-                            onSuccess = {
-                                isLoading = false
-                                navController.popBackStack()
-                                servicioViewModel.resetStates()
+                            onLoading = { /* Opcional */ },
+                            onSuccess = { servicioCreado ->
+                                onSuccessUpdateServicio(servicioCreado.id!!)
                                 Toast.makeText(context, "Servicio agregado exitosamente", Toast.LENGTH_SHORT).show()
                             },
                             onError = onErrorUpdateServicio,
@@ -189,8 +179,11 @@ fun ServicioForm(
                     } else {
                         Log.d("ServicioForm", "Enviando para actualizar: $servicio")
                         servicioViewModel.updateServicio(
-                            onLoading = {},
-                            onSuccess = onSuccessUpdateServicio,
+                            onLoading = { /* Opcional */ },
+                            onSuccess = {
+                                // Aquí servicio.id debe existir
+                                onSuccessUpdateServicio(servicio.id!!)
+                            },
                             onError = onErrorUpdateServicio,
                         )
                     }
@@ -287,7 +280,7 @@ fun handleServicioResponse(
     val onSuccess = {
 
         Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
-        navController.navigate(NavigationItem.NEGOCIO.createRoute(negocioId))
+        navController.navigate(NavigationItem.NEGOCIO_CONFIG.createRoute(negocioId))
         onFinish()
     }
 

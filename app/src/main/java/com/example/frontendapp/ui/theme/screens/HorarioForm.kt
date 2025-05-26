@@ -250,12 +250,14 @@ fun HorarioForm(
                     if (negocioViewModel.haySolapamientoEnDias(
                             diasSeleccionados,
                             horaInicioSeleccionada!!,
-                            horaFinSeleccionada!!
+                            horaFinSeleccionada!!,
+                            horarioEditando //  Pasa el horario actual si estás editando
                         )
                     ) {
                         Toast.makeText(context, "Ya existe un horario que se solapa en ese día", Toast.LENGTH_SHORT).show()
                         return@BtnStyle1
                     }
+
 
                     if (horarioEditando != null) {
                         negocioViewModel.editarHorario(horarioEditando!!, horaInicioSeleccionada!!, horaFinSeleccionada!!)
@@ -278,7 +280,10 @@ fun HorarioForm(
                     horarioEditando = horario
                     horaInicioSeleccionada = horario.horaInicio
                     horaFinSeleccionada = horario.horaFin
+                    diasSeleccionados.clear()
+                    diasSeleccionados.add(horario.diaSemana) // <- aquí está el truco
                 },
+
                 onEliminar = { horariosAEliminar ->
                     negocioViewModel.eliminarHorarios(horariosAEliminar)
                     horariosMarcados.removeAll(horariosAEliminar)

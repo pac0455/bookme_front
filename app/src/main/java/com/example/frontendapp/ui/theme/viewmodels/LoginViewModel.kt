@@ -41,13 +41,36 @@ class LoginViewModel(private  val auth: AuthRemoteDataResource): ViewModel() {
         }
     }
 
-
-    fun loginUsuario() {
+    fun reset(){
+        _usuarioState.value = Usuario()
+    }
+    fun loginUsuario(
+        onLoading: (() -> Unit)? = null,
+        onSuccess: ((LoginRegisterResultDTO) -> Unit)? = null,
+        onError: ((String) -> Unit)? = null
+    ) {
         viewModelScope.launch {
             val user = _usuarioState.value
+
+            // Notificar que está cargando
+            onLoading?.invoke()
             _loginState.value = Resource.Loading()
-            val result = auth.login(LoginRequest(user.email, user.password))
-            _loginState.value = result
+
+            try {
+                val result = auth.login(LoginRequest(user.email, user.password))
+                if (result is Resource.Success && result.data != null) {
+                    _loginState.value = result
+                    onSuccess?.invoke(result.data)
+                } else if (result is Resource.Error) {
+                    _loginState.value = result
+                    onError?.invoke(result.message ?: "Error desconocido")
+                }
+            } catch (e: Exception) {
+                val errorMsg = e.message ?: "Error inesperado"
+                _loginState.value = Resource.Error(errorMsg)
+                onError?.invoke(errorMsg)
+            }
         }
     }
+
 }

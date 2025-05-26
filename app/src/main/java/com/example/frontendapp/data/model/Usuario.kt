@@ -29,3 +29,12 @@ data class Usuario(
     @SerializedName("IsNegocio")
     val isNegocio: Boolean = false
 )
+fun Usuario.toRegisterDTO(): RegisterDTO {
+    return RegisterDTO(
+        username = this.username ?: "",
+        email = this.email ?: "",
+        phoneNumber = this.phoneNumber ?: "",
+        password = this.password ?: "",
+        isNegocio = this.isNegocio ?: false
+    )
+}

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,33 +35,36 @@ import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 @Composable
 fun ModalSelectorDeImagen(
     logoUrl: String?,
+    visible: Boolean=false,
     imagenConfirmada: Uri? = null,
     onImagenSeleccionada: (Uri?) -> Unit = {},
     onCerrar: () -> Unit = {},
     onAccept: (Uri, () -> Unit) -> Unit = { _, onSuccess -> onSuccess() },
-    startDialogVisible: Boolean = false
 ) {
-    var showDialog by remember { mutableStateOf(startDialogVisible) }
     var imagenSeleccionada by remember { mutableStateOf<Uri?>(null) }
+    var showModal by remember { mutableStateOf(visible) }
 
-    // Imagen que se muestra fuera del modal: solo la confirmada (después de onSuccess)
     ServicioImagePicker(
-        modifier = Modifier
-            .size(100.dp)
-            .clip(CircleShape)
-            .border(2.dp, Color.White, CircleShape)
-            .clickable { showDialog = true },
         size = 100.dp,
+        shape = RoundedCornerShape(40.dp),
+        iconEdit = Icons.Default.Edit,
         clickable = false,
         imageUrl = logoUrl,
+        icon = Icons.Default.Edit,
         imagenUriExterna = imagenConfirmada,
-        onImageSelected = {}
+        onImageSelected = {},
+        showIconEdit = true,
+        borderColor = Color.White,
+        borderWidth = 2.dp,
+        modifier = Modifier.clickable {
+            showModal = true
+        }
+
     )
 
-    if (showDialog) {
+    if (showModal) {
         Dialog(onDismissRequest = {
-            showDialog = false
-            onCerrar()
+            showModal=false
         }) {
             Surface(
                 shape = RoundedCornerShape(8.dp),
@@ -89,9 +94,9 @@ fun ModalSelectorDeImagen(
                             text = "Aceptar",
                             onClick = {
                                 imagenSeleccionada?.let { uri ->
-                                    // Llama a onAccept con la URI y callback que oculta modal tras éxito
                                     onAccept(uri) {
-                                        showDialog = false
+                                        showModal=false
+                                        onCerrar()
                                     }
                                 }
                             },
@@ -100,7 +105,10 @@ fun ModalSelectorDeImagen(
                         Spacer(Modifier.width(16.dp))
                         BtnStyle1(
                             text = "Cancelar",
-                            onClick = { showDialog = false },
+                            onClick = {
+                                showModal=false
+                                onCerrar()
+                            },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -114,10 +122,11 @@ fun ModalSelectorDeImagen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewModalSelectorDeImagen() {
+    var visible by remember { mutableStateOf(false) }
     MaterialTheme {
         ModalSelectorDeImagen(
+            visible=true,
             logoUrl = "https://www.tooltyp.com/wp-content/uploads/2014/10/1900x920-8-beneficios-de-usar-imagenes-en-nuestros-sitios-web.jpg",
-            startDialogVisible = false // Aquí forzamos a abrir el modal en la preview
         )
     }
 }

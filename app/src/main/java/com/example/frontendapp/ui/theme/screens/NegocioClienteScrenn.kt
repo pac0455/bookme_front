@@ -1,5 +1,7 @@
 package com.example.frontendapp.ui.theme.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -35,10 +40,12 @@ import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 
 
@@ -52,6 +59,9 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val imageSize = screenWidth * 1f
+    var isLoading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             Box(
@@ -108,29 +118,43 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
 
 
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                BtnStyle1(onClick = {
-                    if (isBusiness) {
-                        registerViewModel.registrarNegocio()
-                    } else {
-                        registerViewModel.registrarCliente()
-                    }
-                }, text = "Registrarse")
-                // Manejo del resultado del registro
-                when (val result = registerState) {
-                    is Resource.Success -> {
-                        val roles = result.data?.roles ?: emptyList()
-                        when {
-                            roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.MAIN.route)
-                            roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
-                        }
-                    }
-                    is Resource.Error -> {
-                        val errorMessage = result.message ?: "Error desconocido"
-                        // Aquí puedes mostrar un Snackbar, Dialog o Log
-                        println("Error en el registro: $errorMessage")
-                    }
-                    else -> {}
-                }
+                BtnStyle1(
+                    onClick = {
+                        // Log de los datos del usuario que se está enviando
+                        Log.d("NegocioClienteScrenn", "Registrando usuario:" +
+                                " Nombre=${registerViewModel.uiState.value.username}," +
+                                " Email=${registerViewModel.uiState.value.email}," +
+                                " Teléfono=${registerViewModel.uiState.value.phoneNumber}, EsNegocio=$isBusiness")
+
+                        registerViewModel.setEsNegocio(isBusiness)
+                        registerViewModel.registrarUsuario(
+                            onLoading = { isLoading = true },
+                            onSuccess = { result ->
+                                isLoading = false
+
+                                // Verificar si el token no es nulo antes de establecerlo
+                                result.token?.let { token ->
+                                    Log.d("NegocioClienteScrenn", "Token recibido: $token")
+                                    RetrofitInstance.setToken(token)
+                                }
+
+                                val roles = result.roles
+                                when {
+                                    roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.MAIN.route)
+                                    roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                                }
+                            },
+                            onError = { errorMsg ->
+                                isLoading = false
+                                Log.d("NegocioClienteScrenn", "Error en el registro: $errorMsg")
+                                Toast.makeText(context, "Ha habido algún error a la hora de registrarse", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    },
+                    iconPosition = IconPosition.END,
+                    text = if (isLoading) "Cargando..." else "Registrarse",
+                    icon = if (isLoading) Icons.Default.HourglassEmpty else Icons.Default.PersonAdd
+                )
             }
         }
     }

@@ -59,6 +59,7 @@ fun ServicioListItem(
         else -> Color(0xFF4CAF50) // verde de 4 a 5
     }
 
+
     var expanded by remember { mutableStateOf(false) }
 
     androidx.compose.runtime.LaunchedEffect(expanded) {

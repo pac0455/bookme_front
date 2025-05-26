@@ -1,22 +1,32 @@
 package com.example.frontendapp.ui.theme.composables
 
+import android.content.res.Resources.Theme
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -25,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.frontendapp.ui.theme.FrontendappTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,33 +48,59 @@ fun CustomTextField(
     isPassword: Boolean = false,
     enabled: Boolean = true,
     onValueChange: (String) -> Unit,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default // Add keyboard options parameter
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    errorMessage: String? = null // Nuevo parámetro para el mensaje de error
 ) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        trailingIcon = icon?.let { nonNullIcon ->
-            {
-                Icon(
-                    modifier = Modifier.scale(1.4f),
-                    imageVector = nonNullIcon,
-                    tint = Color.Black,
-                    contentDescription = label
-                )
-            }
-        },
-        enabled = enabled,
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = keyboardOptions, // Set keyboard options here
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.Transparent),
-        colors = TextFieldDefaults.textFieldColors(
-            unfocusedIndicatorColor = Color.Black,
-            containerColor = Color.Transparent
-        ),
-    )
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    Column {
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            trailingIcon = {
+                if (isPassword) {
+                    val visibilityIcon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                    val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = visibilityIcon,
+                            contentDescription = description,
+                            tint = Color.Black
+                        )
+                    }
+                } else if (icon != null) {
+                    Icon(
+                        modifier = Modifier.scale(1.4f),
+                        imageVector = icon,
+                        contentDescription = label,
+                        tint = Color.Black
+                    )
+                }
+            },
+            enabled = enabled,
+            visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+            keyboardOptions = keyboardOptions,
+            modifier = modifier
+                .fillMaxWidth()
+                .background(Color.Transparent)
+                .border(1.dp, if (errorMessage != null) Color.Red else Color.Transparent), // Borde rojo si hay error
+            colors = TextFieldDefaults.textFieldColors(
+                unfocusedIndicatorColor = Color.Black,
+                containerColor = Color.Transparent
+            ),
+        )
+
+        // Mostrar el mensaje de error si existe
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
@@ -72,6 +109,7 @@ fun CustomTextFieldPreview() {
     FrontendappTheme {
         Surface(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
             val example = remember { mutableStateOf("") }
+            val errorMessage = remember { mutableStateOf("Este campo es obligatorio") } // Ejemplo de mensaje de error
             Box(
                 modifier = Modifier.fillMaxWidth(0.5f).fillMaxHeight(0.5f),
                 contentAlignment = Alignment.Center
@@ -82,7 +120,9 @@ fun CustomTextFieldPreview() {
                     "Nombre",
                     example.value,
                     onValueChange = { example.value = it },
-                    keyboardOptions = KeyboardOptions.Default // You can customize this as needed
+                    isPassword = true,
+                    keyboardOptions = KeyboardOptions.Default,
+                    errorMessage = errorMessage.value // Pasar el mensaje de error
                 )
             }
         }

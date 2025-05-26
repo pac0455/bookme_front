@@ -5,6 +5,7 @@ import org.junit.Before
 import org.junit.Test
 
 import com.example.frontendapp.data.model.Usuario
+import com.example.frontendapp.data.model.toRegisterDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
@@ -34,6 +35,40 @@ class AuthRemoteDataResourceTest {
             user.id = result.data?.usuario?.id ?: ""
         }
     }
+    @Test
+    fun `validate registration with invalid data`() = runBlocking {
+        val invalidUser = Usuario(
+            email = "", // Email vacío
+            password = "short", // Contraseña demasiado corta
+            username = "", // Nombre vacío
+            phoneNumber = "123" // Número de teléfono inválido
+        )
+
+        val registerDTO = invalidUser.toRegisterDTO()
+        val result = authRemoteDataResource.validateRegistration(registerDTO)
+
+        when (result) {
+            is Resource.Success -> {
+                println("✅ Validación exitosa como se esperaba: ${result.data}")
+                // Verifica que success sea false
+                assertFalse(result.data?.success!!) // Asegúrate de que success sea false
+
+                // Verifica que haya errores en el array
+                val errors = result.data?.errors!!
+                assertNotNull(errors) // Asegúrate de que no sea nulo
+                assertTrue(errors.isNotEmpty()) // Asegúrate de que haya errores
+            }
+            is Resource.Error -> {
+                println("⚠️ Validación fallida cuando no debería: ${result.message}")
+                fail("Se esperaba un éxito con errores de validación, pero se obtuvo un error.")
+            }
+            else -> {
+                println("⚠️ Resultado inesperado.")
+                fail("Resultado inesperado.")
+            }
+        }
+    }
+
     @Test
     fun `register user successfully`() = runBlocking {
         // Usuario fijo

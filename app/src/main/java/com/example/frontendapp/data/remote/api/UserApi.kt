@@ -1,8 +1,11 @@
 package com.example.frontendapp.data.remote.api
 
+import com.example.frontendapp.data.dto.ValidationErrorResponse
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
+import com.example.frontendapp.data.model.RegisterDTO
 import com.example.frontendapp.data.model.Usuario
 import com.example.frontendapp.data.remote.reponses.DeleteResponse
+import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.request.LoginRequest
 import retrofit2.Response
 import retrofit2.http.Body
@@ -36,7 +39,8 @@ interface UserApi {
     suspend fun getAll(): Response <List<Usuario>>
     @DELETE(controller)
     suspend fun delete(@Query("email") email: String): Response<DeleteResponse>
-
+    @POST("$controller/validar-registro")
+    suspend fun validateRegistration(@Body registerDTO: RegisterDTO): Response<ValidationErrorResponse>
 
 
 

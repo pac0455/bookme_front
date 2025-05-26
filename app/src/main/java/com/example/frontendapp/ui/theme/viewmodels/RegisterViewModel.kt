@@ -3,10 +3,13 @@ package com.example.frontendapp.ui.theme.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.frontendapp.data.dto.ValidationErrorResponse
 import com.example.frontendapp.data.model.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario
+import com.example.frontendapp.data.model.toRegisterDTO
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.data.remote.request.LoginRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -21,6 +24,13 @@ class RegisterViewModel(private val auth: AuthRemoteDataResource) : ViewModel() 
     // Estado para el registro
     private val _registerState = MutableStateFlow<Resource<LoginRegisterResultDTO>>(Resource.None<LoginRegisterResultDTO>())
     val registerState: StateFlow<Resource<LoginRegisterResultDTO>> = _registerState
+
+    val _registerResult = MutableStateFlow<Resource<LoginRegisterResultDTO>>(Resource.None())
+    val registerResult: StateFlow<Resource<LoginRegisterResultDTO>> = _registerResult
+
+    // Estado para la validación
+    private val _validationState = MutableStateFlow<Resource<ValidationErrorResponse>>(Resource.None())
+    val validationState: StateFlow<Resource<ValidationErrorResponse>> = _validationState
 
     // Métodos para actualizar el estado del usuario
     fun setNombre(nombre: String) {
@@ -50,18 +60,69 @@ class RegisterViewModel(private val auth: AuthRemoteDataResource) : ViewModel() 
         }
     }
     // Función para registrar como cliente
-    fun registrarCliente() {
+    fun registrarUsuario(
+        onLoading: (() -> Unit)? = null,
+        onSuccess: ((LoginRegisterResultDTO) -> Unit)? = null,
+        onError: ((String) -> Unit)? = null
+    ) {
         viewModelScope.launch {
-            val usuario = _uiState.value.copy(isNegocio = false)
-            _registerState.value = auth.registerCliente(usuario)
+            val user = _uiState.value
+
+            onLoading?.invoke()
+            _registerState.value = Resource.Loading()
+
+            try {
+                val result = auth.registerUser(user)
+                when (result) {
+                    is Resource.Success -> {
+                        _registerState.value = result
+                        result.data?.let { onSuccess?.invoke(it) }
+                    }
+                    is Resource.Error -> {
+                        _registerState.value = result
+                        onError?.invoke(result.message ?: "Error al registrar")
+                    }
+                    else -> {}
+                }
+            } catch (e: Exception) {
+                val errorMsg = e.message ?: "Error inesperado"
+                _registerState.value = Resource.Error(errorMsg)
+                onError?.invoke(errorMsg)
+            }
         }
     }
-
-    // Función para registrar como negocio
-    fun registrarNegocio() {
+    fun validateRegistration(
+        onLoading: () -> Unit = {},
+        onSuccess: (ValidationErrorResponse) -> Unit,
+        onError: (String) -> Unit = {}
+    ) {
         viewModelScope.launch {
-            val usuario = _uiState.value.copy(isNegocio = true)
-            _registerState.value = auth.registerNegocio(usuario)
+            onLoading()
+            _validationState.value = Resource.Loading()
+
+            val user = _uiState.value.toRegisterDTO()
+
+            try {
+                val result = auth.validateRegistration(user)
+                _validationState.value = result // Actualiza el estado de validación
+
+                when (result) {
+                    is Resource.Success -> {
+                        val validationResponse = result.data
+                        if (validationResponse != null) {
+                            onSuccess(validationResponse)
+                        }
+                    }
+                    is Resource.Error -> {
+                        onError(result.message ?: "Error al validar") // Invoca onError con el mensaje de error
+                    }
+                    else -> {}
+                }
+            } catch (e: Exception) {
+                val errorMsg = e.message ?: "Error inesperado"
+                _validationState.value = Resource.Error(errorMsg)
+                onError(errorMsg) // Invoca onError con el mensaje de error
+            }
         }
     }
 }

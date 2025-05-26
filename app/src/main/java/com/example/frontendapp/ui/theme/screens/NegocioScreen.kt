@@ -6,7 +6,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,10 +27,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.model.Negocio
 import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.composables.ListItems.ListaReservas
-import com.example.frontendapp.ui.theme.composables.modal.ModalSelectorDeImagen
+import com.example.frontendapp.ui.theme.composables.list.ListaReservas
 import com.example.frontendapp.ui.theme.composables.QuickActionsExpandable
 import com.example.frontendapp.ui.theme.composables.list.ServicioList
+import com.example.frontendapp.ui.theme.composables.modal.ModalSelectorDeImagen
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
@@ -39,8 +38,7 @@ import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+
 
 enum class ContentType {
     RESERVAS,
@@ -56,8 +54,9 @@ fun NegocioScreen(
     reservasViewModel: ReservasViewModel,
     serviciosViewModel_negocioScreen: ServicioViewModel
 ) {
+    var showModal by remember { mutableStateOf(false) }
+
     val negocio by viewModel.negocioState.collectAsState()
-    val negocioUri by viewModel.selectedImageUri.collectAsState()
     var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.RESERVAS) }
     var imagenConfirmada by remember { mutableStateOf<Uri?>(null) }
 
@@ -116,7 +115,8 @@ fun NegocioScreen(
                                 onSuccessCallback()
                             }
                         )
-                    }
+                    },
+
                 )
             }
 
@@ -211,6 +211,7 @@ fun AnimatedContentArea(
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+                    .navigationBarsPadding()
                     .padding(16.dp),
                 containerColor = Principal_variacion3
             ) {

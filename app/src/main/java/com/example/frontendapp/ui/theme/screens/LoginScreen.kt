@@ -15,9 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.HourglassEmpty
 
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SupervisedUserCircle
+import androidx.compose.material.icons.filled.VerifiedUser
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -44,6 +48,9 @@ import com.example.frontendapp.ui.theme.composables.CustomBox
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.Btn.GoogleButton
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
@@ -52,32 +59,11 @@ import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
     val loginState by loginViewModel.loginState.collectAsState()
+    var isLoading by remember { mutableStateOf(false) }
+
     val usuario by loginViewModel.usuarioState.collectAsState()
     val context = LocalContext.current
-    LaunchedEffect(loginState) {
-        when (loginState) {
-            is Resource.Success -> {
-                val result = loginState.data
-                Log.d("Inicar sesion existoso", result?.usuario?.toString() ?: "Login beub")
-                val token = result?.token
-                if (!token.isNullOrEmpty()) {
-                    RetrofitInstance.setToken(token)
-                }
-                val roles = loginState.data?.roles ?: emptyList()
-                when {
-                    roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.MAIN.route)
-                    roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
-                }
-            }
-            is Resource.Error -> {
-                Toast.makeText(context, loginState.message ?: "Login failed", Toast.LENGTH_SHORT).show()
-                Log.d("Inicar sesion", loginState.message?: "Login failed")
-                Log.d("Inicar sesion",usuario.toString())
 
-            }
-            else -> {}
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -135,9 +121,31 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel){
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BtnStyle1(
                     onClick = {
-                        loginViewModel.loginUsuario()
+                        loginViewModel.loginUsuario(
+                            onLoading = {
+                                isLoading=true
+                                Log.d("Login", "Cargando...")
+                            },
+                            onSuccess = { result ->
+                                isLoading=false
+                                Log.d("Login", "Éxito: ${result.usuario}")
+                                RetrofitInstance.setToken(result.token)
+                                val roles = result.roles
+                                when {
+                                    roles.contains("CLIENTE") -> navController.navigate(NavigationItem.MAIN.route)
+                                    roles.contains("NEGOCIO") -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                                }
+                                loginViewModel.reset()
+                            },
+                            onError = { error ->
+                                isLoading=false
+                                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                Log.d("LoginScreen",error)
+                            }
+                        )
                     },
-                    text =  "Iniciar Sesión"
+                    text = if (loginState is Resource.Loading) "Cargando..." else "Iniciar Sesión",
+                    icon = if (loginState is Resource.Loading) Icons.Default.HourglassEmpty else Icons.Default.VerifiedUser,
                 )
 
                 CustomBox(
