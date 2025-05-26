@@ -115,7 +115,6 @@ fun ClienteMainScreen(
 }
 
 
-
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
