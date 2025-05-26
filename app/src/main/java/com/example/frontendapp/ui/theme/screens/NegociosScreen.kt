@@ -56,15 +56,13 @@ import com.example.frontendapp.ui.theme.composables.list.NegocioList
 import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
-import com.example.frontendapp.R
-import com.example.frontendapp.ui.theme.composables.Btn.onClick
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsuarioNegocioMainScreen(
     navController: NavController,
-    viewModel: NegocioViewModel
+    negocioViewModel: NegocioViewModel
 ) {
     val context = LocalContext.current
     var show by remember { mutableStateOf(false) }
@@ -110,7 +108,7 @@ fun UsuarioNegocioMainScreen(
                         text = "Añadir",
                         icon = Icons.Default.AddBusiness,
                         onClick = {
-                            viewModel.startNewNegocio()
+                            negocioViewModel.startNewNegocio()
                             navController.navigate(NavigationItem.NEGOCIO_FORM_SCREEN.route)
                         }
                     ),
@@ -141,7 +139,7 @@ fun UsuarioNegocioMainScreen(
                     .weight(1f)
             ) {
                 NegocioList(
-                    bussinesMainViewModel = viewModel,
+                    bussinesMainViewModel = negocioViewModel,
                     navController = navController
                 )
             }
@@ -229,6 +227,6 @@ fun MAinBussinesingPreview() {
     FrontendappTheme {
         val fakeViewModel = remember { FakeNegocioViewModel() }
 
-        UsuarioNegocioMainScreen(navController = rememberNavController(), viewModel = fakeViewModel)
+        UsuarioNegocioMainScreen(navController = rememberNavController(), negocioViewModel = fakeViewModel)
     }
 }

@@ -61,6 +61,11 @@ class MainActivity : ComponentActivity() {
                     val reservasNegocioScreenViewModel: ReservasViewModel = viewModel(factory = factory)
                     val serviciosNegocioScreenViewModel: ServicioViewModel = viewModel(factory = factory)
                     val servicioViewModeServicioForm: ServicioViewModel = viewModel(factory = factory)
+                    //ViewModel para pantallas de cliente
+                    val servicioViewModel_ClienteMain: ServicioViewModel = viewModel(factory=factory) //Para listar y reservar servicios
+                    val reservaViewModel_ClienteMain: ReservasViewModel = viewModel(factory=factory) //Para reservas
+                    val negocioViewModel_ClienteMain: NegocioViewModel = viewModel(factory = factory) //Para listar y ver detaller de los negocios
+
 
                     // Navegación
                     Navigator(
@@ -71,6 +76,9 @@ class MainActivity : ComponentActivity() {
                         usuarioNegocioMainViewModel = usuarioNegocioMainViewModel,
                         reservasNegocioScreenViewModel = reservasNegocioScreenViewModel,
                         serviciosNegocioScreenViewModel = serviciosNegocioScreenViewModel,
+                        servicioViewModel_ClienteMain = servicioViewModel_ClienteMain,
+                        reservaViewModel_ClienteMain = reservaViewModel_ClienteMain,
+                        negocioViewModel_ClienteMain = negocioViewModel_ClienteMain
                     )
                 }
             }

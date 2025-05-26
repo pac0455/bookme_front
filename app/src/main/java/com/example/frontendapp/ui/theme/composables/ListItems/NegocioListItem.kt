@@ -69,7 +69,7 @@ fun NegocioListItem(
     ) {
 
 
-    val colorEstado = if (negocio.activo) Color(0xFF4CAF50) else Color(0xFFF44336) // Verde o rojo
+    val colorEstado = if (negocio.activo) Color(0xFF4CAF50) else Color(0xFFF44336)
     var expanded by remember { mutableStateOf(show) }
     val logoUrl = viewModel.getNegocioImageUrl(negocio.id)
     Column(

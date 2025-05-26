@@ -3,15 +3,12 @@ package com.example.frontendapp.ui.theme.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.activity.compose.BackHandler
@@ -30,14 +27,20 @@ import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.data.dto.TabItem
+import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun ClienteMainScreen(
     navController: NavController,
     reservasViewModel: ReservasViewModel,
+    servicioViewModel: ServicioViewModel,
+    negocioViewModel: NegocioViewModel
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -154,5 +157,10 @@ fun ClienteMainScreen(
 @Composable
 fun ClienteMainScreenPreview() {
     val controller = rememberNavController()
-    ClienteMainScreen(controller, FakeReservasViewModel())
+    ClienteMainScreen(
+        controller,
+        FakeReservasViewModel(),
+        negocioViewModel = FakeNegocioViewModel(),
+        servicioViewModel = FakeServicioViewModel()
+    )
 }

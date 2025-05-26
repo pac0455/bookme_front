@@ -37,6 +37,9 @@ fun Navigator(
     usuarioNegocioMainViewModel: NegocioViewModel,
     reservasNegocioScreenViewModel: ReservasViewModel,
     serviciosNegocioScreenViewModel: ServicioViewModel,
+    servicioViewModel_ClienteMain: ServicioViewModel,
+    reservaViewModel_ClienteMain: ReservasViewModel,
+    negocioViewModel_ClienteMain: NegocioViewModel,
 ) {
     LaunchedEffect(Unit) {
         Log.d("NAVIGATION_DEBUG", "Navigator parameters received:")
@@ -74,7 +77,12 @@ fun Navigator(
             MapaScreen(navController, negocioFormViewModel)
         }
         composable(NavigationItem.CLIENTE_MAIN_SCREEN.route) {
-            ClienteMainScreen(navController,reservasNegocioScreenViewModel)
+            ClienteMainScreen(
+                navController=navController,
+                servicioViewModel = servicioViewModel_ClienteMain,
+                reservasViewModel =reservaViewModel_ClienteMain,
+                negocioViewModel = negocioViewModel_ClienteMain
+            )
         }
         composable(
             route = "HORARIO_FORM/{modo}",
@@ -109,7 +117,7 @@ fun Navigator(
 
             LaunchedEffect(negocioId) {
                 val currentNegocio = negocioFormViewModel.negocioState.value
-                if (negocioId != 0 && (currentNegocio == null || currentNegocio.id != negocioId)) {
+                if (negocioId != 0 && (currentNegocio.id != negocioId)) {
                     negocioFormViewModel.loadNegocioById(
                         id = negocioId,
                         onLoading = { },
@@ -118,14 +126,11 @@ fun Navigator(
                     )
                 }
             }
-
-
-
             NegocioScreen(
                 navController = navController,
                 viewModel = negocioFormViewModel,
                 reservasViewModel = reservasNegocioScreenViewModel,
-                serviciosViewModel_negocioScreen = serviciosNegocioScreenViewModel,
+                servicioViewModel = serviciosNegocioScreenViewModel,
             )
         }
     }

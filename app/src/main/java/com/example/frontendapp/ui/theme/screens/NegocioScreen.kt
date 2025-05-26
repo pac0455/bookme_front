@@ -52,7 +52,7 @@ fun NegocioScreen(
     viewModel: NegocioViewModel,
     navController: NavController,
     reservasViewModel: ReservasViewModel,
-    serviciosViewModel_negocioScreen: ServicioViewModel
+    servicioViewModel: ServicioViewModel
 ) {
     var showModal by remember { mutableStateOf(false) }
 
@@ -148,7 +148,7 @@ fun NegocioScreen(
             modifier = Modifier.weight(1f),
             selectedContent = selectedContent,
             reservasViewModel = reservasViewModel,
-            serviciosViewModel_negocioScreen = serviciosViewModel_negocioScreen,
+            serviciosViewModel_negocioScreen = servicioViewModel,
             negocio = negocio,
             navController = navController,
             negocioViewModel = viewModel
@@ -242,6 +242,6 @@ fun PreviewNegocioScreen() {
         viewModel = viewModel,
         navController = navController,
         reservasViewModel = remember { FakeReservasViewModel() },
-        serviciosViewModel_negocioScreen = FakeServicioViewModel()
+        servicioViewModel = FakeServicioViewModel()
     )
 }

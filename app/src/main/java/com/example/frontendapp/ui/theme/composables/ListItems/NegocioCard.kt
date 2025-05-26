@@ -13,8 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.NoPhotography
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.StarHalf
@@ -28,52 +33,58 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.example.frontendapp.R
 import com.example.frontendapp.ui.theme.composables.list.darken
+import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
 
 @Composable
-fun BusinessCard(
+fun NegocioCard(
     name: String,
     description: String,
     category: String,
     address: String,
     rating: Float,
+    reviewCount: Int,  // Nuevo parámetro para el número de reseñas
     isActive: Boolean,
-    logoResId: Int,
+    imagenDefecto: Int,
     onClick: () -> Unit,
     isOpen: Boolean,
-    Distancia: Int
+    Distancia: Int,
+    imagenUrl: String? = null
 ) {
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .clickable(enabled = isActive, onClick = onClick),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp) // Cambia aquí
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Mostrar el logo
-            Box(
-                modifier = Modifier.height(200.dp),
-
-            )
-            {
-                Image(
-                    painter = painterResource(id = logoResId),
-                    contentDescription = "Logo del negocio",
-                    modifier = Modifier.fillMaxSize()
+            // Caja para cargar la imagen
+            Box(modifier = Modifier.height(200.dp)) {
+                ServicioImagePicker(
+                    icon = Icons.Filled.NoPhotography,
+                    imageUrl = imagenUrl,
+                    modifier = Modifier.fillMaxSize(),
+                    iconSize = 68.dp,
+                    iconAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center,
+                    backgroundColor = Color.LightGray,
                 )
             }
-
-
+            Spacer(Modifier.height(24.dp))
             // Nombre y categoría
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -84,12 +95,24 @@ fun BusinessCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = category,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = category,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
+
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -103,46 +126,110 @@ fun BusinessCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Dirección y valoración
-
+            // Dirección
             Text(
                 text = address,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Box(
-                modifier = Modifier
-                    .background(Color.Red.copy(alpha = 0.8f))
-                    .padding(6.dp)
-                    .clip(RoundedCornerShape(6.dp))
 
-            ){
-                Text(
-                    text = if(isOpen) "Abierto" else "Cerrado",
-                    color = if(isOpen)
-                        Color.Red.darken(0.7f).copy(alpha = 0.7f)
-                    else
-                        Color.Green.darken(0.7f).copy(alpha = 0.7f)
-                )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Estado abierto/cerrado
+            EstadoEtiqueta(isOpen)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Valoración y número de reseñas
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+
+
+                // Mostrar número de reseñas o mensaje si no hay
+                if (reviewCount > 0) {
+                    RatingStars(rating = rating)
+                    Text(
+                        text = "($reviewCount ${if (reviewCount == 1) "reseña" else "reseñas"})",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFF5F5F5))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.StarBorder,
+                                contentDescription = "Sin reseñas",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "Sin reseñas todavía",
+                                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
             }
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ){
-            RatingStars(rating = rating)
-        }
-
 
         // Estado activo
         if (!isActive) {
             Text(
                 text = "No disponible",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(16.dp)
             )
         }
     }
 }
+@Composable
+fun EstadoEtiqueta(isOpen: Boolean) {
+    val backgroundColor = if (isOpen) Color(0xFFDFF5E1) else Color(0xFFFFE0E0)
+    val textColor = if (isOpen) Color(0xFF2E7D32) else Color(0xFFC62828)
+    val icon = if (isOpen) Icons.Default.CheckCircle else Icons.Default.Lock
+
+    val shape = RoundedCornerShape(50.dp)
+
+    Box(
+        modifier = Modifier
+            .clip(shape)
+            .background(backgroundColor, shape)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = textColor,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (isOpen) "Abierto" else "Cerrado",
+                color = textColor,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+
 
 @Composable
 fun RatingStars(rating: Float) {
@@ -189,19 +276,43 @@ fun RatingStars(rating: Float) {
     }
 }
 
+// Preview actualizado
 @Preview(showBackground = true)
 @Composable
-fun BusinessCardPreview() {
-    BusinessCard(
-        name = "Nombre del Negocio",
-        description = "Descripción breve del negocio que ofrece servicios de calidad.",
-        category = "Gimnasio",
-        address = "Calle Falsa 123, Ciudad",
-        rating = 4.5f,
-        isActive = true,
-        logoResId = R.drawable.logo, // Asegúrate de que el recurso de imagen esté disponible
-        Distancia = 5,
-        isOpen = false,
-        onClick = { /* Acción al hacer clic */ }
-    )
+fun NegocioCardPreview() {
+    Column {
+        // Negocio con reseñas
+        NegocioCard(
+            name = "Gimnasio Power",
+            description = "Gimnasio completamente equipado con entrenadores profesionales.",
+            category = "Gimnasio",
+            address = "Av. Principal 456, Ciudad",
+            rating = 4.5f,
+            reviewCount = 12,  // Con reseñas
+            isActive = true,
+            imagenDefecto = R.drawable.logo,
+            Distancia = 5,
+            isOpen = false,
+            onClick = { },
+            imagenUrl = ""
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Negocio sin reseñas
+        NegocioCard(
+            name = "Spa Relajante",
+            description = "Servicios de spa y masajes relajantes.",
+            category = "Bienestar",
+            address = "Calle Secundaria 789, Ciudad",
+            rating = 0f,
+            reviewCount = 0,  // Sin reseñas
+            isActive = false,
+            imagenDefecto = R.drawable.logo,
+            Distancia = 3,
+            isOpen = true,
+            onClick = { },
+            imagenUrl = ""
+        )
+    }
 }

@@ -79,6 +79,7 @@ fun ModalSelectorDeImagen(
                     Spacer(Modifier.height(16.dp))
 
                     ServicioImagePicker(
+
                         size = 200.dp,
                         clickable = true,
                         onImageSelected = {
