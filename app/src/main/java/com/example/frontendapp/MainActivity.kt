@@ -1,5 +1,6 @@
 package com.example.frontendapp
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,9 +8,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,6 +32,8 @@ import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.utils.UbicacionHelper
+import java.util.jar.Manifest
 
 
 //https://www.youtube.com/watch?v=IX1GkpV71pw
@@ -38,6 +44,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            // Guardamos en remember si el permiso ya fue concedido
+           UbicacionHelper.solicitarPermisoUbicacionDesde(this)
+
+
             FrontendappTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -92,6 +102,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
 
 

@@ -67,7 +67,6 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
 
     val emailFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
-    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
 
 
     val context = LocalContext.current

@@ -239,10 +239,10 @@ class AuthRemoteDataResourceTest {
         val gson = Gson()
 
         val usuarioCliente = Usuario(
-            email = "juan@gmail.com",
+            email = "cliente_test@bookme.com",
             password = "Cliente123!",
-            username = "JuanAntonio",
-            phoneNumber = "722613458",
+            username = "Cliente",
+            phoneNumber = "722643458",
             isNegocio = false
         )
 

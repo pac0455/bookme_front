@@ -6,6 +6,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.frontendapp.data.model.Categoria
+import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.CategoriaRemoteDataSource
 import com.example.frontendapp.ui.theme.Principal_variacion3
@@ -56,9 +58,11 @@ import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomMultilineTextField
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
+import com.example.frontendapp.ui.theme.composables.CustomSelector
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
+import com.example.frontendapp.utils.UbicacionHelper.getFromLocationCompat
 import com.google.android.gms.maps.model.LatLng
 
 import java.util.Locale
@@ -71,21 +75,15 @@ fun NegocioFormScreen(
     enableGeocoder: Boolean = true,
     categoriasViewModel: CategoriaViewModel,
     ) {
-    val categoriaState by categoriasViewModel.categoriasState.collectAsState()
+
     var categorias by remember { mutableStateOf(listOf<Categoria>()) }
     var categoriaSelecionada by remember { mutableStateOf(Categoria()) }
-
+    val validationState by negocioViewModel.negocioValidationState.collectAsState()
     val context = LocalContext.current
     val negocio = negocioViewModel.negocioState.collectAsState().value
     val isEdit = negocioViewModel.isEditMode.collectAsState().value
     val tituloPantalla = if (isEdit) "Editar Negocio" else "Crear Negocio"
-
-
-
-    val geoCoder = remember(context, enableGeocoder) {
-        if (enableGeocoder) Geocoder(context, Locale.getDefault()) else null
-    }
-    var categoriaExpanded by remember { mutableStateOf(false) }
+    val geocoder = remember { Geocoder(context, Locale.getDefault()) }
 
     LaunchedEffect(Unit) {
         categoriasViewModel.getAllCategorias(
@@ -102,37 +100,7 @@ fun NegocioFormScreen(
         )
     }
 
-    // Si hay una ubicación, usar Geocoder para obtener la dirección
 
-        LaunchedEffect(negocio.latitud, negocio.longitud) {
-            val ubi = LatLng(negocio.latitud ?: 0.0, negocio.longitud ?: 0.0)
-            if (ubi.latitude != 0.0 && ubi.longitude != 0.0) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geoCoder?.getFromLocation(
-                        ubi.latitude,
-                        ubi.longitude,
-                        1,
-                        object : Geocoder.GeocodeListener {
-                            override fun onGeocode(addresses: MutableList<Address>) {
-                                val direccion = addresses.firstOrNull()?.getAddressLine(0)
-                                direccion?.let {
-                                    negocioViewModel.setDireccion(it)
-                                }
-                            }
-
-                            override fun onError(errorMessage: String?) {}
-                        }
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    val addresses = geoCoder?.getFromLocation(ubi.latitude, ubi.longitude, 1)
-                    val direccion = addresses?.firstOrNull()?.getAddressLine(0)
-                    direccion?.let {
-                        negocioViewModel.setDireccion(it)
-                    }
-                }
-            }
-        }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -158,8 +126,13 @@ fun NegocioFormScreen(
                 onClick = {
                     Log.d("NegocioFormScreen", "Navegando a HORARIO_FORM con datos: nombre=${negocio.nombre}, direccion=${negocio.direccion}, categoria=${negocio.categoria}")
                     val modo = if (isEdit) "editar" else "crear"
-                    navController.navigate(NavigationItem.HORARIO_FORM.createRoute(modo))
 
+                    negocioViewModel.validateNegocioForm(
+                        onSuccess = {
+                            navController.navigate(NavigationItem.HORARIO_FORM.createRoute(modo))
+                        },
+                        onError = {}
+                    )
                 },
                 iconPosition = IconPosition.END,
                 icon = Icons.AutoMirrored.Filled.ArrowForward,
@@ -181,17 +154,21 @@ fun NegocioFormScreen(
             //Inputs
             Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp),
+
                 modifier= Modifier
                     .padding(top = 20.dp)
                     .fillMaxWidth(0.9f)) {
                 CustomTextField(
                     label = "Nombre",
                     value = negocio.nombre,
+                    errorMessage = validationState.errors["nombre"],
                     onValueChange = { negocioViewModel.setNombre(it)  }
                 )
 
                 CustomMultilineTextField(
                     value = negocio.descripcion,
+                    errorMessage = validationState.errors["descripcion"],
+
                     onValueChange = { negocioViewModel.setDescripcion(it)  },
                     label = "Descripción"
                 )
@@ -209,9 +186,9 @@ fun NegocioFormScreen(
                         modifier = Modifier.weight(1f),
                         value = negocio.direccion,
                         enabled = false,
-                        onValueChange = { negocioViewModel.setDireccion(it) },
+                        errorMessage = validationState.errors["direccion"],
+                        onValueChange = { negocioViewModel.setDireccion(geocoder) },
                         label = "Dirección",
-
                     )
 
                     BtnIconRounded(
@@ -225,40 +202,17 @@ fun NegocioFormScreen(
                     )
                 }
                 // Selector de Categoría
-                ExposedDropdownMenuBox (
-                    expanded = categoriaExpanded,
-                    onExpandedChange = { categoriaExpanded = !categoriaExpanded }
-                ) {
-
-                    OutlinedTextField(
-                        value = categoriaSelecionada.nombre,
-                        onValueChange = { },
-                        readOnly = true,
-                        label = { Text("Categoría") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoriaExpanded) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = categoriaExpanded,
-                        onDismissRequest = { categoriaExpanded = false },
-                        modifier = Modifier.heightIn(max = 200.dp)
-
-                    ) {
-                        categorias.forEach {
-                            DropdownMenuItem(
-                                text = { Text(it.nombre) },
-                                onClick = {
-                                    categoriaSelecionada= it
-                                    negocioViewModel.setcategoriaId(it.id)
-                                    categoriaExpanded = false
-                                }
-                            )
+                CustomSelector(
+                    selectedOption = categoriaSelecionada.nombre,
+                    options = categorias.map { it.nombre }, //Lista de categorias pero con nombres
+                    onOptionSelected = { selectedOption ->
+                        categorias.find { it.nombre == selectedOption }?.let {
+                            negocioViewModel.setcategoriaId(it.id)
                         }
-                    }
-                }
+                    },
+                    label = "Categoría",
+                    errorMessage = validationState.errors["categoria"] // Obtener el mensaje de error
+                )
             }
         }
     }
@@ -271,7 +225,7 @@ fun NegocioFormScreen(
 fun NegocioFormScreenPreview() {
     FrontendappTheme {
         NegocioFormScreen(
-            navController = rememberNavController(),//
+            navController = rememberNavController(),
             negocioViewModel = FakeNegocioViewModel(),
             enableGeocoder = false,
             categoriasViewModel = CategoriaViewModel(CategoriaRemoteDataSource(RetrofitInstance.categoriaApi))  // Desactivas Geocoder para el preview

@@ -1,14 +1,16 @@
 package com.example.frontendapp.data.model.Negocio
 
-class NegocioCardCliente (
+data class NegocioCardCliente(
     val id: Int,
-    val name: String,
-    val description: String,
-    val category: String,
-    val address: String,
+    val nombre: String,
+    val descripcion: String,
+    val categoria: String,
+    val direccion: String,
     val rating: Float,
     val reviewCount: Int,
     val isActive: Boolean,
     val isOpen: Boolean,
-    val distancia: Int
+    val distancia: Double?,
+    val latitud: Double?,
+    val longitud: Double?
 )

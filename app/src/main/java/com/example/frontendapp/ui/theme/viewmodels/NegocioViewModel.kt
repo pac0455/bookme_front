@@ -1,21 +1,28 @@
 package com.example.frontendapp.ui.theme.viewmodels
 
 import android.content.Context
+import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.frontendapp.data.model.Api.ValidationValidateState
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.model.Horario
+import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
+import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.utils.UbicacionHelper.getFromLocationCompat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 open class NegocioViewModel(
     private val negocioRemoteSource: NegocioRemoteSource
@@ -62,10 +69,49 @@ open class NegocioViewModel(
     private val _negocioImageUrl = MutableStateFlow<String?>(null)
     val negocioImageUrl: StateFlow<String?> = _negocioImageUrl
 
+    private val _negociosClienteState = MutableStateFlow<Resource<List<NegocioCardCliente>>>(Resource.None())
+    val negociosClienteState: StateFlow<Resource<List<NegocioCardCliente>>> = _negociosClienteState
+
+    private val _negocioValidationState = MutableStateFlow(ValidationValidateState())
+    val negocioValidationState: StateFlow<ValidationValidateState> = _negocioValidationState
 
 
 
 
+    //    ------------
+    //    Validaciones
+    //    ------------
+    fun validateNegocioForm(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val negocio = _negocioState.value
+        val errors = mutableMapOf<String, String>()
+
+        if (negocio.nombre.isBlank()) {
+            errors["nombre"] = "El nombre no puede estar vacío"
+        }
+        if (negocio.descripcion.isBlank()) {
+            errors["descripcion"] = "La descripción no puede estar vacía"
+        }
+        if (negocio.direccion.isBlank()) {
+            errors["direccion"] = "Selecciona una ubicación en el mapa"
+        }
+        if (negocio.latitud == null || negocio.longitud == null) {
+            errors["ubicacion"] = "Ubicación no válida"
+        }
+        if (negocio.categoriaId == -1) {
+            errors["categoria"] = "Selecciona una categoría"
+        }
+
+        _negocioValidationState.value = ValidationValidateState(errors)
+
+        if (errors.isEmpty()) {
+            onSuccess()
+        } else {
+            onError("Por favor, corrige los errores antes de continuar")
+        }
+    }
 
     // -------------------------
     // Operaciones de modificación local
@@ -73,7 +119,15 @@ open class NegocioViewModel(
     fun setId(id: Int) = _negocioState.update { it.copy(id = id) }
     fun setNombre(nombre: String) = _negocioState.update { it.copy(nombre = nombre) }
     fun setDescripcion(desc: String) = _negocioState.update { it.copy(descripcion = desc) }
-    fun setDireccion(dir: String) = _negocioState.update { it.copy(direccion = dir) }
+    fun setDireccion(geocoder: Geocoder) {
+        viewModelScope.launch {
+            val dir = obtenerDireccion(geocoder)
+            _negocioState.update { currentState ->
+                currentState.copy(direccion = dir)
+            }
+        }
+    }
+
     fun setLatitud(lat: Double) = _negocioState.update { it.copy(latitud = lat) }
     fun setLongitud(lon: Double) = _negocioState.update { it.copy(longitud = lon) }
     fun setUbicacion(lat: Double, lon: Double) = _negocioState.update { it.copy(latitud = lat, longitud = lon) }
@@ -81,6 +135,16 @@ open class NegocioViewModel(
     fun setActivo(activo: Boolean) = _negocioState.update { it.copy(activo = activo) }
     fun setHorarios(horarios: List<Horario>) = _negocioState.update { it.copy(horarioAtencion = horarios) }
     fun setSelectedImageUri(uri: Uri?) { _selectedImageUri.value = uri }
+
+    private suspend fun obtenerDireccion(geocoder: Geocoder): String {
+        return withContext(Dispatchers.IO) {
+            geocoder.getFromLocationCompat(
+                _negocioState.value.latitud!!,
+                _negocioState.value.longitud!!,
+                1
+            ).firstOrNull()?.getAddressLine(0) ?: "Ubicación no encontrada"
+        }
+    }
 
 
     fun addHorarios(dias: List<String>, inicio: String, fin: String) {
@@ -146,6 +210,7 @@ open class NegocioViewModel(
         Log.d("VM", "Datos confirmados para navegación")
     }
 
+
     fun startNewNegocio() {
         _backupState = _negocioState.value.copy()
         _negocioState.value = Negocio()
@@ -167,6 +232,25 @@ open class NegocioViewModel(
     // -------------------------
     // Llamadas API
     // -------------------------
+
+    fun getNegociosParaCliente(
+        ubicacion: Ubicacion,
+        onLoading: () -> Unit = {},
+        onSuccess: (List<NegocioCardCliente>) -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) = viewModelScope.launch {
+        onLoading()
+        _negociosClienteState.value = Resource.Loading()
+
+        val result = negocioRemoteSource.getNegociosParaCliente(ubicacion)
+        _negociosClienteState.value = result
+
+        when (result) {
+            is Resource.Success -> onSuccess(result.data ?: emptyList())
+            is Resource.Error -> onError(result.message ?: "Error desconocido")
+            else -> {}
+        }
+    }
 
     fun addNegocioDB(
         onLoading: () -> Unit = {},

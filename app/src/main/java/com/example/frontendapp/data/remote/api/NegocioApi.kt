@@ -1,6 +1,8 @@
 package com.example.frontendapp.data.remote.api
 
 import com.example.frontendapp.data.model.Negocio.Negocio
+import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
+import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import okhttp3.MultipartBody
@@ -50,6 +52,9 @@ interface NegocioApi {
         @Path("id") id: Int,
         @Part nuevaImagen: MultipartBody.Part
     ): Response<Negocio>
+    @POST("$controller/cliente/negocios")
+    suspend fun getNegociosParaCliente(@Body ubicacion: Ubicacion?): Response<List<NegocioCardCliente>>
+
 
 
 }

@@ -51,7 +51,7 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    errorMessage: String? = null
+    errorMessage: String? = null // Añadir el parámetro para el mensaje de error
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -103,12 +103,13 @@ fun CustomTextField(
             ),
         )
 
+        // Mostrar el mensaje de error si existe
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp, top = 60.dp)
+                modifier = Modifier.padding(start = 16.dp, top = 60.dp) // Ajustar el padding según sea necesario
             )
         }
     }

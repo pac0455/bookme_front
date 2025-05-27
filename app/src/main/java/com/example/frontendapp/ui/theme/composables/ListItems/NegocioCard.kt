@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
+import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.ui.theme.composables.list.darken
 import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
 
@@ -51,6 +52,7 @@ fun NegocioCard(
     negocio: NegocioCardCliente,
     imagenUrl: String? = null,
     onClick: () -> Unit,
+    mostrarDistancia: Boolean = false
 ) {
     Card(
         modifier = Modifier
@@ -62,7 +64,10 @@ fun NegocioCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Box(modifier = Modifier.height(200.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)) {
                 ServicioImagePicker(
                     icon = Icons.Filled.NoPhotography,
                     imageUrl = imagenUrl,
@@ -81,7 +86,7 @@ fun NegocioCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = negocio.name,
+                    text = negocio.nombre,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -94,7 +99,7 @@ fun NegocioCard(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = negocio.category,
+                        text = negocio.categoria,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
@@ -106,7 +111,7 @@ fun NegocioCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = negocio.description,
+                text = negocio.descripcion,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -115,7 +120,7 @@ fun NegocioCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = negocio.address,
+                text = negocio.direccion,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -124,6 +129,14 @@ fun NegocioCard(
 
             EstadoEtiqueta(negocio.isOpen)
 
+            if (mostrarDistancia && negocio.distancia != null && negocio.distancia > 0.0) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "${String.format("%.1f", negocio.distancia)} km de distancia",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -262,37 +275,30 @@ fun RatingStars(rating: Float) {
 @Composable
 fun NegocioCardPreview() {
     Column {
+        val negocio = NegocioCardCliente(
+            id = 1,
+            nombre = "Mi negocio",
+            descripcion = "Descripción",
+            categoria = "Psicología",
+            direccion = "Calle Ejemplo 123",
+            rating = 4.5f,
+            reviewCount = 10,
+            isActive = true,
+            isOpen = true,
+            distancia = 5.0, // ✅ Correcto
+            latitud = 40.123,
+            longitud = -3.456
+        )
+
         NegocioCard(
-            negocio = NegocioCardCliente(
-                name = "Gimnasio Power",
-                description = "Gimnasio completamente equipado con entrenadores profesionales.",
-                category = "Gimnasio",
-                address = "Av. Principal 456, Ciudad",
-                rating = 4.5f,
-                reviewCount = 12,
-                isActive = true,
-                isOpen = false,
-                distancia = 5,
-                id = 0
-            ),
+            negocio = negocio,
             onClick = { }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         NegocioCard(
-            negocio = NegocioCardCliente(
-                name = "Spa Relajante",
-                description = "Servicios de spa y masajes relajantes.",
-                category = "Bienestar",
-                address = "Calle Secundaria 789, Ciudad",
-                rating = 0f,
-                reviewCount = 0,
-                isActive = false,
-                isOpen = true,
-                id = 1,
-                distancia = 5
-            ),
+            negocio = negocio,
             onClick = { }
         )
     }

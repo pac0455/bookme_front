@@ -3,6 +3,8 @@ package com.example.frontendapp.data.remote.source
 import android.content.Context
 import android.net.Uri
 import com.example.frontendapp.data.model.Negocio.Negocio
+import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
+import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.remote.api.NegocioApi
@@ -99,14 +101,6 @@ class NegocioRemoteSource(
             Resource.Error("Error de red: ${e.message}")
         }
     }
-//    suspend fun getServiciosByNegocioId(id: Int): Resource<List<Servicio>> {
-//        return try {
-//            val response = negocioApi.getServiciosByNegocioId(id)
-//            handleResponse(response)
-//        } catch (e: Exception) {
-//            Resource.Error("Error al obtener servicios: ${e.message}")
-//        }
-//    }
     suspend fun getReservasByNegocioId(id: Int): Resource<List<Reserva>> {
         return try {
             val response = negocioApi.getReservasByNegocioId(id)
@@ -115,6 +109,15 @@ class NegocioRemoteSource(
             Resource.Error("Error al obtener reservas: ${e.message}")
         }
     }
+    suspend fun getNegociosParaCliente(ubicacion: Ubicacion?): Resource<List<NegocioCardCliente>> {
+        return try {
+            val response = negocioApi.getNegociosParaCliente(ubicacion)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error al obtener negocios del cliente: ${e.localizedMessage ?: e.message}")
+        }
+    }
+
     suspend fun updateNegocioImagen(id: Int, imageUri: Uri, context: Context): Resource<Negocio> {
         val imagePart = ImageHelper.prepareSingleImagePart(context, imageUri)
         if (imagePart == null) {

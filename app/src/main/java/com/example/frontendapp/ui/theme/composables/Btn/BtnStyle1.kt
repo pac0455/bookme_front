@@ -15,6 +15,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -44,11 +47,24 @@ fun BtnStyle1(
     iconPosition: IconPosition? = IconPosition.START,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     containerColor: Color = Principal_variacion3,
-    shape: Shape = RectangleShape
+    shape: Shape = RectangleShape,
+    enabled: Boolean=true,
 ) {
+
+    val click by remember { mutableStateOf(!isLoading || enabled) }
+    if(click){
+        ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = Color.White
+        )
+    }else{
+        ButtonDefaults.buttonColors(
+            containerColor = containerColor.copy(0.7f),
+            contentColor = Color.White
+        )
+    }
     val displayText = if (isLoading) "Cargando..." else text
     val displayIcon = if (isLoading) Icons.Default.HourglassEmpty else icon
-
     Button(
         onClick = onClick,
         modifier = modifier
@@ -60,7 +76,7 @@ fun BtnStyle1(
                 spotColor = Color.Black
             ),
         shape = shape,
-        enabled = !isLoading,
+        enabled = click,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = Color.White
