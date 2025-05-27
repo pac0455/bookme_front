@@ -1,8 +1,8 @@
 package com.example.frontendapp.data.remote.api
 
-import com.example.frontendapp.data.model.Servicio
-import com.example.frontendapp.data.model.ServicioDetalleDto
-import com.example.frontendapp.data.model.ServicioUpdateRequest
+import com.example.frontendapp.data.model.Servicio.Servicio
+import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
+import com.example.frontendapp.data.model.Servicio.ServicioUpdateRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response

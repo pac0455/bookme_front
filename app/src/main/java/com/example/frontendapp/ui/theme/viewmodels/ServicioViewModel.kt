@@ -5,9 +5,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.frontendapp.data.model.Servicio
-import com.example.frontendapp.data.model.ServicioDetalleDto
-import com.example.frontendapp.data.model.ServicioUpdateRequest
+import com.example.frontendapp.data.model.Servicio.Servicio
+import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
+import com.example.frontendapp.data.model.Servicio.ServicioUpdateRequest
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.ServicioRemoteSource

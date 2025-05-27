@@ -39,9 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.frontendapp.data.model.ReservaDetallada
-import com.example.frontendapp.data.model.Servicio
-import com.example.frontendapp.data.model.ServicioConPago
+import com.example.frontendapp.data.model.Reserva.ReservaDetallada
+import com.example.frontendapp.data.model.Reserva.ServicioConPago
 
 @Composable
 fun ReservaListItem(

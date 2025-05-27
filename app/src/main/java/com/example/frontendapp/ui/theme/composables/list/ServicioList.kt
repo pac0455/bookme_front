@@ -24,7 +24,7 @@
     import androidx.compose.ui.unit.dp
     import androidx.navigation.NavController
     import androidx.navigation.compose.rememberNavController
-    import com.example.frontendapp.data.model.Servicio
+    import com.example.frontendapp.data.model.Servicio.Servicio
     import com.example.frontendapp.data.remote.reponses.Resource
     import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
     import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel

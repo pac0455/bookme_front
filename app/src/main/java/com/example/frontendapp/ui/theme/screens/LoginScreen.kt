@@ -17,19 +17,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.HourglassEmpty
 
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.SupervisedUserCircle
 import androidx.compose.material.icons.filled.VerifiedUser
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +53,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
-import com.example.frontendapp.data.model.ERol
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.composables.text.TextNavigate
 import com.example.frontendapp.ui.theme.navigation.NavigationItem

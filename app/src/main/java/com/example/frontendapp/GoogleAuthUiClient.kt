@@ -7,7 +7,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 
-import com.example.frontendapp.data.model.Usuario
+import com.example.frontendapp.data.model.Usuario.Usuario
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption

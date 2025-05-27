@@ -20,6 +20,7 @@ import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.NegocioScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.screens.ServicioForm
+import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
@@ -40,6 +41,7 @@ fun Navigator(
     servicioViewModel_ClienteMain: ServicioViewModel,
     reservaViewModel_ClienteMain: ReservasViewModel,
     negocioViewModel_ClienteMain: NegocioViewModel,
+    categoriasViewModel: CategoriaViewModel,
 ) {
     LaunchedEffect(Unit) {
         Log.d("NAVIGATION_DEBUG", "Navigator parameters received:")
@@ -68,7 +70,11 @@ fun Navigator(
             LoginScreen(navController, loginScreenViewModel)
         }
         composable(NavigationItem.NEGOCIO_FORM_SCREEN.route) {
-            NegocioFormScreen(navController, negocioFormViewModel)
+            NegocioFormScreen(
+                navController = navController,
+                negocioViewModel = negocioFormViewModel,
+                categoriasViewModel = categoriasViewModel
+            )
         }
         composable(NavigationItem.BUSSINES_MAIN.route) {
             UsuarioNegocioMainScreen(navController, usuarioNegocioMainViewModel)
@@ -81,7 +87,8 @@ fun Navigator(
                 navController=navController,
                 servicioViewModel = servicioViewModel_ClienteMain,
                 reservasViewModel =reservaViewModel_ClienteMain,
-                negocioViewModel = negocioViewModel_ClienteMain
+                negocioViewModel = negocioViewModel_ClienteMain,
+                categoriasViewModel = categoriasViewModel
             )
         }
         composable(

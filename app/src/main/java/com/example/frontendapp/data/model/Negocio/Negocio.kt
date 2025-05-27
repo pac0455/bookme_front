@@ -1,4 +1,7 @@
-package com.example.frontendapp.data.model
+package com.example.frontendapp.data.model.Negocio
+
+import com.example.frontendapp.data.model.Categoria
+import com.example.frontendapp.data.model.Horario
 
 data class Negocio(
     val id: Int = 0,
@@ -7,7 +10,8 @@ data class Negocio(
     var direccion: String = "",
     var latitud: Double? = null,
     var longitud: Double? = null,
-    var categoria: String = "",
+    var categoriaId: Int = 0,
+    val categoria: Categoria?= null,
     var horarioAtencion: List<Horario> = listOf(),
     var activo: Boolean = true,
     var logoUrl: String = "",

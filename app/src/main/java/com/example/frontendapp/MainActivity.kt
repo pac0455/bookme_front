@@ -16,11 +16,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.CategoriaRemoteDataSource
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.data.remote.source.ServicioRemoteSource
 import com.example.frontendapp.ui.theme.navigation.Navigator
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
+import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
@@ -47,9 +49,10 @@ class MainActivity : ComponentActivity() {
                     val authRepo = remember { AuthRemoteDataResource(RetrofitInstance.userApi) }
                     val negocioRepo = remember { NegocioRemoteSource(RetrofitInstance.negocioApi) }
                     val servicioRepo = remember { ServicioRemoteSource(RetrofitInstance.servicioApi) }
+                    val categoriaRepo = remember { CategoriaRemoteDataSource(RetrofitInstance.categoriaApi) }
 
                     // Factory
-                    val factory = remember { AppViewModelFactory(authRepo, negocioRepo, servicioRepo) }
+                    val factory = remember { AppViewModelFactory(authRepo, negocioRepo,servicioRepo, categoriaRepo) }
 
                     // ViewModels renombrados según su pantalla
                     val loginScreenViewModel: LoginViewModel = viewModel(factory = factory)
@@ -67,6 +70,10 @@ class MainActivity : ComponentActivity() {
                     val negocioViewModel_ClienteMain: NegocioViewModel = viewModel(factory = factory) //Para listar y ver detaller de los negocios
 
 
+                    //Uso solo una instancia de categorias ya que solo las listaré
+                    val categoriasViewModel: CategoriaViewModel= viewModel(factory=factory)
+
+
                     // Navegación
                     Navigator(
                         navController = navController,
@@ -78,7 +85,8 @@ class MainActivity : ComponentActivity() {
                         serviciosNegocioScreenViewModel = serviciosNegocioScreenViewModel,
                         servicioViewModel_ClienteMain = servicioViewModel_ClienteMain,
                         reservaViewModel_ClienteMain = reservaViewModel_ClienteMain,
-                        negocioViewModel_ClienteMain = negocioViewModel_ClienteMain
+                        negocioViewModel_ClienteMain = negocioViewModel_ClienteMain,
+                        categoriasViewModel = categoriasViewModel
                     )
                 }
             }
@@ -89,23 +97,54 @@ class MainActivity : ComponentActivity() {
 
 
 
+// Esta clase implementa la interfaz ViewModelProvider.Factory
+// y nos permite crear ViewModels con sus dependencias ya inyectadas.
 class AppViewModelFactory(
+
+    // Dependencias que usaremos para inyectar en los distintos ViewModels
     private val authRepo: AuthRemoteDataResource,
     private val negocioRepo: NegocioRemoteSource,
-    private  val servicioApi: ServicioRemoteSource
+    private val servicioApi: ServicioRemoteSource,
+    private val categoriaSource: CategoriaRemoteDataSource
 
 ) : ViewModelProvider.Factory {
 
+    // El método create se llama automáticamente por Android para obtener un ViewModel
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return when {
-            modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(authRepo) as T
-            modelClass.isAssignableFrom(RegisterViewModel::class.java) -> RegisterViewModel(authRepo) as T
-            modelClass.isAssignableFrom(NegocioViewModel::class.java) -> NegocioViewModel(negocioRepo) as T
-            modelClass.isAssignableFrom(BussinesMainViewModel::class.java) -> BussinesMainViewModel(negocioRepo) as T
-            modelClass.isAssignableFrom(ReservasViewModel::class.java) -> ReservasViewModel(negocioRepo) as T
-            modelClass.isAssignableFrom(ServicioViewModel::class.java) -> ServicioViewModel(servicioApi) as T
 
+        // Usamos when para decidir qué ViewModel se está solicitando
+        return when {
+
+            // Si se solicita LoginViewModel, se crea pasándole authRepo
+            modelClass.isAssignableFrom(LoginViewModel::class.java) ->
+                LoginViewModel(authRepo) as T
+
+            // Si se solicita RegisterViewModel, también necesita authRepo
+            modelClass.isAssignableFrom(RegisterViewModel::class.java) ->
+                RegisterViewModel(authRepo) as T
+
+            // NegocioViewModel requiere negocioRepo
+            modelClass.isAssignableFrom(NegocioViewModel::class.java) ->
+                NegocioViewModel(negocioRepo) as T
+
+            // BussinesMainViewModel también requiere negocioRepo
+            modelClass.isAssignableFrom(BussinesMainViewModel::class.java) ->
+                BussinesMainViewModel(negocioRepo) as T
+
+            // ReservasViewModel necesita negocioRepo igualmente
+            modelClass.isAssignableFrom(ReservasViewModel::class.java) ->
+                ReservasViewModel(negocioRepo) as T
+
+            // ServicioViewModel necesita servicioApi
+            modelClass.isAssignableFrom(ServicioViewModel::class.java) ->
+                ServicioViewModel(servicioApi) as T
+
+            // CategoriaViewModel requiere categoriaSource como dependencia
+            modelClass.isAssignableFrom(CategoriaViewModel::class.java) ->
+                CategoriaViewModel(categoriaSource) as T
+
+            // Si se pide un ViewModel que no está soportado, se lanza una excepción
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

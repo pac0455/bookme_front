@@ -1,8 +1,7 @@
 package com.example.frontendapp.ui.theme.viewmodels.fakeViewModel
 
 import androidx.lifecycle.viewModelScope
-import com.example.frontendapp.data.model.Servicio
-import com.example.frontendapp.data.model.ServicioDetalleDto
+import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.ServicioRemoteSource

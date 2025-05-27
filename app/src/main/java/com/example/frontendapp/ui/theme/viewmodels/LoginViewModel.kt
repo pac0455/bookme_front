@@ -2,12 +2,11 @@ package com.example.frontendapp.ui.theme.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.frontendapp.data.model.LoginRegisterResultDTO
-import com.example.frontendapp.data.model.Usuario
+import com.example.frontendapp.data.model.Usuario.LoginRegisterResultDTO
+import com.example.frontendapp.data.model.Usuario.Usuario
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.dto.ValidationErrorResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

@@ -42,35 +42,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.frontendapp.R
+import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.ui.theme.composables.list.darken
 import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
 
 @Composable
 fun NegocioCard(
-    name: String,
-    description: String,
-    category: String,
-    address: String,
-    rating: Float,
-    reviewCount: Int,  // Nuevo parámetro para el número de reseñas
-    isActive: Boolean,
-    imagenDefecto: Int,
+    negocio: NegocioCardCliente,
+    imagenUrl: String? = null,
     onClick: () -> Unit,
-    isOpen: Boolean,
-    Distancia: Int,
-    imagenUrl: String? = null
 ) {
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .clickable(enabled = isActive, onClick = onClick),
+            .clickable(enabled = negocio.isActive, onClick = onClick),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Caja para cargar la imagen
             Box(modifier = Modifier.height(200.dp)) {
                 ServicioImagePicker(
                     icon = Icons.Filled.NoPhotography,
@@ -83,7 +74,6 @@ fun NegocioCard(
                 )
             }
             Spacer(Modifier.height(24.dp))
-            // Nombre y categoría
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -91,7 +81,7 @@ fun NegocioCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = name,
+                    text = negocio.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -104,7 +94,7 @@ fun NegocioCard(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = category,
+                        text = negocio.category,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
@@ -113,12 +103,10 @@ fun NegocioCard(
                 }
             }
 
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Descripción
             Text(
-                text = description,
+                text = negocio.description,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -126,33 +114,26 @@ fun NegocioCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Dirección
             Text(
-                text = address,
+                text = negocio.address,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Estado abierto/cerrado
-            EstadoEtiqueta(isOpen)
+            EstadoEtiqueta(negocio.isOpen)
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Valoración y número de reseñas
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-
-
-                // Mostrar número de reseñas o mensaje si no hay
-                if (reviewCount > 0) {
-                    RatingStars(rating = rating)
+                if (negocio.reviewCount > 0) {
+                    RatingStars(rating = negocio.rating)
                     Text(
-                        text = "($reviewCount ${if (reviewCount == 1) "reseña" else "reseñas"})",
+                        text = "(${negocio.reviewCount} ${if (negocio.reviewCount == 1) "reseña" else "reseñas"})",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
@@ -184,8 +165,7 @@ fun NegocioCard(
             }
         }
 
-        // Estado activo
-        if (!isActive) {
+        if (!negocio.isActive) {
             Text(
                 text = "No disponible",
                 style = MaterialTheme.typography.bodySmall,
@@ -195,6 +175,7 @@ fun NegocioCard(
         }
     }
 }
+
 @Composable
 fun EstadoEtiqueta(isOpen: Boolean) {
     val backgroundColor = if (isOpen) Color(0xFFDFF5E1) else Color(0xFFFFE0E0)
@@ -281,38 +262,39 @@ fun RatingStars(rating: Float) {
 @Composable
 fun NegocioCardPreview() {
     Column {
-        // Negocio con reseñas
         NegocioCard(
-            name = "Gimnasio Power",
-            description = "Gimnasio completamente equipado con entrenadores profesionales.",
-            category = "Gimnasio",
-            address = "Av. Principal 456, Ciudad",
-            rating = 4.5f,
-            reviewCount = 12,  // Con reseñas
-            isActive = true,
-            imagenDefecto = R.drawable.logo,
-            Distancia = 5,
-            isOpen = false,
-            onClick = { },
-            imagenUrl = ""
+            negocio = NegocioCardCliente(
+                name = "Gimnasio Power",
+                description = "Gimnasio completamente equipado con entrenadores profesionales.",
+                category = "Gimnasio",
+                address = "Av. Principal 456, Ciudad",
+                rating = 4.5f,
+                reviewCount = 12,
+                isActive = true,
+                isOpen = false,
+                distancia = 5,
+                id = 0
+            ),
+            onClick = { }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Negocio sin reseñas
         NegocioCard(
-            name = "Spa Relajante",
-            description = "Servicios de spa y masajes relajantes.",
-            category = "Bienestar",
-            address = "Calle Secundaria 789, Ciudad",
-            rating = 0f,
-            reviewCount = 0,  // Sin reseñas
-            isActive = false,
-            imagenDefecto = R.drawable.logo,
-            Distancia = 3,
-            isOpen = true,
-            onClick = { },
-            imagenUrl = ""
+            negocio = NegocioCardCliente(
+                name = "Spa Relajante",
+                description = "Servicios de spa y masajes relajantes.",
+                category = "Bienestar",
+                address = "Calle Secundaria 789, Ciudad",
+                rating = 0f,
+                reviewCount = 0,
+                isActive = false,
+                isOpen = true,
+                id = 1,
+                distancia = 5
+            ),
+            onClick = { }
         )
     }
 }
+

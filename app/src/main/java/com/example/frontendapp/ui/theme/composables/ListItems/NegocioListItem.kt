@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -51,7 +50,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.frontendapp.data.model.Negocio
+import com.example.frontendapp.data.model.Categoria
+import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
@@ -221,7 +221,10 @@ fun NegocioListItemPreview() {
         direccion = "Av. de los Horarios 1",
         latitud = 40.0,
         longitud = -3.0,
-        categoria = "Oficina"
+        categoriaId = 1,
+        categoria = Categoria(
+            nombre = "Gym"
+        )
     )
     Scaffold {innerPadding ->
         var myPadding = innerPadding

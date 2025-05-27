@@ -1,9 +1,8 @@
 package com.example.frontendapp.data.remote.api
 
-import com.example.frontendapp.data.model.Negocio
-import com.example.frontendapp.data.model.Reserva
-import com.example.frontendapp.data.model.ReservaDetallada
-import com.example.frontendapp.data.model.Servicio
+import com.example.frontendapp.data.model.Negocio.Negocio
+import com.example.frontendapp.data.model.Reserva.Reserva
+import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body

@@ -26,7 +26,9 @@ import androidx.compose.runtime.*
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.example.frontendapp.data.dto.TabItem
+import com.example.frontendapp.data.model.UI.TabItem
+import com.example.frontendapp.data.remote.source.CategoriaRemoteDataSource
+import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
@@ -40,7 +42,8 @@ fun ClienteMainScreen(
     navController: NavController,
     reservasViewModel: ReservasViewModel,
     servicioViewModel: ServicioViewModel,
-    negocioViewModel: NegocioViewModel
+    negocioViewModel: NegocioViewModel,
+    categoriasViewModel: CategoriaViewModel
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -160,7 +163,8 @@ fun ClienteMainScreenPreview() {
     ClienteMainScreen(
         controller,
         FakeReservasViewModel(),
+        servicioViewModel = FakeServicioViewModel(),
         negocioViewModel = FakeNegocioViewModel(),
-        servicioViewModel = FakeServicioViewModel()
+        categoriasViewModel = CategoriaViewModel(CategoriaRemoteDataSource(RetrofitInstance.categoriaApi))
     )
 }

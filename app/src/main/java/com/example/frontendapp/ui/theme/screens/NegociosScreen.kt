@@ -49,7 +49,7 @@ import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.example.frontendapp.data.dto.GridButtonItem
+import com.example.frontendapp.data.model.UI.GridButtonItem
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 import com.example.frontendapp.ui.theme.composables.list.NegocioList

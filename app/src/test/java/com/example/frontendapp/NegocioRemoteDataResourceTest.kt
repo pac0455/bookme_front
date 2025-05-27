@@ -1,8 +1,9 @@
 package com.example.frontendapp
 
+import com.example.frontendapp.data.model.Categoria
 import com.example.frontendapp.data.model.Horario
-import com.example.frontendapp.data.model.Negocio
-import com.example.frontendapp.data.model.Usuario
+import com.example.frontendapp.data.model.Negocio.Negocio
+import com.example.frontendapp.data.model.Usuario.Usuario
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.reponses.Resource
@@ -55,7 +56,8 @@ class NegocioApiTest {
                 direccion = "Calle Prueba 123",
                 latitud = 10.0,
                 longitud = 20.0,
-                categoria = "Prueba"
+                categoriaId = 1,
+                categoria = Categoria() // Puede quedar con valores por defecto
             )
 
             val result = negocioRemoteSource.addNegocio(negocio)
@@ -72,13 +74,9 @@ class NegocioApiTest {
         }
     }
 
-
-
     @Test
     fun `crear negocio con horarios y verificar persistencia`() = runBlocking {
-        // Autenticación previa si es necesario (ya lo tienes en setup)
-
-        // 1. Eliminar negocio existente con el mismo nombre
+        // Eliminar negocio existente con el mismo nombre
         val negociosExistentes = negocioRemoteSource.getAllNegocios()
         if (negociosExistentes is Resource.Success) {
             negociosExistentes.data?.find { it.nombre == "Negocio con horarios" }?.let { existente ->
@@ -87,31 +85,32 @@ class NegocioApiTest {
             }
         }
 
-        // 2. Preparar horarios
+        // Preparar horarios
         val horarios = listOf(
             Horario(diaSemana = "Lunes", horaInicio = "08:00", horaFin = "12:00"),
             Horario(diaSemana = "Martes", horaInicio = "09:00", horaFin = "13:00")
         )
 
-        // 3. Crear negocio con horarios
+        // Crear negocio con horarios
         val negocio = Negocio(
-            nombre = "Negocio con horarios",
-            descripcion = "Negocio con horarios incluidos",
-            direccion = "Av. de los Horarios 1",
-            latitud = 40.0,
-            longitud = -3.0,
-            categoria = "Oficina",
+            nombre = "Negocio prueba",
+            descripcion = "Descripción",
+            direccion = "Dirección",
+            latitud = 10.0,
+            longitud = 20.0,
+            categoriaId = 1,  // solo el id, sin enviar objeto Categoria
+            categoria = null, // o eliminar esta propiedad si es nullable
+            activo = true,
             horarioAtencion = horarios
         )
 
-        val result = negocioRemoteSource.addNegocio(negocio)
 
-        when (result) {
+
+        when (val result = negocioRemoteSource.addNegocio(negocio)) {
             is Resource.Success -> {
                 val negocioId = result.data?.id
                 assertNotNull("El ID del negocio no puede ser nulo", negocioId)
 
-                // Obtener negocio desde la API
                 val fetched = negocioRemoteSource.getNegocio(negocioId!!)
                 assertTrue(fetched is Resource.Success)
 
@@ -131,7 +130,6 @@ class NegocioApiTest {
         }
     }
 
-
     @Test
     fun `crear negocio`() = runBlocking {
         // Eliminar si ya existe
@@ -143,14 +141,14 @@ class NegocioApiTest {
             }
         }
 
-        // Crear el nuevo negocio
         val negocio = Negocio(
             nombre = "Negocio de prueba",
             descripcion = "Descripción de prueba",
             direccion = "Calle Prueba 123",
             latitud = 10.0,
             longitud = 20.0,
-            categoria = "Prueba"
+            categoriaId = 1,
+            categoria = Categoria(nombre = "Spa")
         )
 
         val result = negocioRemoteSource.addNegocio(negocio)
@@ -170,7 +168,6 @@ class NegocioApiTest {
         assertNotNull(createdNegocioId)
     }
 
-
     @Test
     fun `obtener negocio por id`() = runBlocking {
         assertNotNull("Debe existir negocio creado", createdNegocioId)
@@ -186,9 +183,9 @@ class NegocioApiTest {
         assertTrue(result is Resource.Success)
         assertEquals(createdNegocioId, result.data?.id)
     }
+
     @Test
     fun `crear negocio con estado inactivo`() = runBlocking {
-        // Eliminar si ya existe negocio con el mismo nombre
         val negociosExistentes = negocioRemoteSource.getAllNegocios()
         if (negociosExistentes is Resource.Success) {
             negociosExistentes.data?.find { it.nombre == "Negocio inactivo" }?.let { existente ->
@@ -197,14 +194,14 @@ class NegocioApiTest {
             }
         }
 
-        // Crear negocio con activo = false
         val negocioInactivo = Negocio(
             nombre = "Negocio inactivo",
             descripcion = "Negocio creado con estado inactivo",
             direccion = "Calle Desactivada 123",
             latitud = 10.0,
             longitud = 20.0,
-            categoria = "Prueba",
+            categoriaId = -1,
+            categoria = Categoria(),
             activo = false
         )
 
@@ -215,14 +212,12 @@ class NegocioApiTest {
                 val negocioId = result.data?.id
                 assertNotNull("El ID del negocio no puede ser nulo", negocioId)
 
-                // Obtener negocio desde la API
                 val fetched = negocioRemoteSource.getNegocio(negocioId!!)
                 assertTrue(fetched is Resource.Success)
 
                 val negocioRecuperado = (fetched as Resource.Success).data
                 println("Negocio recuperado: $negocioRecuperado")
 
-                // Comprobar que el estado es inactivo
                 assertEquals(false, negocioRecuperado?.activo)
             }
             is Resource.Error -> {
@@ -253,16 +248,16 @@ class NegocioApiTest {
         assertNotNull("Debe existir negocio creado", createdNegocioId)
 
         val negocioActualizado = Negocio(
-            id = createdNegocioId!!, // aún se usa internamente
-            nombre = "Negocio de prueba", // usa el nombre del setup
+            id = createdNegocioId!!,
+            nombre = "Negocio de prueba",
             descripcion = "Descripción actualizada",
             direccion = "Calle Actualizada 456",
-            categoria = "Hola",
+            categoriaId = -1,
+            categoria = Categoria(nombre = "Hola"),
             latitud = 11.0,
             longitud = 21.0
         )
 
-        // USO DEL MÉTODO NUEVO
         val result = negocioRemoteSource.updateNegocioByNombre(negocioActualizado)
 
         when (result) {
@@ -273,6 +268,7 @@ class NegocioApiTest {
 
         assertTrue(result is Resource.Success)
     }
+
     @Test
     fun `obtener reservas de negocio`() = runBlocking {
         assertNotNull("Debe existir negocio creado", createdNegocioId)
@@ -307,6 +303,7 @@ class NegocioApiTest {
 
         assertTrue(result is Resource.Success)
     }
+
     @Test
     fun `obtener reservas detalladas de negocio`() = runBlocking {
         assertNotNull("Debe existir negocio creado", createdNegocioId)

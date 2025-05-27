@@ -5,18 +5,16 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.frontendapp.data.model.Negocio
+import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.model.Horario
-import com.example.frontendapp.data.model.Reserva
-import com.example.frontendapp.data.model.ReservaDetallada
+import com.example.frontendapp.data.model.Reserva.Reserva
+import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.data.remote.reponses.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-
 import kotlinx.coroutines.launch
 
 open class NegocioViewModel(
@@ -79,7 +77,7 @@ open class NegocioViewModel(
     fun setLatitud(lat: Double) = _negocioState.update { it.copy(latitud = lat) }
     fun setLongitud(lon: Double) = _negocioState.update { it.copy(longitud = lon) }
     fun setUbicacion(lat: Double, lon: Double) = _negocioState.update { it.copy(latitud = lat, longitud = lon) }
-    fun setcategoria(categoria: String) = _negocioState.update { it.copy(categoria = categoria) }
+    fun setcategoriaId(id: Int) = _negocioState.update { it.copy(categoriaId = id) }
     fun setActivo(activo: Boolean) = _negocioState.update { it.copy(activo = activo) }
     fun setHorarios(horarios: List<Horario>) = _negocioState.update { it.copy(horarioAtencion = horarios) }
     fun setSelectedImageUri(uri: Uri?) { _selectedImageUri.value = uri }

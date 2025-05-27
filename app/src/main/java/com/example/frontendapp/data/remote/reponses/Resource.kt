@@ -1,6 +1,6 @@
 package com.example.frontendapp.data.remote.reponses
 
-import com.example.frontendapp.data.dto.ValidationErrorResponse
+import com.example.frontendapp.data.model.Api.ValidationErrorResponse
 
 
 // Clase que representa el estado de una llamada a cualquiera de las APIs

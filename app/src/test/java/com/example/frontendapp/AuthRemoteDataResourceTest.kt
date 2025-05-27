@@ -4,8 +4,8 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
-import com.example.frontendapp.data.model.Usuario
-import com.example.frontendapp.data.model.toRegisterDTO
+import com.example.frontendapp.data.model.Usuario.Usuario
+import com.example.frontendapp.data.model.Usuario.toRegisterDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
@@ -16,12 +16,13 @@ import kotlinx.coroutines.runBlocking
 class AuthRemoteDataResourceTest {
 
     private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.userApi)
+    private val uniqueSuffix = (System.currentTimeMillis() % 1000000000).toString().padStart(9, '0')
 
     private val user = Usuario(
         email = "franhidalc@gmail.com",
-        password = "12Aaaa",
+        password = "12Aaa!a",
         username = "Nombre",
-        phoneNumber = "12dasdsaa"
+        phoneNumber = uniqueSuffix
     )
 
     /**
@@ -30,12 +31,23 @@ class AuthRemoteDataResourceTest {
      */
     @Before
     fun setup() = runBlocking {
+        // Intentamos eliminar el usuario antes de registrarlo
+        val deleteResult = authRemoteDataResource.delete(user.email ?: "")
+        if (deleteResult is Resource.Success) {
+            println("🧹 Usuario eliminado antes del registro.")
+        } else {
+            println("⚠️ No se pudo eliminar usuario previo (puede que no existiera): ${deleteResult.message}")
+        }
+
         val result = authRemoteDataResource.registerUser(user)
-        // Si ya está registrado, ignoramos el error
         if (result is Resource.Success) {
             user.id = result.data?.usuario?.id ?: ""
+        } else {
+            println("❌ Error al registrar usuario en setup: ${result.message}")
         }
     }
+
+
     @Test
     fun `validate registration with invalid data`() = runBlocking {
         val invalidUser = Usuario(
@@ -109,7 +121,7 @@ class AuthRemoteDataResourceTest {
         val usuario = Usuario(
             email = "",
             password = user.password,
-            username = user.username
+            username = "usuarioUnicoParaTest${System.currentTimeMillis()}",
         )
 
         val result = authRemoteDataResource.registerUser(usuario)

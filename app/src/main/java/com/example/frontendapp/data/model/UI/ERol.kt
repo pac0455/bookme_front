@@ -1,4 +1,4 @@
-package com.example.frontendapp.data.model
+package com.example.frontendapp.data.model.UI
 
 enum class ERol {
     CLIENTE,

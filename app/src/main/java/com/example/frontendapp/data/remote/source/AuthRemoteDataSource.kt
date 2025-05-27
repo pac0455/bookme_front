@@ -1,11 +1,11 @@
 package com.example.frontendapp.data.remote.source
 
-import com.example.frontendapp.data.dto.ApiResponse
-import com.example.frontendapp.data.dto.ValidationErrorResponse
-import com.example.frontendapp.data.model.LoginRegisterResultDTO
-import com.example.frontendapp.data.model.RegisterDTO
-import com.example.frontendapp.data.model.Usuario
-import com.example.frontendapp.data.model.toRegisterDTO
+import com.example.frontendapp.data.model.Api.ApiResponse
+import com.example.frontendapp.data.model.Api.ValidationErrorResponse
+import com.example.frontendapp.data.model.Usuario.LoginRegisterResultDTO
+import com.example.frontendapp.data.model.Usuario.RegisterDTO
+import com.example.frontendapp.data.model.Usuario.Usuario
+import com.example.frontendapp.data.model.Usuario.toRegisterDTO
 import com.example.frontendapp.data.remote.api.UserApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.request.LoginRequest

@@ -11,15 +11,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,8 +47,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.example.frontendapp.data.model.Categoria
 import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.source.CategoriaRemoteDataSource
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnIconRounded
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
@@ -58,6 +57,7 @@ import com.example.frontendapp.ui.theme.composables.CustomMultilineTextField
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
+import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.google.android.gms.maps.model.LatLng
 
@@ -65,7 +65,16 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioViewModel, enableGeocoder: Boolean = true ) {
+fun NegocioFormScreen(
+    navController: NavController,
+    negocioViewModel: NegocioViewModel,
+    enableGeocoder: Boolean = true,
+    categoriasViewModel: CategoriaViewModel,
+    ) {
+    val categoriaState by categoriasViewModel.categoriasState.collectAsState()
+    var categorias by remember { mutableStateOf(listOf<Categoria>()) }
+    var categoriaSelecionada by remember { mutableStateOf(Categoria()) }
+
     val context = LocalContext.current
     val negocio = negocioViewModel.negocioState.collectAsState().value
     val isEdit = negocioViewModel.isEditMode.collectAsState().value
@@ -76,10 +85,22 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
     val geoCoder = remember(context, enableGeocoder) {
         if (enableGeocoder) Geocoder(context, Locale.getDefault()) else null
     }
-
-
-    val categorias = listOf("Salón", "Clínica", "Gimnasio", "Otro")
     var categoriaExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        categoriasViewModel.getAllCategorias(
+            onLoading = {
+                Log.d("Categorias", "Cargando...")
+            },
+            onError = { errorMsg ->
+                Log.e("Categorias", "Error: $errorMsg")
+            },
+            onSuccess = { list ->
+                list.forEach{Log.d("NegocioFormScreen_Categorias", it.toString())}
+                categorias = list
+            }
+        )
+    }
 
     // Si hay una ubicación, usar Geocoder para obtener la dirección
 
@@ -154,7 +175,6 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-            .verticalScroll(rememberScrollState())
             .padding(innerPadding)
             .fillMaxSize()
         ) {
@@ -204,33 +224,35 @@ fun NegocioFormScreen(navController: NavController, negocioViewModel: NegocioVie
                         iconSize = 24.dp
                     )
                 }
-
-
-
-
-
                 // Selector de Categoría
                 ExposedDropdownMenuBox (
                     expanded = categoriaExpanded,
                     onExpandedChange = { categoriaExpanded = !categoriaExpanded }
                 ) {
+
                     OutlinedTextField(
-                        value = negocio.categoria,
-                        onValueChange = {},
+                        value = categoriaSelecionada.nombre,
+                        onValueChange = { },
                         readOnly = true,
                         label = { Text("Categoría") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoriaExpanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
                     )
+
                     ExposedDropdownMenu(
                         expanded = categoriaExpanded,
-                        onDismissRequest = { categoriaExpanded = false }
+                        onDismissRequest = { categoriaExpanded = false },
+                        modifier = Modifier.heightIn(max = 200.dp)
+
                     ) {
                         categorias.forEach {
                             DropdownMenuItem(
-                                text = { Text(it) },
+                                text = { Text(it.nombre) },
                                 onClick = {
-                                    negocioViewModel.setcategoria(it)
+                                    categoriaSelecionada= it
+                                    negocioViewModel.setcategoriaId(it.id)
                                     categoriaExpanded = false
                                 }
                             )
@@ -251,7 +273,8 @@ fun NegocioFormScreenPreview() {
         NegocioFormScreen(
             navController = rememberNavController(),//
             negocioViewModel = FakeNegocioViewModel(),
-            enableGeocoder = false  // Desactivas Geocoder para el preview
+            enableGeocoder = false,
+            categoriasViewModel = CategoriaViewModel(CategoriaRemoteDataSource(RetrofitInstance.categoriaApi))  // Desactivas Geocoder para el preview
         )
     }
 }

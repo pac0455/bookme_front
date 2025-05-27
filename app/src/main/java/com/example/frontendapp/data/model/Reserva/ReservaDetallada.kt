@@ -1,4 +1,4 @@
-package com.example.frontendapp.data.model
+package com.example.frontendapp.data.model.Reserva
 
 data class ReservaDetallada(
     val reservaId: Int,

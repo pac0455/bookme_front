@@ -41,8 +41,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.frontendapp.data.model.Servicio
-import com.example.frontendapp.data.model.ServicioDetalleDto
+import com.example.frontendapp.data.model.Servicio.Servicio
+import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
 import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel

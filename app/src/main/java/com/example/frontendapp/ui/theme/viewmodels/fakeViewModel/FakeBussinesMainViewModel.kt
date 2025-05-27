@@ -1,11 +1,11 @@
 package com.example.frontendapp.ui.theme.viewmodels.fakeViewModel
 
 import androidx.lifecycle.viewModelScope
-import com.example.frontendapp.data.model.Negocio
+import com.example.frontendapp.data.model.Categoria
+import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
-import com.example.frontendapp.ui.theme.viewmodels.BussinesMainViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -33,7 +33,8 @@ class FakeNegocioViewModel : NegocioViewModel(
                     direccion = "Calle Salud, 42",
                     latitud = 40.4168,
                     longitud = -3.7038,
-                    categoria = "Clínica",
+                    categoriaId = 1,
+                    categoria = Categoria(nombre = "Gym"),
                     activo = true
                 ),
                 Negocio(
@@ -43,7 +44,8 @@ class FakeNegocioViewModel : NegocioViewModel(
                     direccion = "Av. del Deporte, 10",
                     latitud = 40.4180,
                     longitud = -3.7100,
-                    categoria = "Gimnasio",
+                    categoriaId = 1,
+                    categoria = Categoria(nombre = "Spa"),
                     activo = false
                 )
             )

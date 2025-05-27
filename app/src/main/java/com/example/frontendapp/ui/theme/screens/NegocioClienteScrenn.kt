@@ -43,10 +43,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import com.example.frontendapp.data.model.ERol
+import com.example.frontendapp.data.model.UI.ERol
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
-import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 

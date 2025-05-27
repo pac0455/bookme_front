@@ -1,5 +1,7 @@
 package com.example.frontendapp.data.model
 
+import com.example.frontendapp.data.model.Negocio.Negocio
+
 data class Horario(
     val id: Int = 0,
     val idNegocio: Int = 0,

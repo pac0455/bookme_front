@@ -1,6 +1,6 @@
 package com.example.frontendapp.data.remote
 
-import com.example.frontendapp.data.model.Servicio
+import com.example.frontendapp.data.remote.api.CategoriaApi
 import com.example.frontendapp.data.remote.api.NegocioApi
 import com.example.frontendapp.data.remote.api.ServicioApi
 import com.example.frontendapp.data.remote.api.UserApi
@@ -17,7 +17,7 @@ object RetrofitInstance {
 
     private val serverTest = "https://localhost:7211/"
 
-    private  val ip = serverPracticas
+    private  val ip = server
     private var roles: List<String> = emptyList()
 
 
@@ -63,5 +63,13 @@ object RetrofitInstance {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ServicioApi::class.java)
+    }
+    val categoriaApi: CategoriaApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(ip)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(CategoriaApi::class.java)
     }
 }

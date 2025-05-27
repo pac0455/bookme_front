@@ -2,9 +2,9 @@ package com.example.frontendapp.data.remote.source
 
 import android.content.Context
 import android.net.Uri
-import com.example.frontendapp.data.model.Servicio
-import com.example.frontendapp.data.model.ServicioDetalleDto
-import com.example.frontendapp.data.model.ServicioUpdateRequest
+import com.example.frontendapp.data.model.Servicio.Servicio
+import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
+import com.example.frontendapp.data.model.Servicio.ServicioUpdateRequest
 import com.example.frontendapp.data.remote.api.ServicioApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import org.json.JSONObject

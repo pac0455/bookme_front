@@ -2,8 +2,8 @@ package com.example.frontendapp.ui.theme.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.frontendapp.data.model.Reserva
-import com.example.frontendapp.data.model.ReservaDetallada
+import com.example.frontendapp.data.model.Reserva.Reserva
+import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import kotlinx.coroutines.flow.MutableStateFlow

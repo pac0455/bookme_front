@@ -2,15 +2,12 @@ package com.example.frontendapp.data.remote.source
 
 import android.content.Context
 import android.net.Uri
-import com.example.frontendapp.data.model.Negocio
-import com.example.frontendapp.data.model.Reserva
-import com.example.frontendapp.data.model.ReservaDetallada
-import com.example.frontendapp.data.model.Servicio
+import com.example.frontendapp.data.model.Negocio.Negocio
+import com.example.frontendapp.data.model.Reserva.Reserva
+import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.remote.api.NegocioApi
 import com.example.frontendapp.data.remote.reponses.Resource
-import okhttp3.RequestBody
 import retrofit2.Response
-import java.io.File
 
 class NegocioRemoteSource(
     private val negocioApi: NegocioApi

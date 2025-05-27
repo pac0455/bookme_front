@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.frontendapp.data.model.Negocio
+import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.list.ListaReservas
 import com.example.frontendapp.ui.theme.composables.QuickActionsExpandable
