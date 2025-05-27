@@ -142,8 +142,6 @@ fun NegocioFormScreen(
                     .navigationBarsPadding() // esto evita que se solape con la barra del sistema
             )
         }
-
-
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
