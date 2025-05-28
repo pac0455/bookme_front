@@ -1,9 +1,8 @@
 package com.example.frontendapp.ui.theme.composables.ListItems
 
-import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -25,9 +24,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.NoPhotography
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
@@ -42,18 +39,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
-import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.composables.list.darken
 import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
@@ -72,9 +64,17 @@ fun NegocioCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp)
-            .clickable(enabled = negocio.isActive, onClick = onClick),
+            .clickable(enabled = negocio.isActive, onClick = onClick)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(16.dp)
+            ),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
 
@@ -88,7 +88,7 @@ fun NegocioCard(
                 iconSize = 48.dp,
                 iconAlignment = Alignment.Center,
                 contentAlignment = Alignment.Center,
-                backgroundColor = Color.LightGray
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant
             )
 
             Column(
@@ -101,10 +101,12 @@ fun NegocioCard(
                     text = negocio.nombre,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    maxLines = 2
+                    maxLines = 2,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 if (!sinReseñas) {
+
                     RatingStars(rating = negocio.rating)
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
@@ -112,19 +114,20 @@ fun NegocioCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.StarBorder,
                             contentDescription = "Sin reseñas",
-                            tint = Color.Gray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Sin reseñas",
                             style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -141,8 +144,7 @@ fun NegocioCard(
                     )
                 }
 
-                // Si hay espacio libre, mostrar más info útil
-                if (sinReseñas && sinDistancia) {
+                if (sinReseñas || sinDistancia) {
                     Spacer(Modifier.height(6.dp))
                     Text(
                         text = negocio.categoria,
@@ -154,13 +156,16 @@ fun NegocioCard(
                         text = negocio.direccion,
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
         }
     }
 }
+
+
 
 
 @Composable

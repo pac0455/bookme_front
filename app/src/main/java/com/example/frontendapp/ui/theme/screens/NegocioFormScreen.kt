@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import com.example.frontendapp.data.model.Categoria
 import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.remote.RetrofitInstance
@@ -67,7 +68,6 @@ fun NegocioFormScreen(
     ) {
 
     var categorias by remember { mutableStateOf(listOf<Categoria>()) }
-    val categoriaSelecionada by remember { mutableStateOf(Categoria()) }
     val validationState by negocioViewModel.negocioValidationState.collectAsState()
     val context = LocalContext.current
     val negocio = negocioViewModel.negocioState.collectAsState().value
@@ -75,6 +75,9 @@ fun NegocioFormScreen(
     val tituloPantalla = if (isEdit) "Editar Negocio" else "Crear Negocio"
     var geocoder = remember { Geocoder(context, Locale.getDefault()) }
     val ubicacion by remember { mutableStateOf(Ubicacion(negocio.latitud, negocio.latitud)) }
+    val categoriaSelecionada = categorias.find { it.id == negocio.categoriaId }?.nombre ?: ""
+
+
 
     if(enableGeocoder) geocoder = remember { Geocoder(context, Locale.getDefault()) }
     LaunchedEffect(Unit) {
@@ -92,7 +95,11 @@ fun NegocioFormScreen(
         )
     }
     //Cada vez que la ubicacion cambie que me setee la direccción
-    LaunchedEffect(ubicacion) { negocioViewModel.setDireccion(geocoder) }
+    if (enableGeocoder) {
+        LaunchedEffect(ubicacion) {
+            negocioViewModel.setDireccion(geocoder)
+        }
+    }
 
 
     Scaffold(
@@ -196,7 +203,7 @@ fun NegocioFormScreen(
                 }
                 // Selector de Categoría
                 CustomSelector(
-                    selectedOption = categoriaSelecionada.nombre,
+                    selectedOption = categoriaSelecionada,
                     options = categorias.map { it.nombre }, //Lista de categorias pero con nombres
                     onOptionSelected = { selectedOption ->
                         categorias.find { it.nombre == selectedOption }?.let {

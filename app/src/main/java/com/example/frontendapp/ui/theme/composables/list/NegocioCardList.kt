@@ -1,6 +1,8 @@
 package com.example.frontendapp.ui.theme.composables.list
 
+import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,7 +90,10 @@ fun NegocioCardList(
             ) {
                 items(negocios, key = { it.id }) { negocioCard ->
                     Box(
-                        modifier = Modifier.width(cardWidth)
+                        modifier =
+                            Modifier
+                                .background(Color.White)
+                                .width(cardWidth)
                     ) {
                         NegocioCard(
                             negocio = negocioCard,
@@ -122,12 +128,12 @@ fun NegocioCardList(
     }
 }
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun PreviewNegocioCardList() {
     FrontendappTheme  {
         Surface(color = MaterialTheme.colorScheme.background) {
-
             NegocioCardList(
                 negocioViewModel = FakeNegocioViewModel(),
             )

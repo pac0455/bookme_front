@@ -13,4 +13,24 @@ data class NegocioCardCliente(
     val distancia: Double?,
     val latitud: Double?,
     val longitud: Double?
-)
+) {
+    companion object {
+        fun init(): NegocioCardCliente {
+            return NegocioCardCliente(
+                id = 0,
+                nombre = "Negocio por defecto",
+                descripcion = "Descripción por defecto",
+                categoria = "General",
+                direccion = "Dirección por defecto",
+                rating = 0.0f,
+                reviewCount = 0,
+                isActive = true,
+                isOpen = true,
+                distancia = null,
+                latitud = null,
+                longitud = null
+            )
+        }
+    }
+}
+

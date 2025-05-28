@@ -1,9 +1,9 @@
 package com.example.frontendapp.ui.theme.composables.tab
 
 import android.util.Log
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,6 +27,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,22 +46,24 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.Principal_variacion6
 import com.example.frontendapp.ui.theme.composables.CustomSeachBar
 import com.example.frontendapp.ui.theme.composables.ListItems.NegocioCard
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.utils.UbicacionHelper
 
 @Composable
 fun NegocioTabContent(
     negocioViewModel: NegocioViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavController
 ) {
     var query by remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -67,21 +72,15 @@ fun NegocioTabContent(
     val cardWidth = screenWidth * 0.85f
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
 
     val negociosCardClienteState by negocioViewModel.negociosClienteState.collectAsState()
     val negociosCard = remember { mutableStateListOf<NegocioCardCliente>() }
 
-    // Obtener ubicación al iniciar
     LaunchedEffect(Unit) {
         val ubi = UbicacionHelper.obtenerUbicacionActual(context = context)
         negocioViewModel.getNegociosParaCliente(ubi)
     }
 
-    // Manejar estados
     when (negociosCardClienteState) {
         is Resource.Success -> {
             negociosCard.clear()
@@ -91,7 +90,6 @@ fun NegocioTabContent(
             }
         }
         is Resource.Error -> {
-            // Manejo de errores
             Log.e("NegocioTabContent", "Error al obtener negocios")
         }
         else -> Unit
@@ -101,6 +99,7 @@ fun NegocioTabContent(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Encabezado visual
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -109,10 +108,9 @@ fun NegocioTabContent(
                 .background(Principal_variacion3)
                 .padding(6.dp),
             verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Puedes colocar contenido aquí (iconos, título, etc.)
-        }
+        ) {}
 
+        // Barra de búsqueda y filtro
         Row(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
@@ -124,7 +122,6 @@ fun NegocioTabContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
             CustomSeachBar(
                 query = query,
                 backgroundColor = Color.Transparent,
@@ -132,23 +129,81 @@ fun NegocioTabContent(
                 modifier = Modifier
                     .weight(1f)
                     .height(56.dp)
-                    .focusRequester(focusRequester)
                     .clip(RoundedCornerShape(16.dp))
+                    .focusRequester(focusRequester)
             )
             IconButton(
                 onClick = { /* acción filtro */ },
                 modifier = Modifier
                     .size(36.dp)
                     .background(Color.White, RoundedCornerShape(12.dp))
-                    .shadow(1.dp, RoundedCornerShape(12.dp))  // sombra muy sutil
+                    .shadow(1.dp, RoundedCornerShape(12.dp))
             ) {
                 Icon(
                     imageVector = Icons.Default.FilterAlt,
                     contentDescription = "Filtro",
-                    tint = Color.Black.copy(alpha = 0.4f)  // negro con baja opacidad, sutil
+                    tint = Color.Black.copy(alpha = 0.4f)
                 )
             }
         }
+
+        // Sección: Todos los negocios
+        NegocioSeccion(
+            "Recomendados",
+            negociosCard,
+            negocioViewModel,
+            listState,
+            flingBehavior,
+            cardWidth = cardWidth,
+            screenWidth = screenWidth,
+            navController = navController,
+        )
+
+        // Sección: Abiertos ahora
+        NegocioSeccion(
+            "Abiertos ahora",
+            negociosCard.filter { it.isOpen },
+            negocioViewModel,
+            rememberLazyListState(),
+            rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
+            cardWidth = cardWidth,
+            screenWidth = screenWidth,
+            navController = navController,
+        )
+
+        // Sección: Mejor valorados
+        NegocioSeccion(
+            "Mejor valorados",
+            negociosCard.sortedByDescending { it.rating },
+            negocioViewModel,
+            rememberLazyListState(),
+            rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
+            cardWidth = cardWidth,
+            screenWidth = screenWidth,
+            navController = navController,
+        )
+    }
+}
+
+
+@Composable
+fun NegocioSeccion(
+    titulo: String,
+    negocios: List<NegocioCardCliente>,
+    negocioViewModel: NegocioViewModel,
+    listState: LazyListState,
+    flingBehavior: FlingBehavior,
+    navController: NavController,
+    cardWidth: Dp,
+    screenWidth: Dp
+) {
+    Column {
+        Text(
+            text = titulo,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
 
         LazyRow(
             state = listState,
@@ -156,48 +211,26 @@ fun NegocioTabContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(220.dp)
-                .padding(vertical = 16.dp),
+                .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(horizontal = (screenWidth - cardWidth) / 2)
         ) {
-            items(negociosCard, key = { it.id }) {
+            items(negocios, key = { it.id }) {
                 Box(modifier = Modifier.width(cardWidth)) {
                     NegocioCard(
                         negocio = it,
-                        imagenUrl = negocioViewModel.getNegocioImageUrl(it.id), // Aquí puedes enlazar imagen real si tienes
+                        imagenUrl = negocioViewModel.getNegocioImageUrl(it.id),
                         mostrarDistancia = it.distancia != null,
                         onClick = {
                             Log.d("NegocioCardList", "Clic en negocio: ${it.nombre}")
+                            negocioViewModel.setTmpNegocioCard(it)
+                            navController.navigate(
+                                NavigationItem.NEGOCIO_CARD_DETAILS.createRoute(it.id)
+                            )
                         }
                     )
                 }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewNegocioTabContentWithAnimation() {
-    val fakeNegocio = NegocioCardCliente(
-        id = 1,
-        nombre = "Negocio de prueba",
-        descripcion = "Descripción breve",
-        categoria = "Comida",
-        direccion = "Calle Falsa 123",
-        rating = 4.5f,
-        reviewCount = 23,
-        isActive = true,
-        isOpen = true,
-        distancia = 1.2,
-        latitud = -34.6037,
-        longitud = -58.3816
-    )
-    val fakeList = listOf(fakeNegocio)
-
-
-    NegocioTabContent(
-        negocioViewModel = FakeNegocioViewModel(),
-        modifier = Modifier.fillMaxSize()
-    )
 }

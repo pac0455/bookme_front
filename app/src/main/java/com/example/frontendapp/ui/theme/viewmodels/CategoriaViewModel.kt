@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class CategoriaViewModel(
+open class CategoriaViewModel(
     private val categoriaRemoteSource: CategoriaRemoteDataSource
 ) : ViewModel() {
 
-    private val _categoriasState = MutableStateFlow<Resource<List<Categoria>>>(Resource.None())
+    protected val _categoriasState = MutableStateFlow<Resource<List<Categoria>>>(Resource.None())
     val categoriasState: StateFlow<Resource<List<Categoria>>> = _categoriasState
 
-    fun getAllCategorias(
+    open fun getAllCategorias(
         onLoading: () -> Unit = {},
         onSuccess: (List<Categoria>) -> Unit = {},
         onError: (String) -> Unit = {}

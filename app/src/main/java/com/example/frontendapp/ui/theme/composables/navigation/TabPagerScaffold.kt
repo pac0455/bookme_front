@@ -47,19 +47,6 @@ fun TabPagerScaffold(
             .fillMaxSize()
             .navigationBarsPadding()
     ) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) { page ->
-            Box(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                tabItems[page].content()
-            }
-        }
-
         TabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = Modifier.fillMaxWidth()
@@ -92,5 +79,19 @@ fun TabPagerScaffold(
                 )
             }
         }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) { page ->
+            Box(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                tabItems[page].content()
+            }
+        }
+
+
     }
 }

@@ -11,26 +11,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-public val MyLightColorScheme  = lightColorScheme(
+// Colores personalizados modo claro
+val MyLightColorScheme = lightColorScheme(
     primary = Principal,
     onPrimary = Color.White,
-    background = Color(0xFFF2F2F2),
+    secondary = Secundario,
+    onSecondary = Color.White,
+    background = Color.White,
     onBackground = Color.Black,
     surface = Color.White,
     onSurface = Color.Black,
-    secondary = Color(0xFF03DAC6)
+    surfaceVariant = Principal_variacion1,
+    onSurfaceVariant = Color(0xFF444444)
 )
 
-// Colores modo oscuro
-public val MyDarkColorScheme = darkColorScheme(
-    primary = Color(0xFFBB86FC),
+// Colores personalizados modo oscuro
+val MyDarkColorScheme = darkColorScheme(
+    primary = Principal_variacion3,
     onPrimary = Color.Black,
-    background = Color(0xFF1516A4),
+    secondary = Secundario,
+    onSecondary = Color.White,
+    background = Color(0xFF121212),
     onBackground = Color.White,
-    surface = Color(0xFF1F1F1F),
+    surface = Color(0xFF1E1E1E),
     onSurface = Color.White,
-    secondary = Color(0xFF03DAC6)
+    surfaceVariant = Color(0xFF2C2C2C),
+    onSurfaceVariant = Color(0xFFAAAAAA)
 )
+
 
 @Composable
 fun FrontendappTheme(
@@ -53,4 +61,3 @@ fun FrontendappTheme(
         content = content
     )
 }
-

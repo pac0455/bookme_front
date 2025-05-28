@@ -1,223 +1,118 @@
-package com.example.frontendapp.ui.theme.screens
-
 import android.annotation.SuppressLint
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Store
-import androidx.compose.material.icons.outlined.Storefront
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
+import com.example.frontendapp.data.model.UI.TabItem
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
-import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.example.frontendapp.data.model.UI.TabItem
-import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.remote.source.CategoriaRemoteDataSource
-import com.example.frontendapp.ui.theme.Principal_variacion3
-import com.example.frontendapp.ui.theme.Principal_variacion6
+import com.example.frontendapp.ui.theme.composables.navigation.TabAnimatedScaffold
 import com.example.frontendapp.ui.theme.composables.tab.NegocioTabContent
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeCategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
-import com.example.frontendapp.utils.UbicacionHelper
-import com.exyte.animatednavbar.AnimatedNavigationBar
-import com.exyte.animatednavbar.animation.balltrajectory.Parabolic
-import com.exyte.animatednavbar.animation.balltrajectory.Teleport
-import com.exyte.animatednavbar.animation.indendshape.Height
-import com.exyte.animatednavbar.animation.indendshape.ShapeCornerRadius
-import com.exyte.animatednavbar.animation.indendshape.shapeCornerRadius
-import com.exyte.animatednavbar.utils.noRippleClickable
 
-@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun ClienteMainScreen(
     navController: NavController,
-    reservasViewModel: ReservasViewModel,
     servicioViewModel: ServicioViewModel,
+    reservasViewModel: ReservasViewModel,
     negocioViewModel: NegocioViewModel,
     categoriasViewModel: CategoriaViewModel
 ) {
-    var showDialog by remember { mutableStateOf(false) }
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val context = LocalContext.current
-    val negociosCardClienteState by negocioViewModel.negociosClienteState.collectAsState()
-    val negociosCard = remember { mutableListOf<NegocioCardCliente>() }
-
-    val navigationBar  =  remember { NavItems.values() }
-
-    LaunchedEffect(Unit) {
-        val ubi = UbicacionHelper.obtenerUbicacionActual(context = context)
-        negocioViewModel.getNegociosParaCliente(ubi)
-    }
-
-    when (negociosCardClienteState) {
-        is Resource.Success -> {
-            negociosCard.clear()
-            negociosCardClienteState.data?.let {
-                Log.d("ClienteMainScreen", "Negocios recibidos: ${it.size}")
-                negociosCard.addAll(it) }
-        }
-        is Resource.Error -> {
-            // Mostrar error, log o Snackbar
-        }
-        else -> { /* Loading o Idle */ }
-    }
-
-    // Interceptar botón atrás
-    BackHandler { showDialog = true }
-
-    // Diálogo de logout
+    var show by remember { mutableStateOf(false) }
     LogoutConfirmationDialog(
-        showDialog = showDialog,
-        onDismiss = { showDialog = false },
+        showDialog = show,
+        onDismiss = {show=false},
         onConfirmLogout = {
-            showDialog = false
+            // Limpiar token y roles
             RetrofitInstance.setToken("")
-            RetrofitInstance.setRoles(emptyList())
+            RetrofitInstance.setRoles(listOf())
+
+            // Navegar al login limpiando completamente el back stack
             navController.navigate(NavigationItem.LOGIN.route) {
-                popUpTo(0)
+                popUpTo(0) { inclusive = true } // Elimina todo del back stack
+                launchSingleTop = true
             }
         }
+
     )
-    val  tabs = listOf(
+    val tabs = listOf(
         TabItem(
             title = "Negocio",
             unSelectedIcon = Icons.Outlined.Storefront,
             selectedIcon = Icons.Filled.Store,
-            content = { NegocioTabContent(negocioViewModel) }
+            content = { NegocioTabContent(
+                negocioViewModel,
+                navController=navController
+            )},
+            index = 0
         ),
         TabItem(
             title = "Reservas",
-            unSelectedIcon = Icons.Outlined.Storefront,
-            selectedIcon = Icons.Filled.Store,
-            content = {
-                Text("Contenido de reservas")
-            }
+            unSelectedIcon = Icons.Outlined.Event,
+            selectedIcon = Icons.Filled.EventAvailable,
+            content = { ReservasTabContent(reservasViewModel) },
+            index = 1
         ),
         TabItem(
             title = "Mis reservas",
-            unSelectedIcon = Icons.Outlined.Storefront,
-            selectedIcon = Icons.Filled.Store,
-            content = {
-                Text("Contenido de mis reservas")
-            }
+            unSelectedIcon = Icons.Outlined.Book,
+            selectedIcon = Icons.Filled.Bookmark,
+            content = { MisReservasTabContent(servicioViewModel) },
+            index = 2
         )
     )
-    Scaffold(
-        modifier = Modifier.padding(12.dp),
-        bottomBar = {
-            AnimatedNavigationBar(
-                cornerRadius =  shapeCornerRadius(34.dp),
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .height(100.dp),
-                selectedIndex = selectedTabIndex,
-                ballColor = Principal_variacion3,
-                indentAnimation = Height(tween(400)),
-                ballAnimation = Parabolic(tween(400)),
-                barColor = Principal_variacion6,
-            ) {
-                navigationBar.forEach { item ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .noRippleClickable { selectedTabIndex = item.ordinal },
-                        contentAlignment = Alignment.Center
-                    ){
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = "",
 
-                            )
-                    }
-                }
-            }
-        }
-    ) { p ->
-        Column(modifier = Modifier.padding(p)) {
-
-        }
-
-    }
-
-
-
-
-
-
-    //Componente que navega entre las disitntas seccion/tabs
-
+    TabAnimatedScaffold(tabs = tabs)
 }
-enum class NavItems(
-val icon : ImageVector
-){
-    Person(icon = Icons.Default.Person),
-    CALL(icon = Icons.Default.Call)
 
+
+
+@Composable
+fun ReservasTabContent(viewModel: ReservasViewModel) {
+    // TODO: Aquí va el contenido real
 }
-/*TabPagerScaffold(
-        tabItems = listOf(
-            TabItem(
-                title = "Negocio",
-                unSelectedIcon = Icons.Outlined.Storefront,
-                selectedIcon = Icons.Filled.Store,
-                content = { NegocioTabContent(negocioViewModel) }
-            ),
-            TabItem(
-                title = "Reservas",
-                unSelectedIcon = Icons.Outlined.Storefront,
-                selectedIcon = Icons.Filled.Store,
-                content = {
-                    Text("Contenido de reservas")
-                }
-            ),
-            TabItem(
-                title = "Mis reservas",
-                unSelectedIcon = Icons.Outlined.Storefront,
-                selectedIcon = Icons.Filled.Store,
-                content = {
-                    Text("Contenido de mis reservas")
-                }
-            )
-        )
-    )*/
+
+@Composable
+fun MisReservasTabContent(viewModel: ServicioViewModel) {
+    // TODO: Aquí va el contenido real
+}
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun ClienteMainScreenPreview() {
-    val controller = rememberNavController()
+    // Usamos ViewModels simulados para el preview
+    val navController = rememberNavController()
+    val fakeServicio = FakeServicioViewModel()
+    val fakeReservas = FakeReservasViewModel()
+    val fakeNegocio = FakeNegocioViewModel()
+    val fakeCategorias = FakeCategoriaViewModel()
+
+
     ClienteMainScreen(
-        controller,
-        FakeReservasViewModel(),
-        servicioViewModel = FakeServicioViewModel(),
-        negocioViewModel = FakeNegocioViewModel(),
-        categoriasViewModel = CategoriaViewModel(CategoriaRemoteDataSource(RetrofitInstance.categoriaApi))
+        navController = navController,
+        servicioViewModel = fakeServicio,
+        reservasViewModel = fakeReservas,
+        negocioViewModel = fakeNegocio,
+        categoriasViewModel = fakeCategorias
     )
 }

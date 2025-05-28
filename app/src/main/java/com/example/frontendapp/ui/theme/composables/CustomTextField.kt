@@ -51,11 +51,11 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    errorMessage: String? = null // Añadir el parámetro para el mensaje de error
+    errorMessage: String? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
-
-    Box(modifier = modifier) {
+    val isError = errorMessage != null
+    Column(modifier = modifier) {
         TextField(
             value = value,
             onValueChange = {
@@ -63,7 +63,9 @@ fun CustomTextField(
                     onValueChange(it)
                 }
             },
-            label = { Text(label) },
+            label = {
+                Text(label,color= if(errorMessage != null) Color.Red else Color.Black)
+                    },
             trailingIcon = {
                 if (isPassword) {
                     val visibilityIcon =
@@ -96,20 +98,24 @@ fun CustomTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.Transparent)
-                .border(1.dp, if (errorMessage != null) Color.Red else Color.Transparent),
-            colors = TextFieldDefaults.textFieldColors(
-                unfocusedIndicatorColor = Color.Black,
-                containerColor = Color.Transparent
+                .border(1.dp,Color.Transparent),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = if(!isError) Color.Black else Color.Red ,
+                unfocusedIndicatorColor = if(!isError) Color.Black else Color.Red,
+                disabledIndicatorColor = Color.Gray,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent
             ),
         )
 
-        // Mostrar el mensaje de error si existe
-        if (errorMessage != null) {
+        if (isError) {
             Text(
-                text = errorMessage,
+                text = errorMessage ?: "asdasds",
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp, top = 60.dp) // Ajustar el padding según sea necesario
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 4.dp) // Mucho más ajustado
             )
         }
     }

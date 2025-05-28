@@ -77,6 +77,10 @@ open class NegocioViewModel(
     private val _negocioValidationState = MutableStateFlow(ValidationValidateState())
     val negocioValidationState: StateFlow<ValidationValidateState> = _negocioValidationState
 
+    private val _tempNegocioCard = MutableStateFlow(NegocioCardCliente.init())
+    val tempNegocioCard: StateFlow<NegocioCardCliente> = _tempNegocioCard
+
+
     val descripcionLabel by mutableStateOf("Pulsa el icono para poder insertar una dirección")
 
 
@@ -119,6 +123,9 @@ open class NegocioViewModel(
     // Operaciones de modificación local
     // -------------------------
     fun setId(id: Int) = _negocioState.update { it.copy(id = id) }
+    fun setTmpNegocioCard(negocioCardCliente: NegocioCardCliente) {
+        _tempNegocioCard.value = negocioCardCliente
+    }
     fun setNombre(nombre: String) = _negocioState.update { it.copy(nombre = nombre) }
     fun setDescripcion(desc: String) = _negocioState.update { it.copy(descripcion = desc) }
     fun setDireccion(geocoder: Geocoder) {

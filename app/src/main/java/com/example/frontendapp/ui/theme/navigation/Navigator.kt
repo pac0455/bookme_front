@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.navigation
 
+import ClienteMainScreen
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,13 +10,13 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.frontendapp.ui.theme.screens.ClienteMainScreen
 import com.example.frontendapp.ui.theme.screens.UsuarioNegocioMainScreen
 import com.example.frontendapp.ui.theme.screens.HorarioForm
 import com.example.frontendapp.ui.theme.screens.LoginScreen
 import com.example.frontendapp.ui.theme.screens.MainScreen
 import com.example.frontendapp.ui.theme.screens.MapaScreen
 import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
+import com.example.frontendapp.ui.theme.screens.NegocioDetailScreen
 import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.NegocioScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
@@ -91,6 +92,22 @@ fun Navigator(
                 categoriasViewModel = categoriasViewModel
             )
         }
+        composable(
+            route = "${Screen.NEGOCIO_CARD_DETAILS.name}/{negocioId}",
+            arguments = listOf(navArgument("negocioId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: 0
+            LaunchedEffect(negocioId) {
+                negocioViewModel_ClienteMain.loadNegocioById(negocioId)
+            }
+
+            NegocioDetailScreen(
+                navController = navController,
+                negocioViewModel = negocioViewModel_ClienteMain,
+                servicioViewModel = servicioViewModel_ClienteMain
+            )
+        }
+
         composable(
             route = "HORARIO_FORM/{modo}",
             arguments = listOf(navArgument("modo") { defaultValue = "crear" })

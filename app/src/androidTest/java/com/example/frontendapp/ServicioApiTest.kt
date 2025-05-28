@@ -3,6 +3,7 @@ package com.example.frontendapp
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.frontendapp.data.model.Categoria
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.model.Servicio.Servicio
 import com.example.frontendapp.data.model.Servicio.ServicioUpdateRequest
@@ -52,7 +53,7 @@ class ServicioApiTest {
                     direccion = "Calle Test 1",
                     latitud = 0.0,
                     longitud = 0.0,
-                    categoria = "Test"
+                    categoria = Categoria()
                 )
                 val addNegocioResult = negocioRemoteSource.addNegocio(nuevoNegocio)
                 if (addNegocioResult !is Resource.Success) {

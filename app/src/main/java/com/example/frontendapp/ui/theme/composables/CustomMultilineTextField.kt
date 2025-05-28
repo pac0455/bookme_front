@@ -36,6 +36,7 @@ fun CustomMultilineTextField(
     maxLines: Int = 5,
     enabled: Boolean = true
 ) {
+    val isError = errorMessage == null
     Column(modifier = modifier) {
         TextField(
             value = value,
@@ -50,8 +51,8 @@ fun CustomMultilineTextField(
             enabled = enabled,
             visualTransformation = VisualTransformation.None,
             colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Black,
-                unfocusedIndicatorColor = Color.Black,
+                focusedIndicatorColor = if(isError) Color.Black else Color.Red ,
+                unfocusedIndicatorColor = if(isError) Color.Black else Color.Red,
                 disabledIndicatorColor = Color.Gray,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,

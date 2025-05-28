@@ -12,6 +12,7 @@ enum class Screen {
     NEGOCIO_CONFIG,
     SERVICIO_FORM,
     CLIENTE_MAIN_SCREEN,
+    NEGOCIO_CARD_DETAILS,
 }
 sealed class NavigationItem(val route: String) {
     data object REGISTER : NavigationItem(Screen.REGISTER.name)
@@ -21,6 +22,11 @@ sealed class NavigationItem(val route: String) {
     data object NEGOCIO_FORM_SCREEN : NavigationItem(Screen.LOCATION.name)
     data object BUSSINES_MAIN : NavigationItem(Screen.BUSSINES_MAIN.name)
     data object CLIENTE_MAIN_SCREEN : NavigationItem(Screen.CLIENTE_MAIN_SCREEN.name)
+    data object NEGOCIO_CARD_DETAILS : NavigationItem("${Screen.NEGOCIO_CARD_DETAILS.name}/{negocioId}") {
+        fun createRoute(negocioId: Int) = "${Screen.NEGOCIO_CARD_DETAILS.name}/$negocioId"
+    }
+
+
 
     data object MAP_SELECT: NavigationItem(Screen.MAP_SELECT.name)
     data object HORARIO_FORM : NavigationItem("${Screen.HORARIO_FORM.name}/{modo}") {
