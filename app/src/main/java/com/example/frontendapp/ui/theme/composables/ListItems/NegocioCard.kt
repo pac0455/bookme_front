@@ -1,23 +1,32 @@
 package com.example.frontendapp.ui.theme.composables.ListItems
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.NoPhotography
 import androidx.compose.material.icons.filled.Star
@@ -34,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +54,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.model.Negocio.Ubicacion
+import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.composables.list.darken
 import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
 
@@ -54,172 +65,130 @@ fun NegocioCard(
     onClick: () -> Unit,
     mostrarDistancia: Boolean = false
 ) {
+    val sinReseñas = negocio.reviewCount == 0
+    val sinDistancia = negocio.distancia == null || negocio.distancia <= 0.0
+
     Card(
         modifier = Modifier
-            .padding(8.dp)
             .fillMaxWidth()
+            .height(180.dp)
             .clickable(enabled = negocio.isActive, onClick = onClick),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)) {
-                ServicioImagePicker(
-                    icon = Icons.Filled.NoPhotography,
-                    imageUrl = imagenUrl,
-                    modifier = Modifier.fillMaxSize(),
-                    iconSize = 68.dp,
-                    iconAlignment = Alignment.Center,
-                    contentAlignment = Alignment.Center,
-                    backgroundColor = Color.LightGray,
-                )
-            }
-            Spacer(Modifier.height(24.dp))
+        Row(modifier = Modifier.fillMaxSize()) {
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+            ServicioImagePicker(
+                icon = Icons.Filled.NoPhotography,
+                imageUrl = imagenUrl,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(140.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp)),
+                iconSize = 48.dp,
+                iconAlignment = Alignment.Center,
+                contentAlignment = Alignment.Center,
+                backgroundColor = Color.LightGray
+            )
+
+            Column(
+                modifier = Modifier
+                    .padding(12.dp)
+                    .weight(1f),
+                verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Text(
                     text = negocio.nombre,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2
                 )
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = negocio.categoria,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = negocio.descripcion,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = negocio.direccion,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            EstadoEtiqueta(negocio.isOpen)
-
-            if (mostrarDistancia && negocio.distancia != null && negocio.distancia > 0.0) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "${String.format("%.1f", negocio.distancia)} km de distancia",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (negocio.reviewCount > 0) {
+                if (!sinReseñas) {
                     RatingStars(rating = negocio.rating)
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "(${negocio.reviewCount} ${if (negocio.reviewCount == 1) "reseña" else "reseñas"})",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFFF5F5F5))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.StarBorder,
-                                contentDescription = "Sin reseñas",
-                                tint = Color.Gray,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Text(
-                                text = "Sin reseñas todavía",
-                                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                                color = Color.Gray
-                            )
-                        }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.StarBorder,
+                            contentDescription = "Sin reseñas",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Sin reseñas",
+                            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                            color = Color.Gray
+                        )
                     }
+                }
+
+                Spacer(Modifier.height(6.dp))
+                EstadoEtiqueta(isOpen = negocio.isOpen)
+
+                if (!sinDistancia && mostrarDistancia) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = "${String.format("%.1f", negocio.distancia)} km",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Si hay espacio libre, mostrar más info útil
+                if (sinReseñas && sinDistancia) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = negocio.categoria,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = negocio.direccion,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }
-
-        if (!negocio.isActive) {
-            Text(
-                text = "No disponible",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
     }
 }
+
 
 @Composable
 fun EstadoEtiqueta(isOpen: Boolean) {
     val backgroundColor = if (isOpen) Color(0xFFDFF5E1) else Color(0xFFFFE0E0)
     val textColor = if (isOpen) Color(0xFF2E7D32) else Color(0xFFC62828)
-    val icon = if (isOpen) Icons.Default.CheckCircle else Icons.Default.Lock
+    val icon = if (isOpen) Icons.Default.Circle else Icons.Default.Circle // ícono más sutil
 
-    val shape = RoundedCornerShape(50.dp)
+    val shape = RoundedCornerShape(8.dp)
 
-    Box(
+    Row(
         modifier = Modifier
             .clip(shape)
-            .background(backgroundColor, shape)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(backgroundColor)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = textColor,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = if (isOpen) "Abierto" else "Cerrado",
-                color = textColor,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(textColor, shape = CircleShape)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = if (isOpen) "Abierto" else "Cerrado",
+            color = textColor,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
+        )
     }
 }
 
@@ -274,33 +243,51 @@ fun RatingStars(rating: Float) {
 @Preview(showBackground = true)
 @Composable
 fun NegocioCardPreview() {
-    Column {
-        val negocio = NegocioCardCliente(
-            id = 1,
-            nombre = "Mi negocio",
-            descripcion = "Descripción",
-            categoria = "Psicología",
-            direccion = "Calle Ejemplo 123",
-            rating = 4.5f,
-            reviewCount = 10,
-            isActive = true,
-            isOpen = true,
-            distancia = 5.0, // ✅ Correcto
-            latitud = 40.123,
-            longitud = -3.456
-        )
+    val negocio = NegocioCardCliente(
+        id = 1,
+        nombre = "Mi negocio",
+        descripcion = "Descripción",
+        categoria = "Psicología",
+        direccion = "Calle Ejemplo 123",
+        rating = 4.5f,
+        reviewCount = 10,
+        isActive = true,
+        isOpen = true,
+        distancia = 5.0,
+        latitud = 40.123,
+        longitud = -3.456
+    )
 
-        NegocioCard(
-            negocio = negocio,
-            onClick = { }
-        )
+    val listState = rememberLazyListState()
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val cardWidth = screenWidth * 0.85f
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        NegocioCard(
-            negocio = negocio,
-            onClick = { }
-        )
+    val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
+    FrontendappTheme {
+        LazyRow(
+            state = listState,
+            flingBehavior = flingBehavior,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(220.dp)
+                .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = (screenWidth - cardWidth) / 2)
+        ) {
+            items(listOf(negocio), key = { it.id }) { negocioCard ->
+                Box(
+                    modifier = Modifier.width(cardWidth)
+                ) {
+                    NegocioCard(
+                        negocio = negocioCard,
+                        imagenUrl = "https://example.com",
+                        mostrarDistancia = negocioCard.distancia != null,
+                        onClick = {
+                            Log.d("NegocioCardList", "Clic en negocio: ${negocioCard.nombre}")
+                        }
+                    )
+                }
+            }
+        }
     }
 }
-

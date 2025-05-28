@@ -10,7 +10,7 @@ data class Negocio(
     var direccion: String = "",
     var latitud: Double? = null,
     var longitud: Double? = null,
-    var categoriaId: Int = 0,
+    var categoriaId: Int = -1,
     val categoria: Categoria?= null,
     var horarioAtencion: List<Horario> = listOf(),
     var activo: Boolean = true,

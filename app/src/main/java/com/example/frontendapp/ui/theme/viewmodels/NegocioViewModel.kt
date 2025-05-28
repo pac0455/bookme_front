@@ -4,6 +4,8 @@ import android.content.Context
 import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.Api.ValidationValidateState
@@ -75,7 +77,7 @@ open class NegocioViewModel(
     private val _negocioValidationState = MutableStateFlow(ValidationValidateState())
     val negocioValidationState: StateFlow<ValidationValidateState> = _negocioValidationState
 
-
+    val descripcionLabel by mutableStateOf("Pulsa el icono para poder insertar una dirección")
 
 
     //    ------------
@@ -94,7 +96,7 @@ open class NegocioViewModel(
         if (negocio.descripcion.isBlank()) {
             errors["descripcion"] = "La descripción no puede estar vacía"
         }
-        if (negocio.direccion.isBlank()) {
+        if (negocio.direccion.isBlank() || negocio.direccion == descripcionLabel) {
             errors["direccion"] = "Selecciona una ubicación en el mapa"
         }
         if (negocio.latitud == null || negocio.longitud == null) {
@@ -120,10 +122,12 @@ open class NegocioViewModel(
     fun setNombre(nombre: String) = _negocioState.update { it.copy(nombre = nombre) }
     fun setDescripcion(desc: String) = _negocioState.update { it.copy(descripcion = desc) }
     fun setDireccion(geocoder: Geocoder) {
-        viewModelScope.launch {
-            val dir = obtenerDireccion(geocoder)
-            _negocioState.update { currentState ->
-                currentState.copy(direccion = dir)
+        if(_negocioState.value.latitud !=null && _negocioState.value.longitud != null){
+            viewModelScope.launch {
+                val dir = obtenerDireccion(geocoder)
+                _negocioState.update { currentState ->
+                    currentState.copy(direccion = dir)
+                }
             }
         }
     }

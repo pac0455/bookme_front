@@ -2,17 +2,13 @@ package com.example.frontendapp.ui.theme.screens
 
 
 import android.annotation.SuppressLint
-import android.location.Address
 import android.location.Geocoder
-import android.os.Build
 import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,13 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -62,8 +54,6 @@ import com.example.frontendapp.ui.theme.composables.CustomSelector
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
-import com.example.frontendapp.utils.UbicacionHelper.getFromLocationCompat
-import com.google.android.gms.maps.model.LatLng
 
 import java.util.Locale
 
@@ -77,14 +67,16 @@ fun NegocioFormScreen(
     ) {
 
     var categorias by remember { mutableStateOf(listOf<Categoria>()) }
-    var categoriaSelecionada by remember { mutableStateOf(Categoria()) }
+    val categoriaSelecionada by remember { mutableStateOf(Categoria()) }
     val validationState by negocioViewModel.negocioValidationState.collectAsState()
     val context = LocalContext.current
     val negocio = negocioViewModel.negocioState.collectAsState().value
     val isEdit = negocioViewModel.isEditMode.collectAsState().value
     val tituloPantalla = if (isEdit) "Editar Negocio" else "Crear Negocio"
-    val geocoder = remember { Geocoder(context, Locale.getDefault()) }
+    var geocoder = remember { Geocoder(context, Locale.getDefault()) }
+    val ubicacion by remember { mutableStateOf(Ubicacion(negocio.latitud, negocio.latitud)) }
 
+    if(enableGeocoder) geocoder = remember { Geocoder(context, Locale.getDefault()) }
     LaunchedEffect(Unit) {
         categoriasViewModel.getAllCategorias(
             onLoading = {
@@ -99,6 +91,8 @@ fun NegocioFormScreen(
             }
         )
     }
+    //Cada vez que la ubicacion cambie que me setee la direccción
+    LaunchedEffect(ubicacion) { negocioViewModel.setDireccion(geocoder) }
 
 
     Scaffold(
@@ -126,12 +120,14 @@ fun NegocioFormScreen(
                 onClick = {
                     Log.d("NegocioFormScreen", "Navegando a HORARIO_FORM con datos: nombre=${negocio.nombre}, direccion=${negocio.direccion}, categoria=${negocio.categoria}")
                     val modo = if (isEdit) "editar" else "crear"
-
                     negocioViewModel.validateNegocioForm(
                         onSuccess = {
                             navController.navigate(NavigationItem.HORARIO_FORM.createRoute(modo))
                         },
-                        onError = {}
+                        onError = { errores ->
+
+                            Log.d("FieldERRORS", errores)
+                        }
                     )
                 },
                 iconPosition = IconPosition.END,
@@ -166,7 +162,6 @@ fun NegocioFormScreen(
                 CustomMultilineTextField(
                     value = negocio.descripcion,
                     errorMessage = validationState.errors["descripcion"],
-
                     onValueChange = { negocioViewModel.setDescripcion(it)  },
                     label = "Descripción"
                 )
@@ -177,7 +172,7 @@ fun NegocioFormScreen(
                     horizontalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
                     if (negocio.direccion.isEmpty()) {
-                        negocio.direccion = "Pulsa el icono para poder insertar una dirección"
+                        negocio.direccion = negocioViewModel.descripcionLabel
                     }
 
                     CustomTextField(

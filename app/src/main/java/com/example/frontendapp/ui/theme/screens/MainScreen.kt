@@ -46,7 +46,8 @@ fun MainScreen(navController: NavController) {
                 }
             )
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -74,8 +75,6 @@ fun MainScreen(navController: NavController) {
             ) {
                 BtnStyle1(onClick =  {navController.navigate(NavigationItem.REGISTER.route) }, text = "Comenzar ahora")
                 BtnStyle1(onClick =  {navController.navigate(NavigationItem.LOGIN.route) }, text = "Ya tengo cuenta")
-
-
             }
         }
     }

@@ -192,7 +192,7 @@ fun ServicioImagePicker(
         // Icono superpuesto arriba derecha sin clip
         Box(
             modifier = Modifier
-                .size(size)
+                    .then(if (size != Dp.Unspecified) Modifier.size(size) else Modifier)
                 .align(Alignment.TopEnd),
             contentAlignment = Alignment.TopEnd
         ) {

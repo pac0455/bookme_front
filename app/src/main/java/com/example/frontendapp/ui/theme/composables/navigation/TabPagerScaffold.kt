@@ -55,7 +55,6 @@ fun TabPagerScaffold(
         ) { page ->
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
             ) {
                 tabItems[page].content()
             }

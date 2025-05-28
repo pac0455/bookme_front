@@ -96,11 +96,13 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    //Hilt
-//    implementation("com.google.dagger:hilt-android:2.56.2")
-//    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-//    ksp("com.google.dagger:hilt-compiler:2.56.2")
+    //Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
-
+    //Iconos
     implementation("androidx.compose.material:material-icons-extended:1.7.7")
+    //Focus scroll card
+    implementation("com.google.accompanist:accompanist-pager:0.32.0")
+    //Navbar
+    implementation("com.exyte:animated-navigation-bar:1.0.0")
+
 }

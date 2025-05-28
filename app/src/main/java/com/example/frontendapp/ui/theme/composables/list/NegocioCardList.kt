@@ -1,12 +1,17 @@
 package com.example.frontendapp.ui.theme.composables.list
 
 import android.util.Log
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,22 +69,35 @@ fun NegocioCardList(
             val negocios = state.data.orEmpty()
             Log.d("NegocioCardList", "Mostrando ${negocios.size} negocios")
 
-            val listaAnimada by remember { mutableStateOf(negocios) }
+            val listState = rememberLazyListState()
+            val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+            val cardWidth = screenWidth * 0.85f
+
+            val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
 
             LazyRow(
+                state = listState,
+                flingBehavior = flingBehavior,
                 modifier = modifier
                     .fillMaxWidth()
+                    .height(220.dp)
                     .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp)
+                contentPadding = PaddingValues(horizontal = (screenWidth - cardWidth) / 2)
             ) {
-                items(listaAnimada, key = { it.id }) { negocioCard ->
-                    NegocioCard(
-                        negocio = negocioCard,
-                        imagenUrl = null,
-                        mostrarDistancia = negocioCard.distancia != null,
-                        onClick = { Log.d("NegocioCardList", "Clic en negocio: ${negocioCard.nombre}") }
-                    )
+                items(negocios, key = { it.id }) { negocioCard ->
+                    Box(
+                        modifier = Modifier.width(cardWidth)
+                    ) {
+                        NegocioCard(
+                            negocio = negocioCard,
+                            imagenUrl = negocioViewModel.getNegocioImageUrl(negocioCard.id),
+                            mostrarDistancia = negocioCard.distancia != null,
+                            onClick = {
+                                Log.d("NegocioCardList", "Clic en negocio: ${negocioCard.nombre}")
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -106,53 +125,9 @@ fun NegocioCardList(
 @Preview(showBackground = true)
 @Composable
 fun PreviewNegocioCardList() {
-    val negocios = listOf(
-        NegocioCardCliente(
-            id = 1,
-            nombre = "Psicología Madrid",
-            descripcion = "Consultas para el bienestar emocional y mental.",
-            categoria = "Psicología",
-            direccion = "C. de Alcalá, 45",
-            rating = 4.8f,
-            reviewCount = 12,
-            isActive = true,
-            isOpen = true,
-            distancia = 2.3,
-            latitud = 40.4168,
-            longitud = -3.7038
-        ),
-        NegocioCardCliente(
-            id = 2,
-            nombre = "Clínica Dental Sonrisa",
-            descripcion = "Expertos en salud bucal con atención personalizada.",
-            categoria = "Odontología",
-            direccion = "Gran Vía, 100",
-            rating = 4.5f,
-            reviewCount = 20,
-            isActive = true,
-            isOpen = false,
-            distancia = 5.7,
-            latitud = 40.4200,
-            longitud = -3.7050
-        ),
-        NegocioCardCliente(
-            id = 3,
-            nombre = "FisioActiva",
-            descripcion = "Fisioterapia deportiva y rehabilitación avanzada.",
-            categoria = "Fisioterapia",
-            direccion = "Paseo del Prado, 15",
-            rating = 5.0f,
-            reviewCount = 8,
-            isActive = true,
-            isOpen = true,
-            distancia = 1.2,
-            latitud = 40.4140,
-            longitud = -3.6950
-        )
-    )
-
     FrontendappTheme  {
         Surface(color = MaterialTheme.colorScheme.background) {
+
             NegocioCardList(
                 negocioViewModel = FakeNegocioViewModel(),
             )

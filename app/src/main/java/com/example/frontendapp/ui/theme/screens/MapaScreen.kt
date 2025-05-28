@@ -48,12 +48,12 @@ fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel)
         val ubicacion = UbicacionHelper.obtenerUbicacionActual(context)
 
         if (ubicacion.latitud != null && ubicacion.longitud != null) {
-            val latLng = LatLng(ubicacion.latitud, ubicacion.longitud)
-            selectedLocation = latLng
-            cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+            val ubicacionActual = LatLng(ubicacion.latitud, ubicacion.longitud)
+            selectedLocation = LatLng(ubicacionActual.latitude, ubicacionActual.longitude)
+            cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(ubicacionActual, 15f))
             isUbicacionCargada = true
 
-            Log.d("MapaScreen", "Ubicación obtenida: $latLng")
+            Log.d("MapaScreen", "Ubicación obtenida: $ubicacionActual")
         } else {
             Toast.makeText(context, "No se pudo obtener la ubicación actual.", Toast.LENGTH_SHORT).show()
             Log.w("MapaScreen", "Ubicación actual es nula.")
@@ -88,6 +88,7 @@ fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel)
                 modifier = Modifier.padding(bottom = 82.dp),
                 icon = Icons.Default.Check,
                 enabled = isUbicacionCargada,
+                text = "Aceptar",
                 onClick = {
                     selectedLocation?.let {
                         negocioViewModel.setUbicacion(it.latitude, it.longitude)

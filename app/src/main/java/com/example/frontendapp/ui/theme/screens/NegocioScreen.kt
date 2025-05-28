@@ -54,8 +54,6 @@ fun NegocioScreen(
     reservasViewModel: ReservasViewModel,
     servicioViewModel: ServicioViewModel
 ) {
-    var showModal by remember { mutableStateOf(false) }
-
     val negocio by viewModel.negocioState.collectAsState()
     var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.RESERVAS) }
     var imagenConfirmada by remember { mutableStateOf<Uri?>(null) }
