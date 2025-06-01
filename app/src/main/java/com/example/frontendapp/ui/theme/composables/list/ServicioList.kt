@@ -28,7 +28,7 @@
     import com.example.frontendapp.data.remote.reponses.Resource
     import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
     import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
-    import com.example.frontendapp.ui.theme.composables.ListItems.ServicioListItem
+    import com.example.frontendapp.ui.theme.composables.Items.ServicioListItem
     import com.example.frontendapp.ui.theme.navigation.NavigationItem
 
     @Composable
@@ -43,7 +43,7 @@
     ) {
         Log.d("ListaServicios", "Composición iniciada con negocioId=$negocioId")
 
-        val servicioListResource by viewModel.serviciosDetalleState.collectAsState()
+        val servicioListResource by viewModel.serviciosDetalleByNegocioIdState.collectAsState()
         val context = LocalContext.current
 
         LaunchedEffect(Unit) {

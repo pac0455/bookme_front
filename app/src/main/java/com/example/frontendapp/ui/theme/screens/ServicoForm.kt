@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.remote.source.ImageHelper
+import com.example.frontendapp.data.helper.ImageHelper
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomTextField
@@ -46,44 +46,12 @@ fun ServicioForm(
 
     val servicioCreatedState by servicioViewModel.servicioCreatedState.collectAsState()
     val servicio by servicioViewModel.servicioState.collectAsState()
-    val imagenUrl = servicioViewModel.getServicioImageUrl()
+    val servicioValidateState by servicioViewModel.validationState.collectAsState()
+    val errors = servicioValidateState.errors
 
     // Loguear cuando cambia el servicio para ver qué datos llegan
     LaunchedEffect(servicio) {
         Log.d("ServicioForm", "Servicio recibido: id=${servicio.id}, nombre='${servicio.nombre}', descripcion='${servicio.descripcion}', precio=${servicio.precio}")
-    }
-
-    var isLoadingImage by remember { mutableStateOf(false) }
-    var imageError by remember { mutableStateOf<String?>(null) }
-    var imageLoaded by remember { mutableStateOf(false) }
-    var imageUrl = "http://192.168.18.3:5000/api/servicio/${servicio.id}/imagen"
-
-
-    LaunchedEffect(servicio.id) {
-        if (!servicio.imagen.isNullOrBlank()) {
-            Log.d("ServicioForm", "Cargando imagen desde URL: $imageUrl")
-            ImageHelper.fetchImageFromUrl(
-                context = context,
-                url = imageUrl,
-                onLoading = {
-                    isLoadingImage = true
-                    imageError = null
-                    imageLoaded = false
-                    Log.d("ServicioForm", "Imagen: loading")
-                },
-                onSuccess = {
-                    isLoadingImage = false
-                    imageLoaded = true
-                    Log.d("ServicioForm", "Imagen cargada exitosamente")
-                },
-                onError = { errorMsg ->
-                    isLoadingImage = false
-                    imageError = errorMsg
-                    imageLoaded = false
-                    Log.d("ServicioForm", "Error cargando imagen: $errorMsg")
-                }
-            )
-        }
     }
 
     LaunchedEffect(servicioCreatedState) {
@@ -182,7 +150,7 @@ fun ServicioForm(
                             onLoading = { /* Opcional */ },
                             onSuccess = {
                                 // Aquí servicio.id debe existir
-                                onSuccessUpdateServicio(servicio.id!!)
+                                onSuccessUpdateServicio(servicio.id)
                             },
                             onError = onErrorUpdateServicio,
                         )
@@ -210,31 +178,52 @@ fun ServicioForm(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CustomTextField(
-                    value = servicio.nombre ?: "",
+                    value = servicio.nombre,
                     onValueChange = {
                         Log.d("ServicioForm", "Nuevo nombre: $it")
                         servicioViewModel.setNombre(it)
                     },
                     label = "Nombre",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    errorMessage = errors["nombre"]
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 CustomTextField(
-                    value = servicio.descripcion ?: "",
+                    value = servicio.descripcion,
                     onValueChange = {
                         Log.d("ServicioForm", "Nueva descripción: $it")
                         servicioViewModel.setDescripcion(it)
                     },
                     label = "Descripción",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    errorMessage = errors["descripcion"]
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 CustomTextField(
-                    value = servicio.precio?.toString() ?: "",
+                    value = servicio.duracionMinutos.toString(),
+                    onValueChange = { newValue ->
+                        Log.d("ServicioForm", "Nuevo duración input: $newValue")
+                        val filtered = newValue.filter { it.isDigit() }
+                        if (filtered != servicio.duracionMinutos.toString()) {
+                            val duracion = filtered.toIntOrNull() ?: 0
+                            servicioViewModel.setDuracionMinutos(duracion)
+                            Log.d("ServicioForm", "Duración parseada y seteada: $duracion")
+                        }
+                    },
+                    label = "Duración (minutos)",
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    errorMessage = errors["duracionMinutos"]
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                CustomTextField(
+                    value = servicio.precio.toString(),
                     onValueChange = { newValue ->
                         Log.d("ServicioForm", "Nuevo precio input: $newValue")
                         val filtered = newValue.filter { it.isDigit() || it == '.' }
@@ -245,7 +234,8 @@ fun ServicioForm(
                     },
                     label = "Precio (€)",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    errorMessage = errors["precio"]
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -253,7 +243,7 @@ fun ServicioForm(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ServicioImagePicker(
-                    imageUrl = imagenUrl,
+                    imageUrl = servicioViewModel.getServicioImageUrl(servicio.id),
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(),
@@ -267,30 +257,6 @@ fun ServicioForm(
             }
         }
     }
-}
-
-fun handleServicioResponse(
-    context: Context,
-    negocioId : Int,
-    navController: NavController,
-    successMsg: String,
-    errorPrefix: String,
-    onFinish: () -> Unit
-): Pair<() -> Unit, (String) -> Unit> {
-    val onSuccess = {
-
-        Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
-        navController.navigate(NavigationItem.NEGOCIO_CONFIG.createRoute(negocioId))
-        onFinish()
-    }
-
-    val onError: (String) -> Unit = { errorMessage ->
-        Toast.makeText(context, "$errorPrefix: $errorMessage", Toast.LENGTH_SHORT).show()
-        Log.d("ERROR SERVICIO", errorMessage)
-        onFinish()
-    }
-
-    return Pair(onSuccess, onError)
 }
 
 @SuppressLint("ViewModelConstructorInComposable")

@@ -1,12 +1,13 @@
 package com.example.frontendapp.ui.theme.screens
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
@@ -17,7 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,23 +29,37 @@ import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.model.Horario
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.model.UI.TabItem
-import com.example.frontendapp.ui.theme.composables.ListItems.EstadoEtiqueta
-import com.example.frontendapp.ui.theme.composables.ListItems.RatingStars
+import com.example.frontendapp.ui.theme.composables.Btn.BtnIconRounded
+import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.Items.EstadoEtiqueta
+import com.example.frontendapp.ui.theme.composables.Items.RatingStars
 import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
 import com.example.frontendapp.ui.theme.composables.navigation.TabPagerScaffold
+import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.NegocioHorarioTab
+import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.NegocioServicioTab
+import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.ValoracionesTabContent
+import com.example.frontendapp.ui.theme.navigation.NavigationItem
+import com.example.frontendapp.ui.theme.viewmodels.HorariosViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeHorariosViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeValoracionViewModel
 
-
-@OptIn(ExperimentalMaterial3Api::class)
+private val TAG= "NegocioDetailScreen"
 @Composable
 fun NegocioDetailScreen(
     navController: NavController,
     negocioViewModel: NegocioViewModel,
     servicioViewModel: ServicioViewModel,
-    modifier: Modifier = Modifier
+    horariosViewModel: HorariosViewModel,
+    reservaViewModel: ReservasViewModel,
+    modifier: Modifier = Modifier,
+    valoracionesViewModel: ValoracionViewModel
 ) {
 
     val negocioCard by negocioViewModel.tempNegocioCard.collectAsState()
@@ -122,7 +136,13 @@ fun NegocioDetailScreen(
                 selectedIcon = Icons.Default.Build,
                 unSelectedIcon = Icons.Default.Build,
                 content = {
-                    Text("adfasd")
+                    NegocioServicioTab(
+                        viewModel = servicioViewModel,
+                        reservaViewModel = reservaViewModel,
+                        negocioId = negocioCard.id,
+                        navController = navController,
+                        servicioViewModel = servicioViewModel
+                    )
                 }
             ),
             TabItem(
@@ -130,7 +150,7 @@ fun NegocioDetailScreen(
                 selectedIcon = Icons.Default.Schedule,
                 unSelectedIcon = Icons.Default.Schedule,
                 content = {
-                    Text("adfasd")
+                    NegocioHorarioTab(viewModel = horariosViewModel, negocioId = negocioCard.id )
                 }
             ),
             TabItem(
@@ -138,7 +158,35 @@ fun NegocioDetailScreen(
                 selectedIcon = Icons.Default.Star,
                 unSelectedIcon = Icons.Default.StarBorder,
                 content = {
-                    Text("adfasd")
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            // La lista ocupa todo menos el espacio del botón
+                            ValoracionesTabContent(
+                                negocioId = negocioCard.id,
+                                valoracionViewModel = valoracionesViewModel,
+
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(bottom = 60.dp) // deja espacio para el botón fijo,
+                            )
+                        }
+
+                        // Botón fijo abajo
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                           BtnIconRounded(
+                               icon = Icons.Default.Add,
+                               onClick = {
+                                   Log.d(TAG,"Id pasada a valoracion form: ${negocioCard.id}")
+                                    navController.navigate(NavigationItem.VALORACION_FORM.createRoute(negocioCard.id))
+                               }
+                           )
+                        }
+                    }
                 }
             )
         )
@@ -151,32 +199,10 @@ fun NegocioDetailScreen(
 enum class NegocioDetailTab(val title: String) {
     HORARIOS("Horarios"),
     VALORACIONES("Valoraciones"),
-
     SERVICIOS("Servicios");
-
-    companion object {
-        fun fromTitle(title: String): NegocioDetailTab =
-            entries.firstOrNull { it.title.equals(title, ignoreCase = true) } ?: SERVICIOS
-    }
 }
 
-@Composable
-fun HorariosTab(horarios: List<Horario>) {
-    LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        items(horarios) {
-            Text("${it.diaSemana}: ${it.horaInicio} - ${it.horaFin}")
-        }
-    }
-}
 
-@Composable
-fun ServiciosTab(servicios: List<String>) {
-    LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        items(servicios) { servicio ->
-            Text("• $servicio")
-        }
-    }
-}
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
@@ -197,15 +223,14 @@ fun PreviewNegocioDetailsScreen() {
         longitud = -3.7038
     )
 
-    val horarios = listOf(
-        Horario(1, 1, "Lunes", "09:00", "17:00"),
-        Horario(2, 1, "Martes", "09:00", "17:00"),
-        Horario(3, 1, "Miércoles", "10:00", "18:00"),
-    )
+
 
     NegocioDetailScreen(
+        navController = rememberNavController(),
         negocioViewModel =FakeNegocioViewModel(),
         servicioViewModel = FakeServicioViewModel(),
-        navController = rememberNavController()
+        horariosViewModel = FakeHorariosViewModel(),
+        reservaViewModel = FakeReservasViewModel(),
+        valoracionesViewModel = FakeValoracionViewModel()
     )
 }

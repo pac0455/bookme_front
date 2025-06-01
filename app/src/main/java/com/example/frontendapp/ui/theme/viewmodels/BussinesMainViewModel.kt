@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.source.NegocioRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-open class BussinesMainViewModel(protected val negocioRemoteSource: NegocioRemoteSource) : ViewModel() {
+open class BussinesMainViewModel(protected val negocioRemoteSource: NegocioRepo) : ViewModel() {
 
     protected val _negociosUsuario = MutableStateFlow<List<Negocio>>(emptyList())
     val negociosUsuario: StateFlow<List<Negocio>> = _negociosUsuario

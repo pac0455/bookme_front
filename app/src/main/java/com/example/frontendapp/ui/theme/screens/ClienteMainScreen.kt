@@ -19,15 +19,20 @@ import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.composables.navigation.TabAnimatedScaffold
 import com.example.frontendapp.ui.theme.composables.tab.NegocioTabContent
+import com.example.frontendapp.ui.theme.composables.tab.ServicioTabContent
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
+import com.example.frontendapp.ui.theme.viewmodels.HorariosViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeCategoriaViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeHorariosViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeValoracionViewModel
 
 @Composable
 fun ClienteMainScreen(
@@ -35,7 +40,9 @@ fun ClienteMainScreen(
     servicioViewModel: ServicioViewModel,
     reservasViewModel: ReservasViewModel,
     negocioViewModel: NegocioViewModel,
-    categoriasViewModel: CategoriaViewModel
+    categoriasViewModel: CategoriaViewModel,
+    horarioViewModel: HorariosViewModel,
+    valoracionesViewModel: ValoracionViewModel
 ) {
     var show by remember { mutableStateOf(false) }
     LogoutConfirmationDialog(
@@ -59,17 +66,22 @@ fun ClienteMainScreen(
             title = "Negocio",
             unSelectedIcon = Icons.Outlined.Storefront,
             selectedIcon = Icons.Filled.Store,
-            content = { NegocioTabContent(
+            content = {
+                NegocioTabContent(
                 negocioViewModel,
                 navController=navController
             )},
             index = 0
         ),
         TabItem(
-            title = "Reservas",
+            title = "Servicios",
             unSelectedIcon = Icons.Outlined.Event,
             selectedIcon = Icons.Filled.EventAvailable,
-            content = { ReservasTabContent(reservasViewModel) },
+            content = {
+                ServicioTabContent(
+                    servicioViewModel= servicioViewModel,
+                    navController = navController,
+                )},
             index = 1
         ),
         TabItem(
@@ -81,7 +93,9 @@ fun ClienteMainScreen(
         )
     )
 
-    TabAnimatedScaffold(tabs = tabs)
+    TabAnimatedScaffold(
+        tabs = tabs
+    )
 }
 
 
@@ -106,6 +120,8 @@ fun ClienteMainScreenPreview() {
     val fakeReservas = FakeReservasViewModel()
     val fakeNegocio = FakeNegocioViewModel()
     val fakeCategorias = FakeCategoriaViewModel()
+    val fakeHorarios = FakeHorariosViewModel()
+    val fakeValoraciones = FakeValoracionViewModel()
 
 
     ClienteMainScreen(
@@ -113,6 +129,8 @@ fun ClienteMainScreenPreview() {
         servicioViewModel = fakeServicio,
         reservasViewModel = fakeReservas,
         negocioViewModel = fakeNegocio,
-        categoriasViewModel = fakeCategorias
+        categoriasViewModel = fakeCategorias,
+        horarioViewModel = fakeHorarios,
+        valoracionesViewModel = fakeValoraciones
     )
 }

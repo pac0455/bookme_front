@@ -5,24 +5,79 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.frontendapp.data.model.Api.ValidationValidateState
 import com.example.frontendapp.data.model.Servicio.Servicio
 import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
 import com.example.frontendapp.data.model.Servicio.ServicioUpdateRequest
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.remote.source.ServicioRemoteSource
+import com.example.frontendapp.data.remote.source.ServicioRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 open class ServicioViewModel(
-    private val servicioRemoteSource: ServicioRemoteSource
+    private val servicioRemoteSource: ServicioRepo
 ) : ViewModel() {
+
+
+    //    ------------
+    //    LOCAL
+    //    ------------
+
+    // Variables para pasar servicios de una pantalla a otra
+    protected val _tempServicios = MutableStateFlow(Servicio.init())
+    val tempServicios: StateFlow<Servicio> = _tempServicios
+
+    // Estado para almacenar errores de validación
+    private val _validationState = MutableStateFlow(ValidationValidateState())
+    val validationState: StateFlow<ValidationValidateState> = _validationState
+
+
+    // Función para validar los campos del servicio
+    fun validateServicio(servicio: Servicio): Boolean {
+        val errors = mutableMapOf<String, String>()
+
+        if (servicio.nombre.isBlank()) {
+            errors["nombre"] = "El nombre no puede estar vacío"
+        } else if (servicio.nombre.length < 3) {
+            errors["nombre"] = "El nombre debe tener al menos 3 caracteres"
+        }
+
+        if (servicio.descripcion.isBlank()) {
+            errors["descripcion"] = "La descripción no puede estar vacía"
+        }
+
+        if (servicio.duracionMinutos <= 0) {
+            errors["duracionMinutos"] = "La duración debe ser mayor a cero minutos"
+        }
+
+        if (servicio.precio < 0.0) {
+            errors["precio"] = "El precio no puede ser negativo"
+        }
+
+        // Actualiza el estado de validación
+        _validationState.value = ValidationValidateState(errors)
+
+        // Retorna true si no hay errores
+        return errors.isEmpty()
+    }
+
+    // Agrega un servicio a la lista temporal (evita duplicados si es necesario)
+    fun setTempServicio(servicio: Servicio) {
+        _tempServicios.value = servicio
+    }
+
+
+
+    //    ------------
+    //    API
+    //    ------------
     private val _imagenUri = MutableStateFlow<Uri?>(null)
     val imagenUri: StateFlow<Uri?> = _imagenUri
 
 
-    protected val _servicioState = MutableStateFlow(Servicio(negocioId = -1))
+    protected val _servicioState = MutableStateFlow(Servicio.init())
     val servicioState: StateFlow<Servicio> = _servicioState
 
     fun setImagenUri(uri: Uri?) {
@@ -67,15 +122,14 @@ open class ServicioViewModel(
             null
         }
     }
-    fun getServicioImageUrl(id: String?): String? {
-        return if (!id.isNullOrEmpty()) {
-            "${RetrofitInstance.getIp()}api/servicio/$id/imagen"
-        } else {
-            null
-        }
+    fun getServicioImageUrl(id: Int?): String? {
+        return "${RetrofitInstance.getIp()}api/servicio/$id/imagen"
     }
 
 
+    // Estado expuesto a la UI para la lista detallada de servicios
+    private val _serviciosDetalleState = MutableStateFlow<Resource<List<ServicioDetalleDto>>>(Resource.None())
+    val serviciosDetalleState: StateFlow<Resource<List<ServicioDetalleDto>>> = _serviciosDetalleState
 
     protected open val _servicioListState = MutableStateFlow<Resource<List<Servicio>>>(Resource.None())
     val servicioList: StateFlow<Resource<List<Servicio>>> = _servicioListState
@@ -93,18 +147,26 @@ open class ServicioViewModel(
     val servicioFetchedState: StateFlow<Resource<Servicio>> = _servicioFetchedState
 
 
-    private val _serviciosDetalleState = MutableStateFlow<Resource<List<ServicioDetalleDto>>>(Resource.None())
-    open val serviciosDetalleState: StateFlow<Resource<List<ServicioDetalleDto>>> = _serviciosDetalleState
+    protected val _serviciosDetalleByNegocioIdState = MutableStateFlow<Resource<List<ServicioDetalleDto>>>(Resource.None())
+    open val serviciosDetalleByNegocioIdState: StateFlow<Resource<List<ServicioDetalleDto>>> = _serviciosDetalleByNegocioIdState
 
-
-
-    private val _servicioDetalleState = MutableStateFlow<Resource<Servicio>>(Resource.None())
+    protected val _servicioDetalleState = MutableStateFlow<Resource<Servicio>>(Resource.None())
     val servicioDetalleState: StateFlow<Resource<Servicio>> = _servicioDetalleState
+
+
+    // Función para cargar todos los servicios con detalle
+    fun getServiciosDetalle() {
+        viewModelScope.launch {
+            _serviciosDetalleState.value = Resource.Loading()
+            val result = servicioRemoteSource.getServiciosDetalle()
+            _serviciosDetalleState.value = result
+        }
+    }
 
     open fun getServicioDetalle(
         id: Int,
         onSuccess: () -> Unit = {},
-        onError: () -> Unit = {},
+        onError: (String) -> Unit = {},
         onLoading: () -> Unit = {},
     ) {
         viewModelScope.launch {
@@ -113,7 +175,7 @@ open class ServicioViewModel(
             _servicioDetalleState.value = response
             when (response) {
                 is Resource.Success -> onSuccess()
-                is Resource.Error -> onError()
+                is Resource.Error -> onError(response.message.toString())
                 else -> {}
             }
         }
@@ -126,14 +188,14 @@ open class ServicioViewModel(
         onError: (String) -> Unit = {}
     ) {
         if(negocioId==-1){
-            _serviciosDetalleState.value = Resource.Error("El identificador del negocio no se pudo obtener")
+            _serviciosDetalleByNegocioIdState.value = Resource.Error("El identificador del negocio no se pudo obtener")
             return
         }
         viewModelScope.launch {
             onLoading()
-            _serviciosDetalleState.value = Resource.Loading()
+            _serviciosDetalleByNegocioIdState.value = Resource.Loading()
             val response = servicioRemoteSource.getServiciosDetalleByNegocioId(negocioId)
-            _serviciosDetalleState.value = response
+            _serviciosDetalleByNegocioIdState.value = response
             when (response) {
                 is Resource.Success -> onSuccess()
                 is Resource.Error -> onError(response.message ?: "Error desconocido")
@@ -158,7 +220,7 @@ open class ServicioViewModel(
             Log.d("SERVICIOVIEWMODEL","Uri de la imagen insertada: $imagen")
             _servicioCreatedState.value = response
 
-            Log.d("SERVICIOVIEWMODEL","Nueva imagen de servicio en : ${getServicioImageUrl(_servicioCreatedState.value.data?.id?.toString())}")
+            Log.d("SERVICIOVIEWMODEL","Nueva imagen de servicio en : ${getServicioImageUrl(_servicioCreatedState.value.data?.id)}")
 
             when (response) {
                 is Resource.Success -> {
@@ -229,20 +291,21 @@ open class ServicioViewModel(
         }
     }
 
-    fun getAllServicios(
-        onSuccess: () -> Unit = {},
-        onError: () -> Unit = {},
+    open fun getAllServicios(
         onLoading: () -> Unit = {},
-    ) {
-        viewModelScope.launch {
-            onLoading()
-            val response = servicioRemoteSource.getAllServicios()
-            _servicioListState.value = response
-            when (response) {
-                is Resource.Success -> onSuccess()
-                is Resource.Error -> onError()
-                else -> {}
-            }
+        onSuccess: (List<Servicio>) -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) = viewModelScope.launch {
+        onLoading()
+        _servicioListState.value = Resource.Loading()
+
+        val response = servicioRemoteSource.getAllServicios()
+        _servicioListState.value = response
+
+        when (response) {
+            is Resource.Success -> onSuccess(response.data ?: emptyList())
+            is Resource.Error -> onError(response.message.toString())
+            else -> {}
         }
     }
 
@@ -264,7 +327,7 @@ open class ServicioViewModel(
         }
     }
 
-    fun updateServicio(
+    open fun updateServicio(
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {},
         onLoading: () -> Unit = {},
@@ -304,7 +367,7 @@ open class ServicioViewModel(
     }
 
 
-    fun deleteServicio(
+    open fun deleteServicio(
         id: Int,
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {},
@@ -330,7 +393,7 @@ open class ServicioViewModel(
         _servicioListState.value = Resource.None()
     }
     fun resetServicio(){
-        _servicioState.value = Servicio()
+        _servicioState.value = Servicio.init()
     }
 
     fun updateServicioState(servicio: Servicio) {

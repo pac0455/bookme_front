@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.example.frontendapp.data.model.UI.TabItem
+import com.example.frontendapp.ui.theme.composables.section.HeaderSeccion
 
 @Composable
 fun TabPagerScaffold(

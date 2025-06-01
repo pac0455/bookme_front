@@ -2,6 +2,7 @@ package com.example.frontendapp.data.remote.source
 
 import android.content.Context
 import android.net.Uri
+import com.example.frontendapp.data.helper.ImageHelper
 import com.example.frontendapp.data.model.Servicio.Servicio
 import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
 import com.example.frontendapp.data.model.Servicio.ServicioUpdateRequest
@@ -10,7 +11,7 @@ import com.example.frontendapp.data.remote.reponses.Resource
 import org.json.JSONObject
 import retrofit2.Response
 
-class ServicioRemoteSource(
+class ServicioRepo(
     private val servicioApi: ServicioApi
 ) {
 
@@ -78,6 +79,15 @@ class ServicioRemoteSource(
             Resource.Error("Error de red: ${e.message}")
         }
     }
+    // Función para obtener todos los servicios con detalle (sin filtrar por negocio)
+    suspend fun getServiciosDetalle(): Resource<List<ServicioDetalleDto>> {
+        return try {
+            val response = servicioApi.getServiciosDetalle()
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error al obtener servicios detallados: ${e.message}")
+        }
+    }
 
     suspend fun updateServicio(id: Int, servicio: ServicioUpdateRequest): Resource<Servicio> {
         val validate= Servicio(
@@ -85,7 +95,9 @@ class ServicioRemoteSource(
             negocioId = servicio.negocioId,
             nombre = servicio.nombre,
             descripcion = servicio.descripcion,
-            precio = servicio.precio
+            precio = servicio.precio,
+            id = servicio.id,
+            imagen = null,
         )
         val validationError = validateServicio(validate)
         if (validationError != null) return Resource.Error(validationError)

@@ -11,8 +11,8 @@ import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
-import com.example.frontendapp.data.remote.source.ServicioRemoteSource
+import com.example.frontendapp.data.remote.source.NegocioRepo
+import com.example.frontendapp.data.remote.source.ServicioRepo
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ServicioApiTest {
 
-    private lateinit var servicioRemoteSource: ServicioRemoteSource
+    private lateinit var servicioRemoteSource: ServicioRepo
     private var createdServicioId: Int? = null
     private var negocioId: Int? = null
 
@@ -36,8 +36,8 @@ class ServicioApiTest {
             assertNotNull("Token no puede ser nulo", token)
             RetrofitInstance.setToken(token!!)
 
-            servicioRemoteSource = ServicioRemoteSource(RetrofitInstance.servicioApi)
-            val negocioRemoteSource = NegocioRemoteSource(RetrofitInstance.negocioApi)
+            servicioRemoteSource = ServicioRepo(RetrofitInstance.servicioApi)
+            val negocioRemoteSource = NegocioRepo(RetrofitInstance.negocioApi)
 
             val negociosResult = negocioRemoteSource.getAllNegocios()
             if (negociosResult !is Resource.Success) {
@@ -76,7 +76,9 @@ class ServicioApiTest {
                 descripcion = "Descripcion del servicio de prueba",
                 duracionMinutos = 60,
                 precio = 100.0,
-                negocioId = negocioId!!
+                negocioId = negocioId!!,
+                id = 0,
+                imagen = null
             )
 
             val addServicioResult = servicioRemoteSource.addServicio(servicio, imagenUri = null, context = context)
@@ -109,7 +111,9 @@ class ServicioApiTest {
             descripcion = "Servicio con descripcion nueva",
             duracionMinutos = 45,
             precio = 150.0,
-            negocioId = negocioId!!
+            negocioId = negocioId!!,
+            id = 0,
+            imagen = null
         )
 
         val result = servicioRemoteSource.addServicio(servicio, imagenUri = null, context = context)
@@ -145,7 +149,8 @@ class ServicioApiTest {
             descripcion = "Descripcion actualizada",
             duracionMinutos = 90,
             precio = 200.0,
-            negocioId = negocioId!!
+            negocioId = negocioId!!,
+            id = 0
         )
 
         val updateResult = servicioRemoteSource.updateServicio(id, servicioActualizado)

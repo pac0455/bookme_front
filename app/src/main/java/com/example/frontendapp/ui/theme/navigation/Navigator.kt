@@ -2,14 +2,23 @@ package com.example.frontendapp.ui.theme.navigation
 
 import ClienteMainScreen
 import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.frontendapp.ui.theme.composables.loadPages.TripleOrbitLoadingAnimation
 import com.example.frontendapp.ui.theme.screens.UsuarioNegocioMainScreen
 import com.example.frontendapp.ui.theme.screens.HorarioForm
 import com.example.frontendapp.ui.theme.screens.LoginScreen
@@ -20,14 +29,20 @@ import com.example.frontendapp.ui.theme.screens.NegocioDetailScreen
 import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.NegocioScreen
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
+import com.example.frontendapp.ui.theme.screens.ReservaForm
 import com.example.frontendapp.ui.theme.screens.ServicioForm
+import com.example.frontendapp.ui.theme.screens.ValoracionFormulario
 import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
+import com.example.frontendapp.ui.theme.viewmodels.HorariosViewModel
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
+import com.example.frontendapp.utils.UbicacionHelper
 
+private val TAG="NAVIGATOR"
 @Composable
 fun Navigator(
     modifier: Modifier = Modifier,
@@ -43,6 +58,8 @@ fun Navigator(
     reservaViewModel_ClienteMain: ReservasViewModel,
     negocioViewModel_ClienteMain: NegocioViewModel,
     categoriasViewModel: CategoriaViewModel,
+    horarioViewModel_ClienteMain: HorariosViewModel,
+    valoracionesViewModel_ClienteMain: ValoracionViewModel,
 ) {
     LaunchedEffect(Unit) {
         Log.d("NAVIGATION_DEBUG", "Navigator parameters received:")
@@ -89,22 +106,68 @@ fun Navigator(
                 servicioViewModel = servicioViewModel_ClienteMain,
                 reservasViewModel =reservaViewModel_ClienteMain,
                 negocioViewModel = negocioViewModel_ClienteMain,
-                categoriasViewModel = categoriasViewModel
+                categoriasViewModel = categoriasViewModel,
+                horarioViewModel = horarioViewModel_ClienteMain,
+                valoracionesViewModel = valoracionesViewModel_ClienteMain
             )
         }
         composable(
             route = "${Screen.NEGOCIO_CARD_DETAILS.name}/{negocioId}",
             arguments = listOf(navArgument("negocioId") { type = NavType.IntType })
         ) { backStackEntry ->
+            val context = LocalContext.current
             val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: 0
-            LaunchedEffect(negocioId) {
-                negocioViewModel_ClienteMain.loadNegocioById(negocioId)
-            }
+            var negocioCargado by remember { mutableStateOf(false) }
 
-            NegocioDetailScreen(
+
+            Log.d(TAG, "Pasando a la pantalla NegocioDetailScreen el id: $negocioId")
+            //Cargar el negocio a partir de su id
+            LaunchedEffect(negocioId) {
+                negocioViewModel_ClienteMain.getNegocioParaCliente(
+                    negocioId = negocioId,
+                    ubicacion = UbicacionHelper.obtenerUbicacionActual(context),
+                    onSuccess = {
+                        if (it != null) {
+                            negocioViewModel_ClienteMain.setTmpNegocioCard(it)
+                            negocioCargado = true  // Marcar como cargado
+                        }
+                    },
+                    onError = {
+                        Log.d(TAG, "Error al cargar el negocio de pantalla servicio a negocio")
+                        negocioCargado = true  // Evita loading infinito en caso de error
+                    }
+                )
+            }
+            if (negocioCargado) {
+                NegocioDetailScreen(
+                    navController = navController,
+                    negocioViewModel = negocioViewModel_ClienteMain,
+                    servicioViewModel = servicioViewModel_ClienteMain,
+                    horariosViewModel = horarioViewModel_ClienteMain,
+                    reservaViewModel = reservaViewModel_ClienteMain,
+                    valoracionesViewModel = valoracionesViewModel_ClienteMain
+                )
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TripleOrbitLoadingAnimation()
+                }
+            }
+        }
+
+        composable(
+            route= "${Screen.RESERVA_FORM.name}/{negocioId}",
+            arguments = listOf(navArgument("negocioId") {type = NavType.IntType})
+        ) { backStackEntry ->
+            val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: -1
+            ReservaForm(
+                negocioId = negocioId,
                 navController = navController,
-                negocioViewModel = negocioViewModel_ClienteMain,
-                servicioViewModel = servicioViewModel_ClienteMain
+                reservasViewModel = reservaViewModel_ClienteMain,
+                servicioViewModel = servicioViewModel_ClienteMain,
+                horariosViewModel = horarioViewModel_ClienteMain
             )
         }
 
@@ -137,24 +200,47 @@ fun Navigator(
             route = "${Screen.NEGOCIO_CONFIG.name}/{negocioId}",
             arguments = listOf(navArgument("negocioId") { type = NavType.IntType })
         ) { backStackEntry ->
-            val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: 0
+            val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: -1
+            var negocioCargado by remember { mutableStateOf(false) }
 
             LaunchedEffect(negocioId) {
                 val currentNegocio = negocioFormViewModel.negocioState.value
                 if (negocioId != 0 && (currentNegocio.id != negocioId)) {
                     negocioFormViewModel.loadNegocioById(
                         id = negocioId,
-                        onLoading = { },
-                        onSuccess = { },
-                        onError = { mensaje -> }
+                        onLoading = { negocioCargado=false},
+                        onSuccess = { negocioCargado=true },
+                        onError = { negocioCargado=true }
                     )
                 }
             }
-            NegocioScreen(
-                navController = navController,
-                viewModel = negocioFormViewModel,
-                reservasViewModel = reservasNegocioScreenViewModel,
-                servicioViewModel = serviciosNegocioScreenViewModel,
+            if(negocioCargado){
+                NegocioScreen(
+                    navController = navController,
+                    viewModel = negocioFormViewModel,
+                    reservasViewModel = reservasNegocioScreenViewModel,
+                    servicioViewModel = serviciosNegocioScreenViewModel,
+                )
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TripleOrbitLoadingAnimation()
+                }
+            }
+
+        }
+        composable(
+           route="${Screen.VALORACION_FORM.name}/{negocioId}",
+            arguments = listOf(navArgument("negocioId") {type = NavType.IntType})
+        ){ backStackEntry ->
+            val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: -1
+            Log.d("Navigation", "NegocioId recibido en ValoracionFormulario: $negocioId")
+            ValoracionFormulario(
+                valoracionesViewModel=valoracionesViewModel_ClienteMain,
+                negocioId = negocioId,
+                navController = navController
             )
         }
     }

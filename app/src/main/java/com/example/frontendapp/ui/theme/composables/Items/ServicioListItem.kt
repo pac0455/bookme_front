@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.ListItems
+package com.example.frontendapp.ui.theme.composables.Items
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -57,11 +57,11 @@ fun ServicioListItem(
     Log.d("ServicioListItem", "Recibido: $servicioDetalleDto")
 
     val colorEstado = when {
-        servicioDetalleDto.valoracionPromedio < 3.0 -> Color(0xFFF44336) // rojo menor a 3
-        servicioDetalleDto.valoracionPromedio < 4.0 -> Color(0xFFFFC107) // amarillo entre 3 y 4
+        servicioDetalleDto.valoracionPromedioNegocio < 3.0 -> Color(0xFFF44336) // rojo menor a 3
+        servicioDetalleDto.valoracionPromedioNegocio < 4.0 -> Color(0xFFFFC107) // amarillo entre 3 y 4
         else -> Color(0xFF4CAF50) // verde de 4 a 5
     }
-    val imagenUrl = viewModel.getServicioImageUrl(servicioDetalleDto.id.toString())
+    val imagenUrl = viewModel.getServicioImageUrl(servicioDetalleDto.id)
 
 
     var expanded by remember { mutableStateOf(false) }
@@ -112,7 +112,7 @@ fun ServicioListItem(
                     maxLines = 1
                 )
                 Text(
-                    text = "Valoración: ${servicioDetalleDto.valoracionPromedio} (${servicioDetalleDto.numeroValoraciones} valoraciones)",
+                    text = "Negocio: ${servicioDetalleDto.valoracionPromedioNegocio}⭐ (${servicioDetalleDto.numeroValoracionesNegocio} valoraciones)",
                     style = MaterialTheme.typography.bodySmall,
                     color = colorEstado,
                     maxLines = 1
@@ -203,8 +203,8 @@ fun ServicioListItemPreview() {
         precio = 15.0,
         negocioNombre = "Peluquería Estilo",
         categoria = "Belleza",
-        valoracionPromedio = 2.5,
-        numeroValoraciones = 25,
+        valoracionPromedioNegocio = 2.5,
+        numeroValoracionesNegocio = 25,
         numeroReservas = 40
     )
 

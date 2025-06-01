@@ -151,11 +151,11 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
                             onSuccess = { result ->
                                 isLoading = false
                                 // Verificar si el token no es nulo antes de establecerlo
-                                result.token?.let { token ->
+                                result.token.let { token ->
                                     Log.d("NegocioClienteScrenn", "Token recibido: $token")
                                     RetrofitInstance.setToken(token)
                                 }
-
+                                result.usuario.id?.let { RetrofitInstance.setUserId(it) }
                                 val roles = result.roles
                                 when {
                                     roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)

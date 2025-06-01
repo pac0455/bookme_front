@@ -22,7 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.FrontendappTheme
-import com.example.frontendapp.ui.theme.composables.ListItems.NegocioListItem
+import com.example.frontendapp.ui.theme.composables.Items.NegocioListItem
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel

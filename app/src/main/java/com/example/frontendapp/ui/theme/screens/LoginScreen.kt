@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.VerifiedUser
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -143,6 +144,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                 isLoading = false
                                 Log.d("Login", "Éxito: $result")
                                 RetrofitInstance.setToken(result.token)
+                                result.usuario.id?.let { RetrofitInstance.setUserId(it) }
                                 val roles = result.roles
                                 when {
                                     roles.contains("CLIENTE") -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
@@ -167,8 +169,9 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                 CustomBox(
                     borderTop = true,
                     borderBottom = true,
-                    msg = "o"
-                )
+                ){
+                    Text("o")
+                }
 
                 GoogleButton(context)
             }

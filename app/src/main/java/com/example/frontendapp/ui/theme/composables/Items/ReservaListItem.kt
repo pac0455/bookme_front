@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.ListItems
+package com.example.frontendapp.ui.theme.composables.Items
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility

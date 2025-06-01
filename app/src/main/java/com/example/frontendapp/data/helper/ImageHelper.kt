@@ -1,10 +1,9 @@
-package com.example.frontendapp.data.remote.source
+package com.example.frontendapp.data.helper
 
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult

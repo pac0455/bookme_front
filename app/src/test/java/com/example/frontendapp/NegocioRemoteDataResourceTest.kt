@@ -8,7 +8,7 @@ import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.source.NegocioRepo
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
@@ -25,7 +25,7 @@ class NegocioApiTest {
     )
 
     private lateinit var authRemoteDataResource: AuthRemoteDataResource
-    private lateinit var negocioRemoteSource: NegocioRemoteSource
+    private lateinit var negocioRemoteSource: NegocioRepo
     private var createdNegocioId: Int? = null
 
     @Before
@@ -38,7 +38,7 @@ class NegocioApiTest {
             assertNotNull("Token no puede ser nulo", token)
             RetrofitInstance.setToken(token!!)
 
-            negocioRemoteSource = NegocioRemoteSource(RetrofitInstance.negocioApi)
+            negocioRemoteSource = NegocioRepo(RetrofitInstance.negocioApi)
 
             // Eliminar negocio si ya existe
             val negociosExistentes = negocioRemoteSource.getAllNegocios()

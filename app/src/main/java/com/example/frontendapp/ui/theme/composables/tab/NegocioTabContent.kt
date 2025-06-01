@@ -1,7 +1,7 @@
 package com.example.frontendapp.ui.theme.composables.tab
 
+import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -18,11 +18,15 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material3.Icon
@@ -46,40 +50,44 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.Principal_variacion6
 import com.example.frontendapp.ui.theme.composables.CustomSeachBar
-import com.example.frontendapp.ui.theme.composables.ListItems.NegocioCard
+import com.example.frontendapp.ui.theme.composables.Items.NegocioCard
+import com.example.frontendapp.ui.theme.composables.section.HeaderSeccion
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.utils.UbicacionHelper
 
 @Composable
 fun NegocioTabContent(
     negocioViewModel: NegocioViewModel,
-    modifier: Modifier = Modifier,
     navController: NavController
 ) {
-    var query by remember { mutableStateOf("") }
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth * 0.85f
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
-    val focusRequester = remember { FocusRequester() }
 
     val negociosCardClienteState by negocioViewModel.negociosClienteState.collectAsState()
     val negociosCard = remember { mutableStateListOf<NegocioCardCliente>() }
 
-    LaunchedEffect(Unit) {
-        val ubi = UbicacionHelper.obtenerUbicacionActual(context = context)
-        negocioViewModel.getNegociosParaCliente(ubi)
+    LaunchedEffect(negociosCardClienteState) {
+        if (negociosCardClienteState is Resource.None) {
+            val ubi = UbicacionHelper.obtenerUbicacionActual(context = context)
+            negocioViewModel.getNegociosParaCliente(ubi)
+        }
     }
+
 
     when (negociosCardClienteState) {
         is Resource.Success -> {
@@ -95,98 +103,46 @@ fun NegocioTabContent(
         else -> Unit
     }
 
-    Column(
-        modifier = modifier.fillMaxSize(),
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Encabezado visual
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.25f)
-                .clip(RoundedCornerShape(bottomEnd = 40.dp, bottomStart = 40.dp))
-                .background(Principal_variacion3)
-                .padding(6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {}
-
-        // Barra de búsqueda y filtro
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(68.dp)
-                .offset(y = (-32).dp)
-                .shadow(8.dp, RoundedCornerShape(24.dp))
-                .background(Principal_variacion6, RoundedCornerShape(24.dp))
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            CustomSeachBar(
-                query = query,
-                backgroundColor = Color.Transparent,
-                onQueryChange = { query = it },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .focusRequester(focusRequester)
-            )
-            IconButton(
-                onClick = { /* acción filtro */ },
-                modifier = Modifier
-                    .size(36.dp)
-                    .background(Color.White, RoundedCornerShape(12.dp))
-                    .shadow(1.dp, RoundedCornerShape(12.dp))
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FilterAlt,
-                    contentDescription = "Filtro",
-                    tint = Color.Black.copy(alpha = 0.4f)
-                )
-            }
+        item {
+            HeaderSeccion("Negocios")
         }
 
-        // Sección: Todos los negocios
-        NegocioSeccion(
-            "Recomendados",
-            negociosCard,
-            negocioViewModel,
-            listState,
-            flingBehavior,
-            cardWidth = cardWidth,
-            screenWidth = screenWidth,
-            navController = navController,
-        )
 
-        // Sección: Abiertos ahora
-        NegocioSeccion(
-            "Abiertos ahora",
-            negociosCard.filter { it.isOpen },
-            negocioViewModel,
-            rememberLazyListState(),
-            rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
-            cardWidth = cardWidth,
-            screenWidth = screenWidth,
-            navController = navController,
-        )
+        item {
+            NegocioSeccion(
+                "Abiertos ahora",
+                negociosCard.filter { it.isOpen },
+                negocioViewModel,
+                rememberLazyListState(),
+                rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
+                cardWidth = cardWidth,
+                screenWidth = screenWidth,
+                navController = navController,
+            )
+        }
 
-        // Sección: Mejor valorados
-        NegocioSeccion(
-            "Mejor valorados",
-            negociosCard.sortedByDescending { it.rating },
-            negocioViewModel,
-            rememberLazyListState(),
-            rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
-            cardWidth = cardWidth,
-            screenWidth = screenWidth,
-            navController = navController,
-        )
+        item {
+            NegocioSeccion(
+                "Mejor valorados",
+                negociosCard.sortedByDescending { it.rating },
+                negocioViewModel,
+                rememberLazyListState(),
+                rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
+                cardWidth = cardWidth,
+                screenWidth = screenWidth,
+                navController = navController,
+            )
+        }
     }
 }
 
 
-@Composable
+    @Composable
 fun NegocioSeccion(
     titulo: String,
     negocios: List<NegocioCardCliente>,
@@ -232,5 +188,17 @@ fun NegocioSeccion(
                 }
             }
         }
+    }
+}
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview(showBackground = true)
+@Composable
+fun NegocioTabContentPreview() {
+    val navController = rememberNavController()
+    MaterialTheme {
+        NegocioTabContent(
+            negocioViewModel = FakeNegocioViewModel(),
+            navController = navController
+        )
     }
 }

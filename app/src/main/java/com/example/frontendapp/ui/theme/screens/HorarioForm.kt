@@ -44,8 +44,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.data.model.Horario
-import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
 import com.example.frontendapp.ui.theme.Principal
 import com.example.frontendapp.ui.theme.composables.Btn.DaySelector
 import com.example.frontendapp.ui.theme.composables.list.HorarioList
@@ -127,15 +125,8 @@ fun HorarioForm(
                             }
                         )
                     } else {
-                        val negocioId = negocio.id
-                        if (negocioId == null) {
-                            Toast.makeText(context, "No se encontró el ID del negocio para actualizar", Toast.LENGTH_LONG).show()
-                            Log.e("Update Negocio", "Falta el ID del negocio")
-                            return@BtnStyle1
-                        }
-
                         negocioViewModel.updateNegocioById(
-                            id = negocioId,
+                            id = negocio.id,
                             onLoading = {
                                 Log.d("Update Negocio", "Actualizando el negocio: $negocio")
                                 Toast.makeText(context, "Actualizando negocio...", Toast.LENGTH_SHORT).show()
@@ -281,9 +272,8 @@ fun HorarioForm(
                     horaInicioSeleccionada = horario.horaInicio
                     horaFinSeleccionada = horario.horaFin
                     diasSeleccionados.clear()
-                    diasSeleccionados.add(horario.diaSemana) // <- aquí está el truco
+                    diasSeleccionados.add(horario.diaSemana)
                 },
-
                 onEliminar = { horariosAEliminar ->
                     negocioViewModel.eliminarHorarios(horariosAEliminar)
                     horariosMarcados.removeAll(horariosAEliminar)

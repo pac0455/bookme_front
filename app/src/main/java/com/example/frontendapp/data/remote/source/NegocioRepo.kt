@@ -2,6 +2,7 @@ package com.example.frontendapp.data.remote.source
 
 import android.content.Context
 import android.net.Uri
+import com.example.frontendapp.data.helper.ImageHelper
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.model.Negocio.Ubicacion
@@ -11,7 +12,7 @@ import com.example.frontendapp.data.remote.api.NegocioApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import retrofit2.Response
 
-class NegocioRemoteSource(
+class NegocioRepo(
     private val negocioApi: NegocioApi
 ) {
 
@@ -46,6 +47,7 @@ class NegocioRemoteSource(
             Resource.Error("Error de red: ${e.message}")
         }
     }
+
     suspend fun getNegociosByUserId(): Resource<List<Negocio>> {
         return try {
             val response = negocioApi.getByUserId()
@@ -67,6 +69,18 @@ class NegocioRemoteSource(
         return try {
             val response = negocioApi.updateByNombre(negocio.nombre, negocio)
            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Excepción: ${e.localizedMessage}")
+        }
+    }
+
+    suspend fun getNegocioParaCliente(negocioId: Int, ubicacion: Ubicacion?): Resource<NegocioCardCliente> {
+        return try {
+            val response = negocioApi.getNegocioParaCliente(
+                negocioId = negocioId,
+                ubicacion = ubicacion,
+            )
+            handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Excepción: ${e.localizedMessage}")
         }
@@ -130,10 +144,6 @@ class NegocioRemoteSource(
             Resource.Error("Error al subir la imagen: ${e.localizedMessage ?: e.message}")
         }
     }
-
-
-
-
 
     private fun <T> handleResponse(response: Response<T>): Resource<T> {
         return if (response.isSuccessful) {

@@ -39,7 +39,9 @@ fun TabAnimatedScaffold(
     tabs: List<TabItem>,
     modifier: Modifier = Modifier,
     ballColor: Color = Principal_variacion3,
-    barColor: Color = Principal_variacion6
+    barColor: Color = Principal_variacion6,
+    header: (@Composable () -> Unit)? = null
+
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     var previousTabIndex by remember { mutableIntStateOf(0) }
@@ -50,7 +52,7 @@ fun TabAnimatedScaffold(
         modifier = modifier,
         bottomBar = {
             AnimatedNavigationBar(
-                cornerRadius = shapeCornerRadius(34.dp),
+                cornerRadius = shapeCornerRadius(68.dp),
                 modifier = Modifier
                     .navigationBarsPadding()
                     .padding(16.dp)
@@ -135,13 +137,16 @@ fun TabAnimatedScaffold(
                 }.using(SizeTransform(clip = false))
             },
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(paddingValues)
+
         ) { targetIndex ->
             key(targetIndex) {
                 sortedTabs[targetIndex].content()
             }
         }
+
+
     }
 }
 @Preview(showBackground = true)

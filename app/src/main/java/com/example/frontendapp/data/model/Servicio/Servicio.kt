@@ -1,12 +1,25 @@
 package com.example.frontendapp.data.model.Servicio
 
 data class Servicio(
-    val id: Int? = null,
-    val negocioId: Int? = null,
-    val nombre: String? = null,
-    val descripcion: String? = null,
-    val duracionMinutos: Int? = null,
-    val precio: Double? = null,
-    val imagen: String? = null
-)
-
+    val id: Int,
+    val negocioId: Int,
+    val nombre: String,
+    val descripcion: String,
+    val duracionMinutos: Int,
+    val precio: Double,
+    val imagen: String?
+) {
+    companion object {
+        fun init(): Servicio {
+            return Servicio(
+                id = 0,
+                negocioId = 0,
+                nombre = "",
+                descripcion = "",
+                duracionMinutos = 0,
+                precio = 0.0,
+                imagen = ""
+            )
+        }
+    }
+}

@@ -16,7 +16,7 @@ import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.source.NegocioRepo
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.utils.UbicacionHelper.getFromLocationCompat
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class NegocioViewModel(
-    private val negocioRemoteSource: NegocioRemoteSource
+    private val negocioRemoteSource: NegocioRepo
 ) : ViewModel() {
 
     private val _negocioState = MutableStateFlow(Negocio())
@@ -73,6 +73,9 @@ open class NegocioViewModel(
 
     private val _negociosClienteState = MutableStateFlow<Resource<List<NegocioCardCliente>>>(Resource.None())
     val negociosClienteState: StateFlow<Resource<List<NegocioCardCliente>>> = _negociosClienteState
+
+    private val _negocioClienteState = MutableStateFlow<Resource<NegocioCardCliente>>(Resource.None())
+    val negocioClienteState: StateFlow<Resource<NegocioCardCliente>> = _negocioClienteState
 
     private val _negocioValidationState = MutableStateFlow(ValidationValidateState())
     val negocioValidationState: StateFlow<ValidationValidateState> = _negocioValidationState
@@ -244,22 +247,33 @@ open class NegocioViewModel(
     // Llamadas API
     // -------------------------
 
+
     fun getNegociosParaCliente(
         ubicacion: Ubicacion,
         onLoading: () -> Unit = {},
         onSuccess: (List<NegocioCardCliente>) -> Unit = {},
         onError: (String) -> Unit = {}
     ) = viewModelScope.launch {
+        Log.d("NegocioViewModel", "Iniciando carga de negocios para ubicación: $ubicacion")
         onLoading()
         _negociosClienteState.value = Resource.Loading()
 
         val result = negocioRemoteSource.getNegociosParaCliente(ubicacion)
+        Log.d("NegocioViewModel", "Resultado recibido: $result")
         _negociosClienteState.value = result
 
         when (result) {
-            is Resource.Success -> onSuccess(result.data ?: emptyList())
-            is Resource.Error -> onError(result.message ?: "Error desconocido")
-            else -> {}
+            is Resource.Success -> {
+                Log.d("NegocioViewModel", "Carga exitosa: ${result.data?.size ?: 0} negocios recibidos")
+                onSuccess(result.data ?: emptyList())
+            }
+            is Resource.Error -> {
+                Log.e("NegocioViewModel", "Error al cargar negocios: ${result.message}")
+                onError(result.message ?: "Error desconocido")
+            }
+            else -> {
+                Log.d("NegocioViewModel", "Estado no manejado: $result")
+            }
         }
     }
 
@@ -319,6 +333,36 @@ open class NegocioViewModel(
             else -> {}
         }
     }
+    fun getNegocioParaCliente(
+        ubicacion: Ubicacion,
+        negocioId: Int,
+        onLoading: () -> Unit = {},
+        onSuccess: (NegocioCardCliente?) -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) = viewModelScope.launch {
+        Log.d("NegocioViewModel", "Iniciando carga de negocios para ubicación: $ubicacion")
+        onLoading()
+        _negocioClienteState.value = Resource.Loading()
+
+        val result = negocioRemoteSource.getNegocioParaCliente(negocioId,ubicacion)
+        Log.d("NegocioViewModel", "Resultado recibido: $result")
+        _negocioClienteState.value = result
+
+        when (result) {
+            is Resource.Success -> {
+                Log.d("NegocioViewModel", "Carga exitosa: ${result.data} negocio recibido")
+                onSuccess(result.data)
+            }
+            is Resource.Error -> {
+                Log.e("NegocioViewModel", "Error al cargar negocio: ${result.message}")
+                onError(result.message ?: "Error desconocido")
+            }
+            else -> {
+                Log.d("NegocioViewModel", "Estado no manejado: $result")
+            }
+        }
+    }
+
 
 
     fun updateNegocioById(
@@ -389,9 +433,9 @@ open class NegocioViewModel(
         val nuevoFin = normalizarFin(nuevoInicio, horaToMinutos(fin))
 
         return dias.any { dia ->
-            _negocioState.value.horarioAtencion.orEmpty().any { existente ->
+            _negocioState.value.horarioAtencion.any { existente ->
                 if (ignorar != null && existente == ignorar) {
-                    return@any false // Ignora el horario que se está editando
+                    return false // Ignora el horario que se está editando
                 }
 
                 existente.diaSemana == dia &&

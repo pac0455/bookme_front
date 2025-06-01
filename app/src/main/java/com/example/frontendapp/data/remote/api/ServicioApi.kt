@@ -51,4 +51,8 @@ interface ServicioApi {
     // Obtener servicios con detalle por negocioId
     @GET("api/servicio/Detalle/Negocio/{negocioId}")
     suspend fun getServiciosDetalleByNegocioId(@Path("negocioId") negocioId: Int): Response<List<ServicioDetalleDto>>
+
+    // Obtener todos los servicios con detalle (sin filtrar por negocio)
+    @GET("api/servicio/Detalle")
+    suspend fun getServiciosDetalle(): Response<List<ServicioDetalleDto>>
 }

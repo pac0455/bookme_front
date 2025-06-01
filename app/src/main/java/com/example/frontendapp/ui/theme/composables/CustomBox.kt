@@ -22,8 +22,9 @@ import androidx.compose.ui.unit.dp
 fun CustomBoxPreview() {
     CustomBox(
         borderTop = true,
-        msg = "ejemplo",
-    )
+    ){
+        Text("Ejemplo")
+    }
 }
 
 @Composable
@@ -33,71 +34,67 @@ fun CustomBox(
     borderRight: Boolean = false,
     borderTop: Boolean = false,
     borderBottom: Boolean = false,
-    msg: String = "ejemplo",
-    border: Boolean=false,
-    strokeColor: Color = Color.Black
+    border: Boolean = false,
+    strokeColor: Color = Color.Black,
+    content: @Composable () -> Unit
 ) {
     val indicatorWidth = 1.dp
 
     Box(
         modifier = modifier
-            .padding(16.dp)
             .fillMaxWidth()
+            // Solo un padding, aquí o abajo, no ambos
+            //.padding(16.dp)
             .drawBehind {
                 val strokeWidth = indicatorWidth.toPx()
                 val drawTop = border || borderTop
                 val drawBottom = border || borderBottom
                 val drawLeft = border || borderLeft
                 val drawRight = border || borderRight
-                    // Top
-                    if (drawTop) {
-                        drawLine(
-                            color = strokeColor,
-                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                            end = androidx.compose.ui.geometry.Offset(size.width, 0f),
-                            strokeWidth = strokeWidth
-                        )
-                    }
 
-                    // Bottom
-                    if (drawBottom) {
-                        drawLine(
-                            color = strokeColor,
-                            start = androidx.compose.ui.geometry.Offset(0f, size.height),
-                            end = androidx.compose.ui.geometry.Offset(size.width, size.height),
-                            strokeWidth = strokeWidth
-                        )
-                    }
+                if (drawTop) {
+                    drawLine(
+                        color = strokeColor,
+                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                        end = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                        strokeWidth = strokeWidth
+                    )
+                }
 
-                    // Left
-                    if (drawLeft) {
-                        drawLine(
-                            color = strokeColor,
-                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                            end = androidx.compose.ui.geometry.Offset(0f, size.height),
-                            strokeWidth = strokeWidth
-                        )
-                    }
+                if (drawBottom) {
+                    drawLine(
+                        color = strokeColor,
+                        start = androidx.compose.ui.geometry.Offset(0f, size.height),
+                        end = androidx.compose.ui.geometry.Offset(size.width, size.height),
+                        strokeWidth = strokeWidth
+                    )
+                }
 
-                    // Right
-                    if (drawRight) {
-                        drawLine(
-                            color = strokeColor,
-                            start = androidx.compose.ui.geometry.Offset(size.width, 0f),
-                            end = androidx.compose.ui.geometry.Offset(size.width, size.height),
-                            strokeWidth = strokeWidth
-                        )
-                    }
+                if (drawLeft) {
+                    drawLine(
+                        color = strokeColor,
+                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                        end = androidx.compose.ui.geometry.Offset(0f, size.height),
+                        strokeWidth = strokeWidth
+                    )
+                }
 
-
+                if (drawRight) {
+                    drawLine(
+                        color = strokeColor,
+                        start = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                        end = androidx.compose.ui.geometry.Offset(size.width, size.height),
+                        strokeWidth = strokeWidth
+                    )
+                }
             }
     ) {
         Box(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(16.dp)  // Aquí está bien dejar padding para el contenido
                 .align(Alignment.Center)
         ) {
-            Text(text = msg)
+            content()
         }
     }
 }

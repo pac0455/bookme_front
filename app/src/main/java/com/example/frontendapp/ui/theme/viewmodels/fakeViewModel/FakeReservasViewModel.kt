@@ -3,10 +3,11 @@ package com.example.frontendapp.ui.theme.viewmodels.fakeViewModel
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.model.Reserva.ServicioConPago
 import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.source.NegocioRepo
+import com.example.frontendapp.data.remote.source.ReservaRepo
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 
-class FakeReservasViewModel : ReservasViewModel(NegocioRemoteSource(RetrofitInstance.negocioApi)) {
+class FakeReservasViewModel : ReservasViewModel(ReservaRepo(RetrofitInstance.reservaApi)) {
     init {
         _reservasDetalladasState.value = listOf(
             ReservaDetallada(

@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.ListItems
+package com.example.frontendapp.ui.theme.composables.Items
 
 import android.util.Log
 import androidx.compose.foundation.background

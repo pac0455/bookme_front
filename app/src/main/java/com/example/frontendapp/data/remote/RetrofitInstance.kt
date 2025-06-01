@@ -1,9 +1,12 @@
 package com.example.frontendapp.data.remote
 
 import com.example.frontendapp.data.remote.api.CategoriaApi
+import com.example.frontendapp.data.remote.api.HorarioApi
 import com.example.frontendapp.data.remote.api.NegocioApi
+import com.example.frontendapp.data.remote.api.ReservaApi
 import com.example.frontendapp.data.remote.api.ServicioApi
 import com.example.frontendapp.data.remote.api.UserApi
+import com.example.frontendapp.data.remote.api.ValoracionApi
 import okhttp3.OkHttpClient
 
 import retrofit2.Retrofit
@@ -17,9 +20,9 @@ object RetrofitInstance {
 
     private val serverTest = "https://localhost:7211/"
 
-    private  val ip = serverPracticas
+    private  val ip = server
     private var roles: List<String> = emptyList()
-
+    private lateinit var userId : String
 
     fun getToken(): String? = jwtToken
     fun setRoles(rolesList: List<String>) { roles = rolesList }
@@ -27,6 +30,8 @@ object RetrofitInstance {
     // Llama a esta función para actualizar el token cuando inicies sesión o refresques
     fun setToken(token: String) { jwtToken = token }
     fun getIp(): String { return ip}
+    fun getUserId(): String {return userId}
+    fun setUserId(userId: String) { this.userId=userId }
 
 
     private val okHttpClient = OkHttpClient.Builder()
@@ -38,6 +43,15 @@ object RetrofitInstance {
             chain.proceed(requestBuilder.build())
         }
         .build()
+
+    val valoracionApi: ValoracionApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(ip)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ValoracionApi::class.java)
+    }
 
     val userApi: UserApi by lazy {
         Retrofit.Builder()
@@ -71,5 +85,21 @@ object RetrofitInstance {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(CategoriaApi::class.java)
+    }
+    val horarioApi: HorarioApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(ip)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(HorarioApi::class.java)
+    }
+    val reservaApi: ReservaApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(ip)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ReservaApi::class.java)
     }
 }

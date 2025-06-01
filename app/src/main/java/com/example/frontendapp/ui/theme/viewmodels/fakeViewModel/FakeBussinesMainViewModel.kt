@@ -5,7 +5,7 @@ import com.example.frontendapp.data.model.Categoria
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.remote.source.NegocioRemoteSource
+import com.example.frontendapp.data.remote.source.NegocioRepo
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 
 class FakeNegocioViewModel : NegocioViewModel(
-    negocioRemoteSource = NegocioRemoteSource(RetrofitInstance.negocioApi)
+    negocioRemoteSource = NegocioRepo(RetrofitInstance.negocioApi)
 ) {
 
     override fun getNegociosByUserId(): Job {

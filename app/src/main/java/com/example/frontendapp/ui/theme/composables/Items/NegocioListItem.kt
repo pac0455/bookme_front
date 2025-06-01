@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.ListItems
+package com.example.frontendapp.ui.theme.composables.Items
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent

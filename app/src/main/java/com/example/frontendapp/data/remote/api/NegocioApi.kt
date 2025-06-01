@@ -27,7 +27,7 @@ interface NegocioApi {
     @GET("$controller/{id}")
     suspend fun get(@Path("id") id: Int): Response<Negocio>
 
-    @GET("$controller")
+    @GET(controller)
     suspend fun getAll(): Response<List<Negocio>>
 
     @PUT("$controller/{id}")
@@ -54,7 +54,11 @@ interface NegocioApi {
     ): Response<Negocio>
     @POST("$controller/cliente/negocios")
     suspend fun getNegociosParaCliente(@Body ubicacion: Ubicacion?): Response<List<NegocioCardCliente>>
-
+    @POST("api/Negocio/cliente/negocio/{id}")
+    suspend fun getNegocioParaCliente(
+        @Path("id") negocioId: Int,
+        @Body ubicacion: Ubicacion? = null
+    ): Response<NegocioCardCliente>
 
 
 }

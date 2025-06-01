@@ -1,6 +1,9 @@
 package com.example.frontendapp.ui.theme.composables.modal
 
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,11 +30,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import kotlinx.coroutines.delay
+import java.io.File
 
 @Composable
 fun ServicioImagePicker(
@@ -60,6 +65,8 @@ fun ServicioImagePicker(
     var imagenUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
     var showErrorIcon by remember { mutableStateOf(false) }
+    // Almacenamos el URI temporal fuera para recuperarlo después
+    var photoUri: Uri? = null
 
     LaunchedEffect(imageUrl) {
         if (imageUrl != null) {
@@ -69,14 +76,55 @@ fun ServicioImagePicker(
         }
     }
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        Log.d("ServicioImagePicker", "Imagen seleccionada desde dispositivo: ${uri?.toString()}")
-        imagenUri = uri
-        onImageSelected(uri)
-        if (uri != null) onSuccess?.invoke()
+    // Launcher para manejar el resultado del Intent Chooser
+    val chooserLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            val uri = data?.data ?: photoUri
+            Log.d("ServicioImagePicker", "Imagen seleccionada: ${uri?.toString()}")
+            imagenUri = uri
+            onImageSelected(uri)
+            if (uri != null) onSuccess?.invoke()
+        }
     }
+    // Modificador para el elemento clickeable
+    val clickableModifier = if (clickable) {
+        modifier.clickable {
+            // Crear archivo temporal seguro
+            val photoFile = File.createTempFile("temp_photo", ".jpg", context.cacheDir)
+
+            // Obtener Uri segura con FileProvider
+            photoUri = FileProvider.getUriForFile(
+                context,
+                "com.example.frontendapp.fileprovider", // ¡Este valor debe coincidir exactamente!
+                photoFile
+            )
+
+            // Intent de cámara con destino
+            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            }
+
+            // Intent de galería
+            val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+
+            // Chooser
+            val chooserIntent = Intent.createChooser(galleryIntent, "Selecciona una fuente de imagen").apply {
+                putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(cameraIntent))
+            }
+
+            // Lanzar chooser
+            chooserLauncher.launch(chooserIntent)
+        }
+    } else {
+        modifier
+    }
+
+
+
 
     val imageDto = remember(id, imageUrl) {
         ImageDto(
@@ -94,13 +142,19 @@ fun ServicioImagePicker(
         value = imageDto.url?.let {
             ImageRequest.Builder(context)
                 .data(it)
-                .memoryCacheKey(imageDto.cacheKey)
+                //Concateno algo al cache key para que su unica cache no sea la ruta ya que entonces no detectara
+                //cambios
+                .memoryCacheKey(imageDto.cacheKey) // previene caché en memoria
+                .diskCacheKey(imageDto.cacheKey)   // previene caché en disco
                 .crossfade(true)
                 .build()
         }
     }
 
-    val painter = rememberAsyncImagePainter(model = imageRequest)
+    val painter = rememberAsyncImagePainter(
+        model = imageRequest
+    )
+
     val painterState = painter.state
 
     LaunchedEffect(painterState) {
@@ -119,16 +173,21 @@ fun ServicioImagePicker(
     }
 
     Box(
-        modifier = modifier
+        modifier = clickableModifier
             .size(size)
-            .let { if (clickable) it.clickable { launcher.launch("image/*") } else it }
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(shape)
                 .background(backgroundColor)
-                .then(if (borderWidth > 0.dp) Modifier.border(borderWidth, borderColor, shape) else Modifier),
+                .then(
+                    if (borderWidth > 0.dp) Modifier.border(
+                        borderWidth,
+                        borderColor,
+                        shape
+                    ) else Modifier
+                ),
             contentAlignment = contentAlignment
         ) {
             when {
@@ -150,7 +209,7 @@ fun ServicioImagePicker(
                 }
                 !imageDto.url.isNullOrBlank() -> {
                     SubcomposeAsyncImage(
-                        model = imageDto.url,
+                        model = imageRequest,
                         contentDescription = "Imagen remota",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
@@ -235,7 +294,7 @@ fun ServicioImagePickerPreview_CustomStyle() {
         clickable = true,
         showIconEdit = true,
         borderColor = Color.White,
-        borderWidth = 2.dp
+        borderWidth = 2.dp,
     )
 }
 
