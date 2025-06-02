@@ -5,14 +5,14 @@ data class ReservaResponseDTO(
     val id: Int,
     val negocioId: Int,
     val usuarioId: String,
-    val fecha: String,          // Cambiado a String
-    val horaInicio: String,     // Cambiado a String
-    val horaFin: String,        // Cambiado a String
+    val fecha: String, // "2024-01-15"
+    val horaInicio: String, // "14:30:00"
+    val horaFin: String, // "15:30:00"
     val estado: EstadoReserva,
-    val fechaCreacion: String?, // Cambiado a String
+    val fechaCreacion: String?, // "2024-01-10T10:00:00"
     val servicioId: Int,
     val servicio: ServicioDTO,
-    val pagos: List<PagoDTO> = emptyList()
+    val pago: PagoDTO?
 )
 
 data class ServicioDTO(
@@ -25,5 +25,7 @@ data class PagoDTO(
     val monto: Double,
     val estadoPago: EstadoPago,
     val metodoPago: String,
-    val creado: String           // Cambiado a String
+    val creado: String
 )
+
+

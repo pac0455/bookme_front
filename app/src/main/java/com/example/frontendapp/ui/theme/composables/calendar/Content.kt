@@ -14,6 +14,7 @@ import java.time.YearMonth
 @Composable
 fun Content(
     dates: List<CalendarUiState.Date>,
+    today: LocalDate,
     onDateClickListener: (LocalDate) -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -34,6 +35,7 @@ fun Content(
                             // Celda con fecha válida
                             ContentItem(
                                 date = date,
+                                isToday = date.localDate == today,
                                 onClickListener = {
                                     if (date.isEnabled) {
                                         onDateClickListener(date.localDate)
@@ -69,6 +71,7 @@ fun ContentPreview() {
 
     Content(
         dates = mockDates,
+        today = LocalDate.now(),
         onDateClickListener = {}
     )
 }

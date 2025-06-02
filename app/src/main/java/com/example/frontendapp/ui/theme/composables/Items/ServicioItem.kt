@@ -1,155 +1,236 @@
 package com.example.frontendapp.ui.theme.composables.Items
-
-import androidx.compose.foundation.border
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
-import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
+import com.example.frontendapp.ui.theme.FrontendappTheme
+import com.example.frontendapp.ui.theme.ThemeColors
 
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun ServicioCardItem(
     servicio: ServicioDetalleDto,
     imageUrl: String,
-    onClick: (ServicioDetalleDto) -> Unit = {},
-    modifier: Modifier,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val sinValoraciones = servicio.numeroValoracionesNegocio == 0
-
+    val context = LocalContext.current
 
     Card(
         modifier = modifier
-            .height(180.dp)
-            .clickable { onClick(servicio) }
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(16.dp)
-            ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+            .fillMaxWidth()
+            .height(200.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Row(modifier = Modifier.fillMaxSize()) {
-            ServicioImagePicker(
-                imageUrl = imageUrl,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(140.dp)
-                    .clip(RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp)),
-                iconSize = 48.dp,
-                iconAlignment = Alignment.Center,
-                contentAlignment = Alignment.Center,
-                backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Imagen de fondo
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(imageUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = servicio.nombre,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
 
+            // Gradiente oscuro para mejorar legibilidad del texto
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.7f)
+                            ),
+                            startY = 0f,
+                            endY = 500f
+                        )
+                    )
+            )
+
+            // Contenido de la tarjeta
             Column(
                 modifier = Modifier
-                    .padding(12.dp)
-                    .weight(1f),
-                verticalArrangement = Arrangement.SpaceEvenly
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = servicio.nombre,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Text(
-                    text = servicio.descripcion,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                if (!sinValoraciones) {
-                    RatingStars(rating = servicio.valoracionPromedioNegocio.toFloat())
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "(${servicio.numeroValoracionesNegocio} ${if (servicio.numeroValoracionesNegocio == 1) "valoración" else "valoraciones"})",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.StarBorder,
-                            contentDescription = "Sin valoraciones",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
+                // Parte superior: Categoría y duración
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    // Chip de categoría
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
                         Text(
-                            text = "Sin valoraciones",
-                            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = servicio.categoria,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
+                    }
+
+                    // Duración
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Schedule,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "${servicio.duracionMinutos} min",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 
-                Spacer(Modifier.height(6.dp))
+                // Parte inferior: Información del servicio
+                Column {
+                    // Nombre del servicio
+                    Text(
+                        text = servicio.nombre,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
 
-                Text(
-                    text = "Precio: ${servicio.precio}€",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.primary
-                )
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Nombre del negocio
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Store,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.8f),
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = servicio.negocioNombre,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Fila inferior: Precio y valoración
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Precio
+                        Surface(
+                            color = ThemeColors.success.copy(alpha = 0.9f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = "${String.format("%.2f", servicio.precio)}€",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+
+                        // Valoración
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = ThemeColors.warning,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = String.format("%.1f", servicio.valoracionPromedioNegocio),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "(${servicio.numeroValoracionesNegocio})",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-
-
-
-
-
-
 @Preview(showBackground = true)
 @Composable
-fun PreviewServicioItem() {
-    val fakeServicio = ServicioDetalleDto(
-        id = 1,
-        negocioId = 10,
-        nombre = "Corte de Cabello",
-        descripcion = "Un corte profesional con estilo moderno y clásico.",
-        duracionMinutos = 45,
-        precio = 19.99,
-        negocioNombre = "Barbería Estilo",
-        categoria = "Belleza",
-        valoracionPromedioNegocio = 4.7,
-        numeroValoracionesNegocio = 123,
-        numeroReservas = 89,
-        imagen = "https://via.placeholder.com/150"
-    )
-
-    val screenWidth = 360.dp  // simula un ancho típico de pantalla para preview
-    val cardWidth = screenWidth * 0.85f
-
-    MaterialTheme {
+fun ServicioCardItemPreview() {
+    FrontendappTheme {
         ServicioCardItem(
-            servicio = fakeServicio,
+            servicio = ServicioDetalleDto(
+                id = 1,
+                negocioId = 1,
+                nombre = "Corte de cabello y peinado",
+                descripcion = "Corte de cabello profesional con lavado y peinado incluido",
+                duracionMinutos = 45,
+                precio = 25.99,
+                negocioNombre = "Peluquería Estilo",
+                categoria = "Peluquería",
+                valoracionPromedioNegocio = 4.7,
+                numeroValoracionesNegocio = 128,
+                numeroReservas = 256,
+                imagen = null
+            ),
             imageUrl = "",
-            modifier = Modifier.width(cardWidth)
+            onClick = {}
         )
     }
 }

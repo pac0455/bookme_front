@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.viewmodels
 
+import PagoDTO
 import ReservaResponseDTO
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,9 @@ import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.model.Servicio.Servicio
+import com.example.frontendapp.data.model.pago.EstadoPago
+import com.example.frontendapp.data.model.pago.MetodoPagoDto
+import com.example.frontendapp.data.model.pago.PagoCreateDto
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.source.NegocioRepo
 import com.example.frontendapp.data.remote.source.ReservaRepo
@@ -87,6 +91,10 @@ open class ReservasViewModel(
     protected val _reservaCreateState = MutableStateFlow<Resource<ReservaResponseDTO>>(Resource.None())
     val reservaCreateState: StateFlow<Resource<ReservaResponseDTO>> = _reservaCreateState
 
+    // Estado para manejar la lista de reservas y estados de carga/error específicos
+    private val _reservasByUserState = MutableStateFlow<Resource<List<ReservaResponseDTO>>>(Resource.None())
+    val reservasByUserState: StateFlow<Resource<List<ReservaResponseDTO>>> = _reservasByUserState
+
     // Estado de carga y error
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -95,6 +103,8 @@ open class ReservasViewModel(
     val error: StateFlow<String?> = _error
 
     fun addReserva(
+        metodoPago: MetodoPagoDto,
+        monto: Double,
         onSucces: (ReservaResponseDTO) -> Unit,
         onError: (String) -> Unit = {},
         onLoading: () -> Unit = {}
@@ -104,12 +114,16 @@ open class ReservasViewModel(
 
             // Obtienes el estado actual de la reserva
             val currentReserva = _reservaState.value
-            Log.d("RervarViewModel", _reservaState.value.toString())
-            // Crear una copia con la fecha formateada
+            // Crear reserva formateada con método de pago insertado
             val reservaFormateada = currentReserva.copy(
-                fecha = LocalDate.parse(currentReserva.fecha).format(DateTimeFormatter.ISO_LOCAL_DATE)
+                fecha = LocalDate.parse(currentReserva.fecha)
+                    .format(DateTimeFormatter.ISO_LOCAL_DATE),
+                pago = PagoCreateDto(
+                    monto = monto,
+                    metodo = metodoPago
+                )
             )
-
+            Log.d("RervarViewModel", reservaFormateada.toString())
             _reservaCreateState.value = Resource.Loading()
 
             when (val result = reservaRepo.addReserva(reservaFormateada)) {
@@ -123,6 +137,41 @@ open class ReservasViewModel(
                 }
                 else -> {
                     _reservaCreateState.value = Resource.Error("Estado inesperado")
+                    onError("Estado inesperado")
+                }
+            }
+        }
+    }
+
+
+    fun getReservasByUserId(
+        userId: String,
+        onSuccess: (List<ReservaResponseDTO>) -> Unit = {},
+        onError: (String) -> Unit = {},
+        onLoading: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            onLoading()
+            _reservasByUserState.value = Resource.Loading()
+
+            when (val result = reservaRepo.getReservasByUserId(userId)) {
+                is Resource.Success -> {
+                    val reservas = result.data ?: emptyList()
+
+                    // Imprimir cada reserva en el log para inspección
+                    reservas.forEach { reserva ->
+                        Log.d("ReservasDebug", "Reserva recibida: $reserva")
+                    }
+
+                    _reservasByUserState.value = Resource.Success(reservas)
+                    onSuccess(reservas)
+                }
+                is Resource.Error -> {
+                    _reservasByUserState.value = Resource.Error(result.message ?: "Error desconocido")
+                    onError(result.message ?: "Error desconocido")
+                }
+                else -> {
+                    _reservasByUserState.value = Resource.Error("Estado inesperado")
                     onError("Estado inesperado")
                 }
             }

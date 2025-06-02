@@ -38,10 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 fun TabAnimatedScaffold(
     tabs: List<TabItem>,
     modifier: Modifier = Modifier,
-    ballColor: Color = Principal_variacion3,
-    barColor: Color = Principal_variacion6,
-    header: (@Composable () -> Unit)? = null
-
+    ballColor: Color = MaterialTheme.colorScheme.primary,
+    barColor: Color = MaterialTheme.colorScheme.surfaceVariant,
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     var previousTabIndex by remember { mutableIntStateOf(0) }
@@ -100,7 +98,7 @@ fun TabAnimatedScaffold(
                             Icon(
                                 imageVector = if (isSelected) tab.selectedIcon else tab.unSelectedIcon,
                                 contentDescription = tab.title,
-                                tint = if (isSelected) Principal_variacion3 else Color(0xFF222222)
+                                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                             )
                             AnimatedVisibility(
                                 visible = isSelected,

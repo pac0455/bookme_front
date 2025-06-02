@@ -1,9 +1,18 @@
     package com.example.frontendapp.ui.theme.composables.calendar
     import android.util.Log
+    import androidx.compose.animation.AnimatedVisibility
+    import androidx.compose.animation.core.tween
+    import androidx.compose.animation.fadeIn
+    import androidx.compose.animation.fadeOut
+    import androidx.compose.animation.slideInHorizontally
+    import androidx.compose.animation.slideOutHorizontally
     import androidx.compose.foundation.layout.*
+    import androidx.compose.foundation.shape.RoundedCornerShape
     import androidx.compose.material3.*
     import androidx.compose.runtime.*
+    import androidx.compose.ui.Modifier
     import androidx.compose.ui.tooling.preview.Preview
+    import androidx.compose.ui.unit.dp
     import com.example.frontendapp.data.helper.CalendarHelper.getDaysForCalendar
     import com.example.frontendapp.data.model.UI.CalendarUiState
     import java.time.LocalDate
@@ -16,27 +25,18 @@
         onDateSelected: (LocalDate) -> Unit,
         onMonthChanged: (YearMonth) -> Unit
     ) {
-        // Log para ver contenido de fechasConHorarios cada recomposición
-        Log.d("Calendar", "Entrando a Calendar - fechasConHorarios.size = ${fechasConHorarios.size}")
-        if (fechasConHorarios.isEmpty()) {
-            Log.d("Calendar", "fechasConHorarios está VACÍO")
-        } else {
-            fechasConHorarios.forEach { fecha ->
-                Log.d("Calendar", "fechasConHorarios contiene: $fecha")
-            }
-        }
         var currentYearMonth by remember { mutableStateOf(YearMonth.from(initialDate)) }
         var selectedDate by remember { mutableStateOf(initialDate) }
-        val dates = remember(currentYearMonth, selectedDate, fechasConHorarios) {
-            Log.d("Calendar", "==== Inicio comparación fechas ====")
-            Log.d("Calendar", "Fechas con horarios disponibles:")
-            fechasConHorarios.forEach { Log.d("Calendar", " - $it") }
+        val today = remember { LocalDate.now() }
 
+        // Dirección de animación para cambio de mes
+        var animationDirection by remember { mutableStateOf(0) }
+
+        val dates = remember(currentYearMonth, selectedDate, fechasConHorarios) {
             currentYearMonth.getDaysForCalendar().map { date ->
                 date?.let {
                     val isEnabled = fechasConHorarios.any { dia -> dia == it }
                     Log.d("Calendar", "¿$it está habilitado? $isEnabled")
-
                     CalendarUiState.Date(
                         dayOfMonth = it.dayOfMonth.toString(),
                         isSelected = it == selectedDate,
@@ -47,26 +47,69 @@
             }
         }
 
-
-
-
         LaunchedEffect(currentYearMonth) {
             onMonthChanged(currentYearMonth)
         }
-        Column {
-            CalendarHeader(
-                yearMonth = currentYearMonth,
-                onPreviousMonthButtonClicked = { currentYearMonth = it },
-                onNextMonthButtonClicked = { currentYearMonth = it }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
             )
-            DayOfWeekRow()
-            Content(
-                dates = dates,
-                onDateClickListener = { date ->
-                    selectedDate = date
-                    onDateSelected(date)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                // Header mejorado
+                CalendarHeader(
+                    yearMonth = currentYearMonth,
+                    onPreviousMonthButtonClicked = {
+                        animationDirection = -1
+                        currentYearMonth = it
+                    },
+                    onNextMonthButtonClicked = {
+                        animationDirection = 1
+                        currentYearMonth = it
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Días de la semana mejorados
+                DayOfWeekRow()
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Contenido del calendario con animación
+                key(currentYearMonth) {
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(animationSpec = tween(300)) +
+                                slideInHorizontally(
+                                    animationSpec = tween(300),
+                                    initialOffsetX = { fullWidth -> fullWidth * animationDirection }
+                                ),
+                        exit = fadeOut(animationSpec = tween(300)) +
+                                slideOutHorizontally(
+                                    animationSpec = tween(300),
+                                    targetOffsetX = { fullWidth -> -fullWidth * animationDirection }
+                                )
+                    ) {
+                        Content(
+                            dates = dates,
+                            today = today,
+                            onDateClickListener = { date ->
+                                selectedDate = date
+                                onDateSelected(date)
+                            }
+                        )
+                    }
                 }
-            )
+            }
         }
     }
 

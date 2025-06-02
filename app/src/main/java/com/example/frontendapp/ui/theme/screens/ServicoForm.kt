@@ -102,9 +102,9 @@ fun ServicioForm(
 
                     val onSuccessUpdateServicio = { id: Int ->
                         Log.d("ServicioForm", "Servicio actualizado con éxito, ahora actualizando imagen")
-
+                        Log.d("ServicioForm", "Actualizando el servicio para añadir la imagen: $id")
                         val imagenUri = servicioViewModel.imagenUri.value
-                        val servicioId = servicio.id ?: id // Usa servicio.id si no es null, si no el id recibido
+                        val servicioId = id
 
                         if (imagenUri != null) {
                             servicioViewModel.updateImagenServicio(
@@ -138,7 +138,7 @@ fun ServicioForm(
                         servicioViewModel.addServicio(
                             onLoading = { /* Opcional */ },
                             onSuccess = { servicioCreado ->
-                                onSuccessUpdateServicio(servicioCreado.id!!)
+                                onSuccessUpdateServicio(servicioCreado.id)
                                 Toast.makeText(context, "Servicio agregado exitosamente", Toast.LENGTH_SHORT).show()
                             },
                             onError = onErrorUpdateServicio,

@@ -204,17 +204,36 @@ fun Navigator(
             var negocioCargado by remember { mutableStateOf(false) }
 
             LaunchedEffect(negocioId) {
+                Log.d("NegocioConfig", "negocioId recibido: $negocioId")
                 val currentNegocio = negocioFormViewModel.negocioState.value
-                if (negocioId != 0 && (currentNegocio.id != negocioId)) {
+
+                if (negocioId <= 0) {
+                    Log.w("NegocioConfig", "ID inválido: $negocioId")
+                    negocioCargado = true // evitar quedarse en loading
+                } else if (currentNegocio.id == negocioId) {
+                    Log.d("NegocioConfig", "Negocio ya cargado")
+                    negocioCargado = true
+                } else {
+                    Log.d("NegocioConfig", "Cargando negocio con ID: $negocioId")
                     negocioFormViewModel.loadNegocioById(
                         id = negocioId,
-                        onLoading = { negocioCargado=false},
-                        onSuccess = { negocioCargado=true },
-                        onError = { negocioCargado=true }
+                        onLoading = {
+                            Log.d("NegocioConfig", "Cargando...")
+                            negocioCargado = false
+                        },
+                        onSuccess = {
+                            Log.d("NegocioConfig", "Negocio cargado exitosamente")
+                            negocioCargado = true
+                        },
+                        onError = {
+                            Log.e("NegocioConfig", "Error al cargar el negocio")
+                            negocioCargado = true
+                        }
                     )
                 }
             }
-            if(negocioCargado){
+
+            if (negocioCargado) {
                 NegocioScreen(
                     navController = navController,
                     viewModel = negocioFormViewModel,
@@ -229,7 +248,6 @@ fun Navigator(
                     TripleOrbitLoadingAnimation()
                 }
             }
-
         }
         composable(
            route="${Screen.VALORACION_FORM.name}/{negocioId}",

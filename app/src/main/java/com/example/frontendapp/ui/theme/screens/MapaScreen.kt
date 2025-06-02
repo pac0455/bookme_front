@@ -66,10 +66,8 @@ fun MapaScreen(navController: NavController, negocioViewModel: NegocioViewModel)
             cameraPositionState = cameraPositionState,
             uiSettings = uiSettings.value,
             onMapClick = { latLng ->
-                if (isUbicacionCargada) {
                     selectedLocation = latLng
                     Log.d("MapaScreen", "Ubicación seleccionada manualmente: $latLng")
-                }
             }
         ) {
             selectedLocation?.let {

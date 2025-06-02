@@ -18,6 +18,7 @@ import com.example.frontendapp.data.model.UI.TabItem
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.composables.navigation.TabAnimatedScaffold
+import com.example.frontendapp.ui.theme.composables.tab.MisReservasTabContent
 import com.example.frontendapp.ui.theme.composables.tab.NegocioTabContent
 import com.example.frontendapp.ui.theme.composables.tab.ServicioTabContent
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
@@ -88,7 +89,9 @@ fun ClienteMainScreen(
             title = "Mis reservas",
             unSelectedIcon = Icons.Outlined.Book,
             selectedIcon = Icons.Filled.Bookmark,
-            content = { MisReservasTabContent(servicioViewModel) },
+            content = { MisReservasTabContent(
+                reservasViewModel = reservasViewModel
+            ) },
             index = 2
         )
     )
@@ -100,15 +103,6 @@ fun ClienteMainScreen(
 
 
 
-@Composable
-fun ReservasTabContent(viewModel: ReservasViewModel) {
-    // TODO: Aquí va el contenido real
-}
-
-@Composable
-fun MisReservasTabContent(viewModel: ServicioViewModel) {
-    // TODO: Aquí va el contenido real
-}
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)

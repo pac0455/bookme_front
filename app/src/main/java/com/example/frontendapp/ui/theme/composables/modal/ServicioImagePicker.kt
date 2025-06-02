@@ -138,7 +138,6 @@ fun ServicioImagePicker(
     }
 
     val imageRequest by produceState<ImageRequest?>(initialValue = null, imageDto) {
-        delay(300)
         value = imageDto.url?.let {
             ImageRequest.Builder(context)
                 .data(it)

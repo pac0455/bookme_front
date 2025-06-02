@@ -56,7 +56,8 @@ fun ServicioCard(
                     ServicioCardItem(
                         servicio = it,
                         imageUrl = imagenUrl ?: "",
-                        modifier = androidx.compose.ui.Modifier.Companion.width(cardWidth)
+                        modifier = androidx.compose.ui.Modifier.Companion.width(cardWidth),
+                        onClick = {}
                     )
                 }
             }
@@ -76,7 +77,8 @@ fun ServicioCard(
                             ServicioCardItem(
                                 servicio = it,
                                 imageUrl = imagenUrl ?: "",
-                                modifier = androidx.compose.ui.Modifier.Companion.width(cardWidth)
+                                modifier = androidx.compose.ui.Modifier.Companion.width(cardWidth),
+                                onClick = {}
                             )
                         }
                     }
