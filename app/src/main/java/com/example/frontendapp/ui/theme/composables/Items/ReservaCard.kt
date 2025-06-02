@@ -5,7 +5,6 @@ import ReservaResponseDTO
 import ServicioDTO
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -161,7 +160,11 @@ fun ReservaCard(
 
                     // BOTÓN DE DEBUG: Mostrar siempre para testing
                     IconButton(
-                        onClick = { showDeleteDialog = true },
+                        onClick = {
+                            showDeleteDialog = true
+                            //Logica para borrar reserva
+
+                        },
                         modifier = Modifier.size(32.dp)
                     ) {
                         Icon(
@@ -172,7 +175,6 @@ fun ReservaCard(
                         )
                     }
 
-                    // TEXTO DE DEBUG
                     Text(
                         text = if (puedeSerCanceladaResult) "✓" else "✗",
                         color = if (puedeSerCanceladaResult) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,

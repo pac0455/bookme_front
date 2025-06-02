@@ -8,6 +8,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 
@@ -18,4 +19,6 @@ interface ReservaApi {
 
     @GET("$reservaApi/Usuario/{userId}/Todas")
     suspend fun getReservasByUserId(@Path("userId") userId: String): Response<List<ReservaResponseDTO>>
+    @PUT("$reservaApi/Cancelar/{id}")
+    suspend fun cancelarReserva(@Path("id") reservaId: Int): Response<ReservaResponseDTO>
 }

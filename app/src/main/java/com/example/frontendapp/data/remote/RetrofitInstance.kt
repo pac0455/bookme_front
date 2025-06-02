@@ -11,27 +11,43 @@ import okhttp3.OkHttpClient
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+
 object RetrofitInstance {
 
     private var jwtToken: String? = null
-    private val server= "http://192.168.18.3:5000/"
-    private val serverPracticas= "http://172.16.83.165:5000/"
+    private val server = "http://192.168.18.3:5000/"
+    private val serverPracticas = "http://172.16.83.165:5000/"
     private val localhost = "https://localhost:7211"
 
     private val serverTest = "https://localhost:7211/"
 
-    private  val ip = server
+    private val ip = serverPracticas
     private var roles: List<String> = emptyList()
-    private lateinit var userId : String
+    private lateinit var userId: String
 
     fun getToken(): String? = jwtToken
-    fun setRoles(rolesList: List<String>) { roles = rolesList }
+    fun setRoles(rolesList: List<String>) {
+        roles = rolesList
+    }
+
     fun getRoles(): List<String> = roles
+
     // Llama a esta función para actualizar el token cuando inicies sesión o refresques
-    fun setToken(token: String) { jwtToken = token }
-    fun getIp(): String { return ip}
-    fun getUserId(): String {return userId}
-    fun setUserId(userId: String) { this.userId=userId }
+    fun setToken(token: String) {
+        jwtToken = token
+    }
+
+    fun getIp(): String {
+        return ip
+    }
+
+    fun getUserId(): String {
+        return userId
+    }
+
+    fun setUserId(userId: String) {
+        this.userId = userId
+    }
 
 
     private val okHttpClient = OkHttpClient.Builder()

@@ -17,6 +17,16 @@ class ReservaRepo(
             Resource.Error("Error de red: ${e.message}")
         }
     }
+
+    suspend fun cancelarReserva(reservaId: Int): Resource<ReservaResponseDTO> {
+        return try {
+            val response = reservaApi.cancelarReserva(reservaId)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error de red: ${e.message}")
+        }
+    }
+
     suspend fun getReservasByUserId(userId:String): Resource<List<ReservaResponseDTO>> {
         return try {
             val response = reservaApi.getReservasByUserId(userId)

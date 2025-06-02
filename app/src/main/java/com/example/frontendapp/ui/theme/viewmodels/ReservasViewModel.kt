@@ -66,6 +66,8 @@ open class ReservasViewModel(
         _reservaState.value = nuevaReserva
     }
 
+
+
     fun validateReserva(reserva: ReservaCreateDto) {
         val errors = mutableMapOf<String, String>()
 
@@ -94,6 +96,9 @@ open class ReservasViewModel(
     // Estado para manejar la lista de reservas y estados de carga/error específicos
     private val _reservasByUserState = MutableStateFlow<Resource<List<ReservaResponseDTO>>>(Resource.None())
     val reservasByUserState: StateFlow<Resource<List<ReservaResponseDTO>>> = _reservasByUserState
+    // Estado para manejar la cancelacion de reservas y estados de carga/error específicos
+    private val _reservaCancelaState = MutableStateFlow<Resource<ReservaResponseDTO>>(Resource.None())
+    val reservaCancelaState: StateFlow<Resource<ReservaResponseDTO>> = _reservaCancelaState
 
     // Estado de carga y error
     private val _isLoading = MutableStateFlow(false)
@@ -101,6 +106,34 @@ open class ReservasViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    fun canecelarReserva(
+        reservaId: Int,
+        onSucces: (ReservaResponseDTO) -> Unit,
+        onError: (String) -> Unit = {},
+        onLoading: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            onLoading()
+            Log.d("RervarViewModel", "Cancelando la reserva con id: $reservaId")
+            _reservaCancelaState.value = Resource.Loading()
+
+            when (val result = reservaRepo.cancelarReserva(reservaId)) {
+                is Resource.Success -> {
+                    _reservaCancelaState.value = result
+                    result.data?.let { onSucces(it) }
+                }
+                is Resource.Error -> {
+                    _reservaCancelaState.value = result
+                    onError(result.message ?: "Ocurrió un error inesperado")
+                }
+                else -> {
+                    _reservaCancelaState.value = Resource.Error("Estado inesperado")
+                    onError("Estado inesperado")
+                }
+            }
+        }
+    }
 
     fun addReserva(
         metodoPago: MetodoPagoDto,

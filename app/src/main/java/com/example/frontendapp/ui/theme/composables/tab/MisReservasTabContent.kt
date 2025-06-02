@@ -2,6 +2,7 @@ package com.example.frontendapp.ui.theme.composables.tab
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
@@ -32,7 +34,8 @@ import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 
 import java.time.LocalDate
 
-
+private val TAG= "MisReservasTabContent"
+@SuppressLint("ShowToast")
 @Composable
 fun MisReservasTabContent(
     reservasViewModel: ReservasViewModel
@@ -44,6 +47,7 @@ fun MisReservasTabContent(
     var filtroFecha by remember { mutableStateOf<FiltroFecha>(FiltroFecha.TODAS) }
     var busqueda by remember { mutableStateOf("") }
     var mostrarFiltros by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         reservasViewModel.getReservasByUserId(RetrofitInstance.getUserId())
@@ -379,6 +383,20 @@ fun MisReservasTabContent(
                         items(reservasFiltradas) { reserva ->
                             ReservaCard(
                                 reserva = reserva,
+                                onDelete = {
+                                    reservasViewModel.canecelarReserva(
+                                        reservaId =  reserva.id,
+                                        onSucces = {
+                                            Toast.makeText(context, "Reserva cancelada exitosamente", Toast.LENGTH_SHORT).show()
+                                            //Recargar la pagina
+                                            reservasViewModel.getReservasByUserId(RetrofitInstance.getUserId())
+                                        },
+                                        onError = {
+                                            Toast.makeText(context, "Error inesperado al caencelar la reserva", Toast.LENGTH_SHORT).show()
+                                            Log.d(TAG, "Error al cancelar la reserva: $it")
+                                        }
+                                    )
+                                }
                             )
                         }
                     }
