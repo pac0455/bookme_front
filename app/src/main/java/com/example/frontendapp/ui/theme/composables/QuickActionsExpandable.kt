@@ -1,20 +1,17 @@
 package com.example.frontendapp.ui.theme.composables
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,96 +23,241 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PhotoAlbum
 import androidx.compose.material.icons.filled.Stars
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.frontendapp.ui.theme.Principal_variacion6
+import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.composables.Btn.QuickActionButton
 import com.example.frontendapp.ui.theme.screens.ContentType
+
+
 
 @Composable
 fun QuickActionsExpandable(
     selectedContent: ContentType?,
-    onContentSelected: (ContentType) -> Unit
+    onContentSelected: (ContentType) -> Unit,
+    expanded: Boolean = false,
+    onExpandedChange: ((Boolean) -> Unit)? = null
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expandedState by remember { mutableStateOf(expanded) }
 
-    //Lista de iconos que se va a recorrer
+    // Sincronizamos el estado interno con el externo
+    LaunchedEffect(expanded) {
+        expandedState = expanded
+    }
+
+    // Lista completa de acciones
     val allActions = listOf(
-        Pair(ContentType.RESERVAS, Icons.Default.Notifications),
-        Pair(ContentType.SERVICIOS, Icons.Default.CalendarMonth),
-        Pair(ContentType.SUBSCRIPTOR, Icons.Filled.Stars),
-        Pair(ContentType.GALLERIA, Icons.Filled.PhotoAlbum),
+        Triple(ContentType.RESERVAS, Icons.Default.Notifications, "Reservas"),
+        Triple(ContentType.SERVICIOS, Icons.Default.CalendarMonth, "Servicios"),
+        Triple(ContentType.SUBSCRIPTOR, Icons.Filled.Stars, "Suscriptor"),
+        Triple(ContentType.GALLERIA, Icons.Filled.PhotoAlbum, "Galería"),
+    )
 
-        )
+    // Cálculo más preciso de alturas
+    val collapsedHeight = 220.dp
+    val expandedHeight = run {
+        val rows = kotlin.math.ceil(allActions.size / 3.0).toInt()
+        // Ajustamos las medidas para que coincidan mejor con el QuickActionButton real
+        val buttonHeightDp = 120.dp // 80dp botón + 40dp texto aproximadamente
+        val spacingDp = 16.dp
+        val paddingDp = 120.dp // Más espacio para el botón "Ver más"
+        val buttonsHeight = buttonHeightDp * rows + spacingDp * (rows - 1)
+        buttonsHeight + paddingDp
+    }
 
-    // Caja contenedora única con fondo opaco
+    // Animación spring para la altura
+    val animatedHeight by animateDpAsState(
+        targetValue = if (expandedState) expandedHeight else collapsedHeight,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+            visibilityThreshold = 1.dp
+        ),
+        label = "ContainerHeightAnimation"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth(0.9f)
             .offset(y = (-32).dp)
             .shadow(8.dp, RoundedCornerShape(24.dp))
-            .background(Principal_variacion6, RoundedCornerShape(24.dp))
-            .padding(vertical = 16.dp, horizontal = 16.dp)
-            .animateContentSize(animationSpec = tween(durationMillis = 300)),
+            .background(
+                MaterialTheme.colorScheme.surface,
+                RoundedCornerShape(24.dp)
+            )
+            .height(animatedHeight)
+            .clipToBounds(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // Primera fila (siempre visible)
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+        // Grid unificado que contiene todos los botones
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(10.dp)
         ) {
-            allActions.take(3).forEach { (contentType, icon) ->
+            items(allActions) { (contentType, icon, label) ->
                 QuickActionButton(
                     onClick = { onContentSelected(contentType) },
                     icon = icon,
-                    isSelected = contentType == selectedContent
+                    isSelected = contentType == selectedContent,
+                    label = label
                 )
             }
         }
 
-        // Botones adicionales dentro del mismo contenedor
-        AnimatedVisibility(
-            visible = expanded,
-            enter = fadeIn(tween(300)) + slideInVertically(tween(300)),
-            exit = fadeOut(tween(300)) + slideOutVertically(tween(300))
+        // Botón Ver más / Ver menos
+        TextButton(
+            onClick = {
+                val newState = !expandedState
+                expandedState = newState
+                onExpandedChange?.invoke(newState)
+            },
+            modifier = Modifier.padding(bottom = 16.dp) // Más padding para mejor espaciado
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Spacer(modifier = Modifier.height(32.dp)) // antes estaba en 16.dp
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 400.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(allActions.drop(3)) { (contentType, icon) ->
-                        QuickActionButton(
-                            onClick = { onContentSelected(contentType) },
-                            icon = icon,
-                            isSelected = contentType == selectedContent
-                        )
-                    }
-                }
+            Text(
+                text = if (expandedState) "Ver menos" else "Ver más",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
+}
+
+// Enum para el preview (si no existe en tu proyecto)
+enum class ContentType {
+    RESERVAS, SERVICIOS, SUBSCRIPTOR, GALLERIA
+}
+
+@Preview(showBackground = true, heightDp = 700) // Aumentamos la altura del preview
+@Composable
+fun PreviewQuickActionsExpandable() {
+    FrontendappTheme {
+        var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.SERVICIOS) }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Column {
+                Text(
+                    text = "Panel de Control",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(bottom = 40.dp)
+                )
+
+                QuickActionsExpandable(
+                    selectedContent = selectedContent,
+                    onContentSelected = { selectedContent = it },
+                    expanded = false
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = "Sección seleccionada: ${selectedContent?.name ?: "Ninguna"}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
         }
+    }
+}
 
+@Preview(showBackground = true, heightDp = 700, name = "Modo Expandido")
+@Composable
+fun PreviewQuickActionsExpandableExpanded() {
+    FrontendappTheme {
+        var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.RESERVAS) }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Column {
+                Text(
+                    text = "Panel de Control - Expandido",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(bottom = 40.dp)
+                )
 
-        // Botón Ver más / Ver menos
-        TextButton(onClick = { expanded = !expanded }) {
-            Text(if (expanded) "Ver menos" else "Ver más")
+                QuickActionsExpandable(
+                    selectedContent = selectedContent,
+                    onContentSelected = { selectedContent = it },
+                    expanded = true
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, heightDp = 700, name = "Interactivo")
+@Composable
+fun PreviewQuickActionsExpandableInteractive() {
+    FrontendappTheme {
+        var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.SERVICIOS) }
+        var expanded by remember { mutableStateOf(false) }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Column {
+                Text(
+                    text = "Panel de Control - Interactivo",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(bottom = 40.dp)
+                )
+
+                QuickActionsExpandable(
+                    selectedContent = selectedContent,
+                    onContentSelected = { selectedContent = it },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it }
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = "Estado: ${if (expanded) "Expandido" else "Contraído"}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = "Sección: ${selectedContent?.name ?: "Ninguna"}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
     }
 }

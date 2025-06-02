@@ -214,25 +214,6 @@ fun ReservaCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ID de Reserva
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ConfirmationNumber,
-                    contentDescription = "ID Reserva",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Reserva #${reserva.id}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
             // Información de Pago (si existe)
             if (reserva.pago != null) {
                 Spacer(modifier = Modifier.height(12.dp))
