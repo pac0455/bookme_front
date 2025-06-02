@@ -2,6 +2,7 @@ package com.example.frontendapp.data.remote.source
 
 import ReservaResponseDTO
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
+import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
 import com.example.frontendapp.data.remote.api.ReservaApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import retrofit2.Response
@@ -27,9 +28,18 @@ class ReservaRepo(
         }
     }
 
+
     suspend fun getReservasByUserId(userId:String): Resource<List<ReservaResponseDTO>> {
         return try {
             val response = reservaApi.getReservasByUserId(userId)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error de red: ${e.message}")
+        }
+    }
+    suspend fun getReservasByNegocioId(negocioId:Int): Resource<List<ReservaResponseNegocioDTO>> {
+        return try {
+            val response = reservaApi.getReservasByNegocioId(negocioId)
             handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")

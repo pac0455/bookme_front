@@ -19,7 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.frontendapp.ui.theme.composables.loadPages.TripleOrbitLoadingAnimation
-import com.example.frontendapp.ui.theme.screens.UsuarioNegocioMainScreen
+import com.example.frontendapp.ui.theme.screens.NegociosScreen
 import com.example.frontendapp.ui.theme.screens.HorarioForm
 import com.example.frontendapp.ui.theme.screens.LoginScreen
 import com.example.frontendapp.ui.theme.screens.MainScreen
@@ -61,15 +61,6 @@ fun Navigator(
     horarioViewModel_ClienteMain: HorariosViewModel,
     valoracionesViewModel_ClienteMain: ValoracionViewModel,
 ) {
-    LaunchedEffect(Unit) {
-        Log.d("NAVIGATION_DEBUG", "Navigator parameters received:")
-        Log.d("NAVIGATION_DEBUG", "loginScreenViewModel: ${loginScreenViewModel.hashCode()}")
-        Log.d("NAVIGATION_DEBUG", "registerScreenViewModel: ${registerScreenViewModel.hashCode()}")
-        Log.d("NAVIGATION_DEBUG", "negocioFormViewModel: ${negocioFormViewModel.hashCode()}")
-        Log.d("NAVIGATION_DEBUG", "usuarioNegocioMainViewModel: ${usuarioNegocioMainViewModel.hashCode()}")
-        Log.d("NAVIGATION_DEBUG", "reservasNegocioScreenViewModel: ${reservasNegocioScreenViewModel.hashCode()}")
-        Log.d("NAVIGATION_DEBUG", "serviciosNegocioScreenViewModel: ${serviciosNegocioScreenViewModel.hashCode()}")
-    }
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -95,7 +86,7 @@ fun Navigator(
             )
         }
         composable(NavigationItem.BUSSINES_MAIN.route) {
-            UsuarioNegocioMainScreen(navController, usuarioNegocioMainViewModel)
+            NegociosScreen(navController, usuarioNegocioMainViewModel)
         }
         composable(NavigationItem.MAP_SELECT.route) {
             MapaScreen(navController, negocioFormViewModel)

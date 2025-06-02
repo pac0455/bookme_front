@@ -163,7 +163,6 @@ fun AnimatedContentArea(
     modifier: Modifier = Modifier,
     navController: NavController,
     negocioViewModel: NegocioViewModel
-
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedContent(
@@ -182,29 +181,35 @@ fun AnimatedContentArea(
             label = "AdvancedContentAnimation"
         ) { targetContent ->
             when (targetContent) {
-                ContentType.RESERVAS -> ListaReservas(viewModel = reservasViewModel)
-                ContentType.SERVICIOS -> ServicioList(serviciosViewModel_negocioScreen, negocioId = negocio.id, navController = navController)
-                ContentType.SUBSCRIPTOR -> Text("Contenido de Subscriptores", style = MaterialTheme.typography.bodyLarge)
-                else -> Text("Selecciona una sección", style = MaterialTheme.typography.bodyLarge)
+                ContentType.RESERVAS -> ListaReservas(
+                    viewModel = reservasViewModel,
+                    negocioId = negocio.id // Pasar el negocioId aquí
+                )
+                ContentType.SERVICIOS -> ServicioList(
+                    serviciosViewModel_negocioScreen,
+                    negocioId = negocio.id,
+                    navController = navController
+                )
+                ContentType.SUBSCRIPTOR -> Text(
+                    "Contenido de Subscriptores",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                else -> Text(
+                    "Selecciona una sección",
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
 
-        // FloatingActionButtaon abajo a la izquierd
+        // FloatingActionButton para servicios
         if (selectedContent == ContentType.SERVICIOS) {
             FloatingActionButton(
                 onClick = {
-                    // Obtén el negocio actual del NegocioViewModel
                     val negocioActual = negocioViewModel.negocioState.value
                     if (negocioActual.id != 0) {
                         serviciosViewModel_negocioScreen.resetServicio()
-                        // Establece el negocioId en ServicioViewModel
                         serviciosViewModel_negocioScreen.setNegocioId(negocioActual.id)
-
-                        // Navega a la pantalla del formulario de servicio
                         navController.navigate(NavigationItem.SERVICIO_FORM.create)
-                    } else {
-                        // Manejo opcional si no hay negocio seleccionado
-                        // Por ejemplo mostrar un mensaje de error
                     }
                 },
                 modifier = Modifier
@@ -219,12 +224,9 @@ fun AnimatedContentArea(
                     tint = Color.White
                 )
             }
-
         }
-
     }
 }
-
 
 
 

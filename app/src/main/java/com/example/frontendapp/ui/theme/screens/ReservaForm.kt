@@ -190,7 +190,9 @@ fun ReservaForm(
                             onSucces = {
                                 isLoading = false
                                 Toast.makeText(context,"Reserva y pago procesados con éxito", Toast.LENGTH_SHORT).show()
-                                navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
+                                navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route){
+                                    popUpTo(NavigationItem.RESERVA_FORM.createRoute(negocioId)){inclusive=true}
+                                }
                             },
                             onError = {
                                 isLoading = false
@@ -217,7 +219,10 @@ fun ReservaForm(
                 Calendar(
                     initialDate = fechaSeleccionada,
                     fechasConHorarios = diasDisponibles,
-                    onDateSelected = { fechaSeleccionada = it },
+                    onDateSelected = {
+                        fechaSeleccionada = it
+                        reservasViewModel.setFecha(it.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                                     },
                     onMonthChanged = { horariosViewModel.setMesActual(it) }
                 )
             }
@@ -423,7 +428,6 @@ fun ReservaForm(
                                     HorizontalDivider(color = MaterialTheme.colorScheme.outline)
                                     Spacer(modifier = Modifier.height(16.dp))
 
-                                    // Simulación visual de tarjeta mejorada
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()

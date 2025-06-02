@@ -1,61 +1,33 @@
 package com.example.frontendapp.ui.theme.composables.Items
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.data.model.Categoria
 import com.example.frontendapp.data.model.Negocio.Negocio
+import com.example.frontendapp.ui.theme.FrontendappTheme
+import com.example.frontendapp.ui.theme.ThemeColors
 import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
-
 
 @Composable
 fun NegocioListItem(
@@ -65,172 +37,377 @@ fun NegocioListItem(
     onCLickVer: (Negocio) -> Unit = {},
     show: Boolean = false,
     viewModel: NegocioViewModel,
-
-    ) {
-
-
-    val colorEstado = if (negocio.activo) Color(0xFF4CAF50) else Color(0xFFF44336)
+) {
     var expanded by remember { mutableStateOf(show) }
     val logoUrl = viewModel.getNegocioImageUrl(negocio.id)
-    Column(
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-            .background(Color.White, shape = RoundedCornerShape(12.dp))
-            .padding(12.dp)
-    ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        ServicioImagePicker(
-            imageUrl = logoUrl,
-            modifier = Modifier
-                .size(70.dp)
-                .clip(CircleShape),
-            size = 48.dp,
-            shape = CircleShape,
-            clickable = false,
-            iconSize = 24.dp,
-            iconAlignment = Alignment.Center,
-            contentAlignment = Alignment.Center,
-            backgroundColor = Color.LightGray,
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 2.dp
         )
-        Spacer(modifier = Modifier.width(12.dp))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+            // Cabecera principal del negocio
+            NegocioHeader(
+                negocio = negocio,
+                logoUrl = logoUrl ?: "",
+                expanded = expanded,
+                onExpandToggle = { expanded = !expanded }
+            )
 
-        Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = negocio.nombre, style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "(${negocio.categoria})",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Estado del negocio
+            NegocioStatusSection(negocio = negocio)
+
+            // Panel expandible con acciones
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn(animationSpec = tween(300)) +
+                        expandVertically(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300)) +
+                        shrinkVertically(animationSpec = tween(300))
+            ) {
+                NegocioActionsSection(
+                    negocio = negocio,
+                    onEditClick = onEditClick,
+                    onDeleteClick = onDeleteClick,
+                    onViewClick = onCLickVer
                 )
             }
-            Text(
-                text = negocio.direccion,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
-                maxLines = 1
+        }
+    }
+}
+
+@Composable
+private fun NegocioHeader(
+    negocio: Negocio,
+    logoUrl: String,
+    expanded: Boolean,
+    onExpandToggle: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Logo del negocio
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            modifier = Modifier.size(70.dp)
+        ) {
+            ServicioImagePicker(
+                imageUrl = logoUrl,
+                modifier = Modifier
+                    .size(70.dp)
+                    .clip(CircleShape),
+                size = 48.dp,
+                shape = CircleShape,
+                clickable = false,
+                iconSize = 28.dp,
+                iconAlignment = Alignment.Center,
+                contentAlignment = Alignment.Center,
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
             )
         }
 
-        IconButton (
-            onClick = { expanded = !expanded },
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Información del negocio
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = negocio.nombre,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Chip de categoría
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.wrapContentWidth()
+                ) {
+                    Text(
+                        text = negocio.categoria?.nombre ?: "Sin categoría",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Dirección
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = "Ubicación del negocio",
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = negocio.direccion,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        // Botón expandir/colapsar
+        IconButton(
+            onClick = onExpandToggle,
             modifier = Modifier.semantics {
-                contentDescription = if (expanded) "Cerrar opciones" else "Abrir opciones"
+                contentDescription = if (expanded) "Ocultar opciones del negocio" else "Mostrar opciones del negocio"
             }
         ) {
             AnimatedContent(
                 targetState = expanded,
                 transitionSpec = {
-                    (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
-                        slideOutHorizontally { width -> -width } + fadeOut())
-                }
+                    (slideInVertically { height -> -height } + fadeIn()).togetherWith(
+                        slideOutVertically { height -> height } + fadeOut())
+                },
+                label = "ExpandCollapseAnimation"
             ) { targetExpanded ->
-                if (targetExpanded) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Cerrar"
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Más opciones"
-                    )
-                }
-            }
-        }
-
-
-    }
-
-    Spacer(modifier = Modifier.height(8.dp))
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = "Estado", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-        Text(
-            text = if (negocio.activo) "Activo" else "Inactivo",
-            style = MaterialTheme.typography.bodySmall,
-            color = colorEstado
-        )
-    }
-
-    AnimatedVisibility (
-        visible = expanded,
-        enter = fadeIn() + expandVertically(),
-        exit = fadeOut() + shrinkVertically()
-    ) {
-        Column {
-            Spacer(modifier = Modifier.height(12.dp))
-            Divider(color = Color.Gray, thickness = 1.dp)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = { onEditClick(negocio) }) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                    }
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                TextButton(onClick = { onDeleteClick(negocio) }) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Ir",
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Red
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-
-                    }
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                TextButton(onClick = { onCLickVer(negocio) }) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Ir",
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Blue
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-
-                    }
-                }
+                Icon(
+                    imageVector = if (targetExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = if (targetExpanded) "Contraer opciones" else "Expandir opciones",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }
 }
+
+@Composable
+private fun NegocioStatusSection(negocio: Negocio) {
+    val statusColor = if (negocio.activo) ThemeColors.success else ThemeColors.error
+    val statusBackgroundColor = if (negocio.activo)
+        ThemeColors.success.copy(alpha = 0.1f) else
+        ThemeColors.error.copy(alpha = 0.1f)
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = statusBackgroundColor
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (negocio.activo) Icons.Default.CheckCircle else Icons.Default.Cancel,
+                    contentDescription = "Estado del negocio: ${if (negocio.activo) "activo" else "inactivo"}",
+                    modifier = Modifier.size(20.dp),
+                    tint = statusColor
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Estado del negocio",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = if (negocio.activo)
+                    ThemeColors.success.copy(alpha = 0.2f) else
+                    ThemeColors.error.copy(alpha = 0.2f)
+            ) {
+                Text(
+                    text = if (negocio.activo) "Activo" else "Inactivo",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = statusColor,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NegocioActionsSection(
+    negocio: Negocio,
+    onEditClick: (Negocio) -> Unit,
+    onDeleteClick: (Negocio) -> Unit,
+    onViewClick: (Negocio) -> Unit
+) {
+    Column {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.outlineVariant,
+            thickness = 1.dp
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Acciones disponibles",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Botón Editar
+            ActionButton(
+                icon = Icons.Default.Edit,
+                text = "Editar",
+                contentDescription = "Editar información del negocio ${negocio.nombre}",
+                onClick = { onEditClick(negocio) },
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Botón Eliminar
+            ActionButton(
+                icon = Icons.Default.Delete,
+                text = "Eliminar",
+                contentDescription = "Eliminar negocio ${negocio.nombre}",
+                onClick = { onDeleteClick(negocio) },
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Botón Configurar
+            ActionButton(
+                icon = Icons.Default.Settings,
+                text = "Configurar",
+                contentDescription = "Configurar negocio ${negocio.nombre}",
+                onClick = { onViewClick(negocio) },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActionButton(
+    icon: ImageVector,
+    text: String,
+    contentDescription: String,
+    onClick: () -> Unit,
+    containerColor: androidx.compose.ui.graphics.Color,
+    contentColor: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(56.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = containerColor
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .semantics { this.contentDescription = contentDescription }
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelSmall,
+                color = contentColor,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
 }
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun NegocioListItemPreview() {
-    val negocio = Negocio(
-        nombre = "Negocio con horarios",
-        descripcion = "Negocio con horarios incluidos",
-        direccion = "Av. de los Horarios 1",
-        latitud = 40.0,
-        longitud = -3.0,
-        categoriaId = 1,
-        categoria = Categoria(
-            nombre = "Gym"
-        )
-    )
-    Scaffold {innerPadding ->
-        var myPadding = innerPadding
-        myPadding = PaddingValues(top = 8.dp, start = 1.dp)
-        Box(modifier = Modifier.padding(myPadding)) {
-            NegocioListItem(negocio, show = true, viewModel = FakeNegocioViewModel())
+    FrontendappTheme {
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Negocio activo
+            val negocioActivo = Negocio(
+                nombre = "Gimnasio FitLife",
+                descripcion = "Gimnasio completo con equipos modernos",
+                direccion = "Av. Principal 123, Centro",
+                latitud = 40.0,
+                longitud = -3.0,
+                categoriaId = 1,
+                categoria = Categoria(nombre = "Gimnasio"),
+                activo = true
+            )
+
+            NegocioListItem(
+                negocio = negocioActivo,
+                show = false,
+                viewModel = FakeNegocioViewModel()
+            )
+
+            // Negocio inactivo expandido
+            val negocioInactivo = Negocio(
+                nombre = "Spa Relajación Total",
+                descripcion = "Centro de relajación y bienestar",
+                direccion = "Calle Tranquila 456, Zona Norte",
+                latitud = 40.1,
+                longitud = -3.1,
+                categoriaId = 2,
+                categoria = Categoria(nombre = "Spa"),
+                activo = false
+            )
+
+            NegocioListItem(
+                negocio = negocioInactivo,
+                show = true,
+                viewModel = FakeNegocioViewModel()
+            )
         }
     }
 }

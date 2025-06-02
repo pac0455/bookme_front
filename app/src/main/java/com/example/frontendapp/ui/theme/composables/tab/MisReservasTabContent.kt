@@ -44,7 +44,7 @@ fun MisReservasTabContent(
 
     // Estados para filtros
     var filtroEstado by remember { mutableStateOf<EstadoReserva?>(null) }
-    var filtroFecha by remember { mutableStateOf<FiltroFecha>(FiltroFecha.TODAS) }
+    var filtroFecha by remember { mutableStateOf(FiltroFecha.TODAS) }
     var busqueda by remember { mutableStateOf("") }
     var mostrarFiltros by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -147,7 +147,7 @@ fun MisReservasTabContent(
                             )
                         }
 
-                        items(EstadoReserva.values()) { estado ->
+                        items(EstadoReserva.entries.toTypedArray()) { estado ->
                             FilterChip(
                                 onClick = {
                                     filtroEstado = if (filtroEstado == estado) null else estado
@@ -239,7 +239,7 @@ fun MisReservasTabContent(
 
             is Resource.Error -> {
                 val message = (reservasResource as Resource.Error).message ?: "Error desconocido"
-                Log.e("MisReservasTab", "Error al cargar reservas: $message") // ✅ Log del error detallado
+                Log.e("MisReservasTab", "Error al cargar reservas: $message") //Log del error detallado
 
 
                 Box(

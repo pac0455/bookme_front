@@ -5,7 +5,7 @@ enum class Screen {
     LOGIN,
     MAIN,
     NEGOCIO_CLIENTE,
-    LOCATION,
+    NEGOCIO_FORM_SCREEN,
     BUSSINES_MAIN,
     MAP_SELECT,
     HORARIO_FORM,
@@ -21,7 +21,7 @@ sealed class NavigationItem(val route: String) {
     data object NEGOCIO_CLIENTE : NavigationItem(Screen.NEGOCIO_CLIENTE.name)
     data object LOGIN : NavigationItem(Screen.LOGIN.name)
     data object MAIN : NavigationItem(Screen.MAIN.name)
-    data object NEGOCIO_FORM_SCREEN : NavigationItem(Screen.LOCATION.name)
+    data object NEGOCIO_FORM_SCREEN : NavigationItem(Screen.NEGOCIO_FORM_SCREEN.name)
     data object VALORACION_FORM : NavigationItem("${Screen.VALORACION_FORM.name}/{negocioId}"){
         fun createRoute(negocioId: Int): String = "${Screen.VALORACION_FORM.name}/${negocioId}"
     }
