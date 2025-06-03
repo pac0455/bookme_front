@@ -61,11 +61,12 @@ fun NegocioFormScreen(
     val isEdit = negocioViewModel.isEditMode.collectAsState().value
     val tituloPantalla = if (isEdit) "Editar Negocio" else "Crear Negocio"
     var geocoder = remember { Geocoder(context, Locale.getDefault()) }
-    val ubicacion by remember { mutableStateOf(Ubicacion(negocio.latitud, negocio.latitud)) }
+
     val categoriaSelecionada = categorias.find { it.id == negocio.categoriaId }?.nombre ?: ""
 
     if (enableGeocoder) geocoder = remember { Geocoder(context, Locale.getDefault()) }
 
+    // Cargar categorías
     LaunchedEffect(Unit) {
         categoriasViewModel.getAllCategorias(
             onLoading = {
@@ -81,9 +82,12 @@ fun NegocioFormScreen(
         )
     }
 
+    // Actualizar dirección cuando cambien las coordenadas
     if (enableGeocoder) {
-        LaunchedEffect(ubicacion) {
-            negocioViewModel.setDireccion(geocoder)
+        LaunchedEffect(negocio.latitud, negocio.longitud) {
+            if (negocio.latitud != null && negocio.longitud != null) {
+                negocioViewModel.setDireccion(geocoder)
+            }
         }
     }
 
@@ -184,11 +188,12 @@ fun NegocioFormScreen(
                     )
                 }
 
-                // Sección de ubicación
+                // Sección de ubicación mejorada
                 FormSection(
                     title = "Ubicación",
                     icon = Icons.Default.LocationOn
                 ) {
+                    // Campo de dirección
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.Bottom,
@@ -199,7 +204,7 @@ fun NegocioFormScreen(
                             value = if (negocio.direccion.isEmpty()) negocioViewModel.descripcionLabel else negocio.direccion,
                             enabled = false,
                             errorMessage = validationState.errors["direccion"],
-                            onValueChange = { negocioViewModel.setDireccion(geocoder) },
+                            onValueChange = { },
                             label = "Dirección",
                             leadingIcon = Icons.Default.Place
                         )
@@ -207,7 +212,8 @@ fun NegocioFormScreen(
                         BtnIconRounded(
                             icon = Icons.Default.MyLocation,
                             onClick = {
-                                navController.navigate(NavigationItem.MAP_SELECT.route)
+                                // Navegar al mapa con callback específico para negocio form
+                                navController.navigate(NavigationItem.MAP_SELECT.forNegocioForm)
                             },
                             modifier = Modifier.size(56.dp),
                             size = 56.dp,
@@ -215,6 +221,39 @@ fun NegocioFormScreen(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
+                    }
+
+                    // Mostrar coordenadas si están disponibles
+                    AnimatedVisibility(
+                        visible = negocio.latitud != null && negocio.longitud != null,
+                        enter = fadeIn(animationSpec = tween(300)),
+                        exit = fadeOut(animationSpec = tween(300))
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.GpsFixed,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Coordenadas: ${String.format("%.6f", negocio.latitud ?: 0.0)}, ${String.format("%.6f", negocio.longitud ?: 0.0)}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
 

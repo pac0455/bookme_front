@@ -16,8 +16,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -145,8 +147,8 @@ fun LogoutConfirmationDialog(
                         modifier = Modifier.weight(1f),
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
-                        text = "Cerrar sesión",
-                        icon = Icons.Default.ExitToApp,
+                        text = "Cerrar",
+                        icon = Icons.AutoMirrored.Filled.ExitToApp,
                         onClick = onConfirmLogout
                     )
                 }

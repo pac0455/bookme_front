@@ -84,7 +84,7 @@ val MyLightColorScheme = lightColorScheme(
     // Estados de error
     error = AppColors.Error,
     onError = Color.White,
-    errorContainer = AppColors.Error.copy(alpha = 0.1f),
+    errorContainer = AppColors.Error.copy(alpha = 0.2f),
     onErrorContainer = AppColors.Error,
 
     // Contenedores inversos

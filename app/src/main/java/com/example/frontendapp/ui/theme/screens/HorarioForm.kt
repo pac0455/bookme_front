@@ -178,7 +178,7 @@ fun HorarioForm(
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         TimeSelectionCard(
                             modifier = Modifier.weight(1f),

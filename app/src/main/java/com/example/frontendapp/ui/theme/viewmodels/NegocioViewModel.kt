@@ -224,7 +224,18 @@ open class NegocioViewModel(
         Log.d("VM", "Datos confirmados para navegación")
     }
 
-
+    fun NegocioViewModel.getUbicacionGuardada(): Ubicacion? {
+        val negocio = negocioState.value
+        return if (negocio.latitud != null && negocio.longitud != null) {
+            Ubicacion(latitud = negocio.latitud, longitud = negocio.longitud)
+        } else {
+            null
+        }
+    }
+    // Extensión para establecer dirección directamente (sin Geocoder)
+    fun NegocioViewModel.setDireccion(direccion: String) {
+        _negocioState.update { it.copy(direccion = direccion) }
+    }
     fun startNewNegocio() {
         _backupState = _negocioState.value.copy()
         _negocioState.value = Negocio()

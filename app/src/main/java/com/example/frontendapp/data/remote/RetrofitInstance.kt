@@ -21,7 +21,7 @@ object RetrofitInstance {
 
     private val serverTest = "https://localhost:7211/"
 
-    private val ip = server
+    private val ip = serverPracticas
     private var roles: List<String> = emptyList()
     private lateinit var userId: String
 

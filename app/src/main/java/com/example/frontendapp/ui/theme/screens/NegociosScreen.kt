@@ -84,6 +84,9 @@ fun NegociosScreen(
                 },
                 onActualizar = {
                     negocioViewModel.getNegociosByUserId()
+                },
+                onNavigateToSettings = {
+                    navController.navigate(NavigationItem.PREFERENCES_SCREEN.route)
                 }
             )
 
@@ -122,31 +125,27 @@ fun NegociosScreen(
 @Composable
 fun QuickActionsPanel(
     onAddNegocio: () -> Unit,
-    onActualizar: () -> Unit
+    onActualizar: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
-    Surface(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-        tonalElevation = 1.dp
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Acciones Rápidas",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = "Acciones rápidas",
+                style = MaterialTheme.typography.titleMedium
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 ActionButton(
                     icon = Icons.Default.AddBusiness,
@@ -165,10 +164,20 @@ fun QuickActionsPanel(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
+
+                ActionButton(
+                    icon = Icons.Default.Settings,
+                    text = "Configuración",
+                    onClick = onNavigateToSettings,
+                    modifier = Modifier.weight(1f),
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun ActionButton(

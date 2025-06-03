@@ -19,18 +19,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.frontendapp.ui.theme.composables.loadPages.TripleOrbitLoadingAnimation
+import com.example.frontendapp.ui.theme.screens.EditarUsuarioScreenMejorada
 import com.example.frontendapp.ui.theme.screens.NegociosScreen
 import com.example.frontendapp.ui.theme.screens.HorarioForm
 import com.example.frontendapp.ui.theme.screens.LoginScreen
 import com.example.frontendapp.ui.theme.screens.MainScreen
-import com.example.frontendapp.ui.theme.screens.MapaScreen
+import com.example.frontendapp.ui.theme.screens.MapaScreenMejorada
 import com.example.frontendapp.ui.theme.screens.NegocioClienteScrenn
 import com.example.frontendapp.ui.theme.screens.NegocioDetailScreen
 import com.example.frontendapp.ui.theme.screens.NegocioFormScreen
 import com.example.frontendapp.ui.theme.screens.NegocioScreen
+import com.example.frontendapp.ui.theme.screens.PreferenciasScreenMejorada
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.screens.ReservaForm
 import com.example.frontendapp.ui.theme.screens.ServicioForm
+import com.example.frontendapp.ui.theme.screens.UserPreferences
 import com.example.frontendapp.ui.theme.screens.ValoracionFormulario
 import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.HorariosViewModel
@@ -43,6 +46,7 @@ import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
 import com.example.frontendapp.utils.UbicacionHelper
 
 private val TAG="NAVIGATOR"
+
 @Composable
 fun Navigator(
     modifier: Modifier = Modifier,
@@ -88,9 +92,42 @@ fun Navigator(
         composable(NavigationItem.BUSSINES_MAIN.route) {
             NegociosScreen(navController, usuarioNegocioMainViewModel)
         }
-        composable(NavigationItem.MAP_SELECT.route) {
-            MapaScreen(navController, negocioFormViewModel)
+
+        // Mapa con callback configurable
+        composable(
+            route = NavigationItem.MAP_SELECT.route,
+            arguments = listOf(
+                navArgument("callback") {
+                    type = NavType.StringType
+                    defaultValue = "default"
+                }
+            )
+        ) { backStackEntry ->
+            val callbackType = backStackEntry.arguments?.getString("callback") ?: "default"
+
+            // Configurar el callback según el tipo
+            val onLocationSelected: ((Double, Double) -> Unit)? = when (callbackType) {
+                "negocio_form" -> { lat, lng ->
+                    // Usar el setUbicacion del ViewModel de negocio
+                    negocioFormViewModel.setUbicacion(lat, lng)
+                    Log.d(TAG, "Ubicación establecida en negocio form: $lat, $lng")
+                }
+                "user_location" -> { lat, lng ->
+                    // Para ubicación de usuario (si necesitas otro comportamiento)
+                    negocioViewModel_ClienteMain.setUbicacion(lat, lng)
+                    Log.d(TAG, "Ubicación establecida para usuario: $lat, $lng")
+                }
+                "default" -> null // Usar el comportamiento por defecto del mapa
+                else -> null
+            }
+
+            MapaScreenMejorada(
+                navController = navController,
+                negocioViewModel = negocioFormViewModel,
+                onLocationSelected = onLocationSelected
+            )
         }
+
         composable(NavigationItem.CLIENTE_MAIN_SCREEN.route) {
             ClienteMainScreen(
                 navController=navController,
@@ -109,7 +146,6 @@ fun Navigator(
             val context = LocalContext.current
             val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: 0
             var negocioCargado by remember { mutableStateOf(false) }
-
 
             Log.d(TAG, "Pasando a la pantalla NegocioDetailScreen el id: $negocioId")
             //Cargar el negocio a partir de su id
@@ -147,7 +183,37 @@ fun Navigator(
                 }
             }
         }
+        composable(NavigationItem.PREFERENCES_SCREEN.route) {
+            PreferenciasScreenMejorada(
+                onLanguageChanged = {},
+                onNavigateToEditProfile = {
+                    navController.navigate(NavigationItem.EDIT_PROFILE.route)
 
+                },
+                onNavigateToChangePassword = {
+
+                },
+                onDarkThemeChanged = {
+
+                },
+                preferences  = UserPreferences(
+                    darkTheme = false,
+                    notificationsEnabled = true,
+                    language = "es"
+                ),
+            )
+        }
+        composable(NavigationItem.EDIT_PROFILE.route) {
+            EditarUsuarioScreenMejorada(
+                email = "",
+                initialName = "",
+                onBack = {
+                    navController.popBackStack()
+                },
+                onGuardar = {},
+                onNombreChanged = {}
+            )
+        }
         composable(
             route= "${Screen.RESERVA_FORM.name}/{negocioId}",
             arguments = listOf(navArgument("negocioId") {type = NavType.IntType})
@@ -173,7 +239,6 @@ fun Navigator(
                 negocioViewModel = negocioFormViewModel
             )
         }
-
 
         composable(
             route = NavigationItem.SERVICIO_FORM.route,
@@ -241,7 +306,7 @@ fun Navigator(
             }
         }
         composable(
-           route="${Screen.VALORACION_FORM.name}/{negocioId}",
+            route="${Screen.VALORACION_FORM.name}/{negocioId}",
             arguments = listOf(navArgument("negocioId") {type = NavType.IntType})
         ){ backStackEntry ->
             val negocioId = backStackEntry.arguments?.getInt("negocioId") ?: -1
@@ -254,5 +319,3 @@ fun Navigator(
         }
     }
 }
-
-//reource: https://medium.com/@KaushalVasava/navigation-in-jetpack-compose-full-guide-beginner-to-advanced-950c1133740

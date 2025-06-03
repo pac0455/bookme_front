@@ -90,23 +90,27 @@ fun BtnStyle1(
     // Estados de animación
     val isClickable = enabled && !isLoading
 
+// No modificar alpha si el color ya tiene uno personalizado
     val animatedContainerColor by animateColorAsState(
-        targetValue = if (isClickable) finalContainerColor else finalContainerColor.copy(alpha = 0.6f),
+        targetValue = finalContainerColor,
         animationSpec = tween(durationMillis = 200),
         label = "ContainerColorAnimation"
     )
 
     val animatedContentColor by animateColorAsState(
-        targetValue = if (isClickable) finalContentColor else finalContentColor.copy(alpha = 0.7f),
+        targetValue = finalContentColor,
         animationSpec = tween(durationMillis = 200),
         label = "ContentColorAnimation"
     )
 
+    // Evita aplicar alpha global cuando se pasa un color personalizado con opacidad
+    val useAlpha = containerColor == MaterialTheme.colorScheme.primary
     val animatedAlpha by animateFloatAsState(
-        targetValue = if (isClickable) 1f else 0.7f,
+        targetValue = if (useAlpha && !isClickable) 0.7f else 1f,
         animationSpec = tween(durationMillis = 200),
         label = "AlphaAnimation"
     )
+
 
     // Contenido del botón
     val displayText = if (isLoading) "Cargando..." else text
@@ -115,11 +119,14 @@ fun BtnStyle1(
     Button(
         onClick = onClick,
         modifier = modifier
-            .alpha(animatedAlpha)
-            .shadow(
-                elevation = if (isClickable) elevation else elevation / 2,
-                shape = shape,
-                clip = false
+            .then(if (useAlpha) Modifier.alpha(animatedAlpha) else Modifier)
+            .then(
+                if (containerColor.alpha < 0.5f) Modifier.shadow(0.dp) // evita sombra si fondo muy claro
+                else Modifier.shadow(
+                    elevation = if (isClickable) elevation else elevation / 2,
+                    shape = shape,
+                    clip = false
+                )
             ),
         shape = shape,
         enabled = isClickable,
@@ -368,7 +375,8 @@ fun BtnPreview() {
                 onClick = { },
                 text = "Botón Error",
                 icon = Icons.Default.Settings,
-                variant = ButtonVariant.ERROR
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
             )
 
             // Botón de éxito
