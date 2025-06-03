@@ -105,4 +105,7 @@ dependencies {
     //Navbar
     implementation("com.exyte:animated-navigation-bar:1.0.0")
 
+    //implementation ("com.google.accompanist:accompanist-flowlayout:0.8.2")
+
+
 }

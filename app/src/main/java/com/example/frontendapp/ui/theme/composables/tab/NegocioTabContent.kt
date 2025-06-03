@@ -80,7 +80,7 @@ fun NegocioTabContent(
         else -> Unit
     }
 
-    // ✅ Función para aplicar filtros
+    // Función para aplicar filtros
     val negociosFiltrados = remember(negociosCard, filtrosActivos, busqueda) {
         var resultado = negociosCard.toList()
 

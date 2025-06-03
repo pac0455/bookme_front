@@ -4,6 +4,7 @@ package com.example.frontendapp.data.remote.api
 
 import ReservaResponseDTO
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
+import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -21,4 +22,7 @@ interface ReservaApi {
     suspend fun getReservasByUserId(@Path("userId") userId: String): Response<List<ReservaResponseDTO>>
     @PUT("$reservaApi/Cancelar/{id}")
     suspend fun cancelarReserva(@Path("id") reservaId: Int): Response<ReservaResponseDTO>
+
+    @GET("$reservaApi/Negocio/{negocioId}/reservas")
+    suspend fun getReservasByNegocioId(@Path("negocioId") negocioId: Int): Response<List<ReservaResponseNegocioDTO>>
 }

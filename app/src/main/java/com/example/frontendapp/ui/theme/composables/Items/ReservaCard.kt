@@ -38,7 +38,7 @@ fun ReservaCard(
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // ✅ DEBUG: Agregar logs para debuggear
+    //  DEBUG: Agregar logs para debuggear
     val puedeSerCanceladaResult = puedeSerCancelada(reserva)
     Log.d("ReservaCard", "Reserva ${reserva.id}: Estado=${reserva.estado}, Fecha=${reserva.fecha}, PuedeSerCancelada=$puedeSerCanceladaResult")
 

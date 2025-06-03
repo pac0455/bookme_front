@@ -229,6 +229,7 @@ open class NegocioViewModel(
         _backupState = _negocioState.value.copy()
         _negocioState.value = Negocio()
         _isEditMode.value = false
+        _negocioValidationState.value = ValidationValidateState()
         Log.d("VM", "Preparando NUEVO negocio")
     }
 

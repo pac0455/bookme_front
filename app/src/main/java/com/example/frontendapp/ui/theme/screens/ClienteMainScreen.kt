@@ -72,7 +72,7 @@ fun ClienteMainScreen(
                 negocioViewModel,
                 navController=navController
             )},
-            index = 0
+            index = 1
         ),
         TabItem(
             title = "Servicios",
@@ -83,7 +83,7 @@ fun ClienteMainScreen(
                     servicioViewModel= servicioViewModel,
                     navController = navController,
                 )},
-            index = 1
+            index = 0
         ),
         TabItem(
             title = "Mis reservas",

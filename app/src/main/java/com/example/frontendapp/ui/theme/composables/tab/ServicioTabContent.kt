@@ -199,7 +199,7 @@ fun ServicioTabContent(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // ✅ MEJORADO: Header con búsqueda y filtros
+            // : Header con búsqueda y filtros
             HeaderSeccion(
                 titulo = "Servicios",
                 searchQuery = busqueda,
@@ -291,7 +291,7 @@ fun ServicioTabContent(
 
                 is Resource.Success -> {
                     if (serviciosFiltrados.isEmpty()) {
-                        // ✅ NUEVO: Mensaje cuando no hay resultados
+                        // Mensaje cuando no hay resultados
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -344,7 +344,7 @@ fun ServicioTabContent(
                             }
                         }
                     } else {
-                        // ✅ MEJORADO: Mostrar servicios por categorías
+                        // Mostrar servicios por categorías
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = 80.dp) // Espacio para navbar
