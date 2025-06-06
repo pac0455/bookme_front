@@ -30,7 +30,7 @@ import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.list.ListaReservas
 import com.example.frontendapp.ui.theme.composables.QuickActionsExpandable
 import com.example.frontendapp.ui.theme.composables.list.ServicioList
-import com.example.frontendapp.ui.theme.composables.modal.ModalSelectorDeImagen
+import com.example.frontendapp.ui.theme.composables.modals.ModalSelectorDeImagen
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel

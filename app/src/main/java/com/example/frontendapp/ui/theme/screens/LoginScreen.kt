@@ -40,7 +40,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
 import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
@@ -183,7 +183,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
 @Composable
 fun LoginScreenPreview() {
     FrontendappTheme {
-        val usuario = LoginViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
+        val usuario = LoginViewModel(AuthRepo(RetrofitInstance.userApi))
         LoginScreen(navController = rememberNavController(),usuario)
     }
 }

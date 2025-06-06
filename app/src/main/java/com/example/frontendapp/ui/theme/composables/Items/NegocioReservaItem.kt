@@ -23,11 +23,12 @@ import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
 import com.example.frontendapp.data.model.pago.EstadoPago
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.ThemeColors
+import com.example.frontendapp.ui.theme.composables.CustomSelector
+import com.example.frontendapp.ui.theme.composables.modals.ConfirmationModal
 
 @Composable
 fun NegocioReservaItem(
     reservaNegocio: ReservaResponseNegocioDTO,
-    onVerUsuario: () -> Unit = {},
     onCancelarReserva: () -> Unit = {},
     onCambiarEstadoPago: (EstadoPago) -> Unit = {}
 ) {
@@ -49,10 +50,7 @@ fun NegocioReservaItem(
                 .padding(20.dp)
         ) {
             // Sección de Usuario
-            UserSection(
-                reservaNegocio = reservaNegocio,
-                onVerUsuario = onVerUsuario
-            )
+            UserSection(reservaNegocio,)
 
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
@@ -85,8 +83,8 @@ fun NegocioReservaItem(
 @Composable
 fun UserSection(
     reservaNegocio: ReservaResponseNegocioDTO,
-    onVerUsuario: () -> Unit
 ) {
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -118,22 +116,6 @@ fun UserSection(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-        }
-
-        OutlinedButton(
-            onClick = onVerUsuario,
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier.height(36.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Visibility,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Ver", style = MaterialTheme.typography.labelMedium)
         }
     }
 }
@@ -247,13 +229,14 @@ fun ServicioSection(reservaNegocio: ReservaResponseNegocioDTO) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PagoSection(
     reservaNegocio: ReservaResponseNegocioDTO,
     onCambiarEstadoPago: (EstadoPago) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var selectedEstado by remember { mutableStateOf(reservaNegocio.estadoPago) }
+    var showConfirmationModal by remember { mutableStateOf(false) }
+    var nuevoEstadoPendiente by remember { mutableStateOf<EstadoPago?>(null) }
 
     Column {
         Row(
@@ -277,60 +260,64 @@ fun PagoSection(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+
+        Column(
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column {
-                Text(
-                    text = "Precio Total",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "${reservaNegocio.precio} ${reservaNegocio.moneda}",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+            Text(
+                text = "Precio Total",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "${reservaNegocio.precio} ${reservaNegocio.moneda}",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(Modifier.height(24.dp))
 
-            // Selector de estado de pago
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                OutlinedTextField(
-                    value = reservaNegocio.estadoPago.name,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Estado Pago") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier
-                        .menuAnchor()
-                        .width(140.dp)
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    EstadoPago.values().forEach { estado ->
-                        DropdownMenuItem(
-                            text = { Text(estado.name) },
-                            onClick = {
-                                onCambiarEstadoPago(estado)
-                                expanded = false
-                            }
-                        )
+        Column(
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            CustomSelector(
+                modifier = Modifier.width(180.dp),
+                options = EstadoPago.entries.map { it.name },
+                selectedOption = selectedEstado.name,
+                onOptionSelected = { nuevoEstadoStr ->
+                    val nuevoEstado = EstadoPago.valueOf(nuevoEstadoStr)
+                    if (nuevoEstado != selectedEstado) {
+                        nuevoEstadoPendiente = nuevoEstado
+                        showConfirmationModal = true
                     }
+                },
+                label = "Estado Pago"
+            )
+        }
+
+
+        // Modal de confirmación
+        if (showConfirmationModal && nuevoEstadoPendiente != null) {
+            ConfirmationModal(
+                isVisible = showConfirmationModal,
+                title = "Cambiar Estado de Pago",
+                message = "¿Estás seguro de que quieres cambiar el estado de pago a \"${nuevoEstadoPendiente!!.name}\"?",
+                confirmText = "Sí, Cambiar",
+                cancelText = "Cancelar",
+                onConfirm = {
+                    selectedEstado = nuevoEstadoPendiente!!
+                    onCambiarEstadoPago(nuevoEstadoPendiente!!)
+                    showConfirmationModal = false
+                    nuevoEstadoPendiente = null
+                },
+                onDismiss = {
+                    showConfirmationModal = false
+                    nuevoEstadoPendiente = null
                 }
-            }
+            )
         }
     }
 }
@@ -392,7 +379,6 @@ fun PreviewNegocioReservaItem() {
         ) {
             NegocioReservaItem(
                 reservaNegocio = mockReserva,
-                onVerUsuario = { /* Acción ver usuario */ },
                 onCancelarReserva = { /* Acción cancelar */ },
                 onCambiarEstadoPago = { /* Cambiar estado pago */ }
             )

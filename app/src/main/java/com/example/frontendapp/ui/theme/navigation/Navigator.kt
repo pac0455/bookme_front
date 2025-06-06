@@ -2,6 +2,7 @@ package com.example.frontendapp.ui.theme.navigation
 
 import ClienteMainScreen
 import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.frontendapp.ui.theme.composables.loadPages.TripleOrbitLoadingAnimation
+import com.example.frontendapp.ui.theme.screens.CambiarContrasenaScreen
 import com.example.frontendapp.ui.theme.screens.EditarUsuarioScreenMejorada
 import com.example.frontendapp.ui.theme.screens.NegociosScreen
 import com.example.frontendapp.ui.theme.screens.HorarioForm
@@ -33,7 +35,6 @@ import com.example.frontendapp.ui.theme.screens.PreferenciasScreenMejorada
 import com.example.frontendapp.ui.theme.screens.RegisterScreen
 import com.example.frontendapp.ui.theme.screens.ReservaForm
 import com.example.frontendapp.ui.theme.screens.ServicioForm
-import com.example.frontendapp.ui.theme.screens.UserPreferences
 import com.example.frontendapp.ui.theme.screens.ValoracionFormulario
 import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.HorariosViewModel
@@ -42,29 +43,32 @@ import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
 import com.example.frontendapp.utils.UbicacionHelper
 
 private val TAG="NAVIGATOR"
 
-@Composable
-fun Navigator(
-    modifier: Modifier = Modifier,
-    navController: NavHostController,
-    startDestination: String = NavigationItem.MAIN.route,
-    loginScreenViewModel: LoginViewModel,
-    registerScreenViewModel: RegisterViewModel,
-    negocioFormViewModel: NegocioViewModel,
-    usuarioNegocioMainViewModel: NegocioViewModel,
-    reservasNegocioScreenViewModel: ReservasViewModel,
-    serviciosNegocioScreenViewModel: ServicioViewModel,
-    servicioViewModel_ClienteMain: ServicioViewModel,
-    reservaViewModel_ClienteMain: ReservasViewModel,
-    negocioViewModel_ClienteMain: NegocioViewModel,
-    categoriasViewModel: CategoriaViewModel,
-    horarioViewModel_ClienteMain: HorariosViewModel,
-    valoracionesViewModel_ClienteMain: ValoracionViewModel,
-) {
+    @Composable
+    fun Navigator(
+        modifier: Modifier = Modifier,
+        navController: NavHostController,
+        startDestination: String = NavigationItem.MAIN.route,
+        loginScreenViewModel: LoginViewModel,
+        registerScreenViewModel: RegisterViewModel,
+        negocioFormViewModel: NegocioViewModel,
+        usuarioNegocioMainViewModel: NegocioViewModel,
+        reservasNegocioScreenViewModel: ReservasViewModel,
+        serviciosNegocioScreenViewModel: ServicioViewModel,
+        servicioViewModel_ClienteMain: ServicioViewModel,
+        reservaViewModel_ClienteMain: ReservasViewModel,
+        negocioViewModel_ClienteMain: NegocioViewModel,
+        categoriasViewModel: CategoriaViewModel,
+        horarioViewModel_ClienteMain: HorariosViewModel,
+        valoracionesViewModel_ClienteMain: ValoracionViewModel,
+        usuarioViewModel_EditProfile: UsuarioViewModel,
+
+    ) {
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -134,9 +138,7 @@ fun Navigator(
                 servicioViewModel = servicioViewModel_ClienteMain,
                 reservasViewModel =reservaViewModel_ClienteMain,
                 negocioViewModel = negocioViewModel_ClienteMain,
-                categoriasViewModel = categoriasViewModel,
-                horarioViewModel = horarioViewModel_ClienteMain,
-                valoracionesViewModel = valoracionesViewModel_ClienteMain
+
             )
         }
         composable(
@@ -185,33 +187,26 @@ fun Navigator(
         }
         composable(NavigationItem.PREFERENCES_SCREEN.route) {
             PreferenciasScreenMejorada(
-                onLanguageChanged = {},
                 onNavigateToEditProfile = {
                     navController.navigate(NavigationItem.EDIT_PROFILE.route)
-
                 },
                 onNavigateToChangePassword = {
-
+                    navController.navigate(NavigationItem.CHANGE_PASSWORD.route)
                 },
-                onDarkThemeChanged = {
-
-                },
-                preferences  = UserPreferences(
-                    darkTheme = false,
-                    notificationsEnabled = true,
-                    language = "es"
-                ),
             )
         }
+        composable(NavigationItem.CHANGE_PASSWORD.route) {
+            CambiarContrasenaScreen(
+                usuarioViewModel = usuarioViewModel_EditProfile,
+                navController = navController,
+            )
+        }
+
+
         composable(NavigationItem.EDIT_PROFILE.route) {
             EditarUsuarioScreenMejorada(
-                email = "",
-                initialName = "",
-                onBack = {
-                    navController.popBackStack()
-                },
-                onGuardar = {},
-                onNombreChanged = {}
+                navController = navController,
+                usuarioViewModel = usuarioViewModel_EditProfile
             )
         }
         composable(
@@ -229,7 +224,7 @@ fun Navigator(
         }
 
         composable(
-            route = "HORARIO_FORM/{modo}",
+            route = "${Screen.HORARIO_FORM.name}/{modo}",
             arguments = listOf(navArgument("modo") { defaultValue = "crear" })
         ) { backStackEntry ->
             val modo = backStackEntry.arguments?.getString("modo") ?: "crear"

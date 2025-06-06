@@ -1,10 +1,13 @@
 package com.example.frontendapp.data.remote.source
 
+import android.util.Log
 import com.example.frontendapp.data.model.Api.ApiResponse
 import com.example.frontendapp.data.model.Api.ValidationErrorResponse
+import com.example.frontendapp.data.model.UI.UpdatePasswordDTO
 import com.example.frontendapp.data.model.Usuario.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario.RegisterDTO
 import com.example.frontendapp.data.model.Usuario.Usuario
+import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
 import com.example.frontendapp.data.model.Usuario.toRegisterDTO
 import com.example.frontendapp.data.remote.api.UserApi
 import com.example.frontendapp.data.remote.reponses.Resource
@@ -13,21 +16,28 @@ import com.google.gson.Gson
 import org.json.JSONObject
 import retrofit2.Response
 
-class AuthRemoteDataResource(private val userApi: UserApi) {
+class AuthRepo(private val userApi: UserApi) {
 
     private fun validateLogin(usuario: Usuario): String? = when {
         usuario.email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
         usuario.password.isNullOrBlank() -> "La contraseña no puede estar vacía."
         else -> null
     }
-
-    suspend fun signupWithGoogle(usuario: Usuario) {
-        // Implementación futura
+    suspend fun updateNombre(usuario: UpdateNombreDTO): Resource<UpdateNombreDTO> = try {
+        Log.d("AuthRepo", usuario.toString())
+        val response = userApi.updateNombre(usuario)
+        handleResponse(response)
+    } catch (e: Exception) {
+        Resource.Error("Excepción de red o inesperada: ${e.localizedMessage}")
+    }
+    suspend fun updatePassword(usuario: UpdatePasswordDTO): Resource<UpdatePasswordDTO> = try {
+        Log.d("AuthRepo", usuario.toString())
+        val response = userApi.updatePassword(usuario)
+        handleResponse(response)
+    } catch (e: Exception) {
+        Resource.Error("Excepción de red o inesperada: ${e.localizedMessage}")
     }
 
-    suspend fun loginWithGoogle(token: String) {
-        // Implementación futura
-    }
 
     suspend fun getAll(): Resource<List<Usuario>> = try {
         val response = userApi.getAll()

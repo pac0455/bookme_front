@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.modal
+package com.example.frontendapp.ui.theme.composables.modals
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,7 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.example.frontendapp.ui.theme.ThemeColors
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 

@@ -5,10 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,13 +17,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.list.NegocioList
-import com.example.frontendapp.ui.theme.composables.modal.LogoutConfirmationDialog
+import com.example.frontendapp.ui.theme.composables.modals.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 

@@ -1,5 +1,7 @@
 package com.example.frontendapp.ui.theme.screens
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -14,20 +16,29 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.data.model.UI.UpdatePasswordDTO
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.ui.theme.FrontendappTheme
+import com.example.frontendapp.ui.theme.composables.CustomTextField
+import com.example.frontendapp.ui.theme.composables.modals.ModalConfig
+import com.example.frontendapp.ui.theme.composables.modals.ModalType
+import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
+import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun CambiarContrasenaScreenMejorada(
-    onCambiar: (String) -> Unit,
-    onBack: () -> Unit = {}
+fun CambiarContrasenaScreen(
+    usuarioViewModel: UsuarioViewModel,
+    navController: NavController
 ) {
     var contrasenaActual by remember { mutableStateOf("") }
     var nuevaContrasena by remember { mutableStateOf("") }
@@ -39,6 +50,24 @@ fun CambiarContrasenaScreenMejorada(
     var showCurrentPassword by remember { mutableStateOf(false) }
     var showNewPassword by remember { mutableStateOf(false) }
     var showConfirmPassword by remember { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(false) }
+
+
+    ReusableModal(
+        isVisible = isVisible,
+        config = ModalConfig(
+            type = if(isError) ModalType.ERROR else ModalType.SUCCESS,
+            title = if(isError) "Error" else "Exito",
+            message = if(isError)
+                "Error inesperado al actualizar la contraseña del usuario"
+            else "Contraseña actulizada correctamente",
+            confirmText = if(isError) "Entendido" else "Aceptar"
+        ),
+        onConfirm = { isVisible = false },
+        onDismiss = { isVisible = false }
+    )
+
 
     // Validaciones
     val isFormValid = contrasenaActual.isNotBlank() &&
@@ -68,11 +97,14 @@ fun CambiarContrasenaScreenMejorada(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .systemBarsPadding()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
         // Top App Bar
-        TopAppBarSection(onBack = onBack)
+        TopAppBarSection(onBack = { 
+            navController.popBackStack()
+        })
 
         Column(
             modifier = Modifier.padding(24.dp),
@@ -102,36 +134,12 @@ fun CambiarContrasenaScreenMejorada(
                     )
 
                     // Contraseña actual
-                    OutlinedTextField(
+                    CustomTextField(
                         value = contrasenaActual,
                         onValueChange = { contrasenaActual = it },
-                        label = { Text("Contraseña actual") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = { showCurrentPassword = !showCurrentPassword }) {
-                                Icon(
-                                    imageVector = if (showCurrentPassword) Icons.Default.VisibilityOff
-                                    else Icons.Default.Visibility,
-                                    contentDescription = if (showCurrentPassword) "Ocultar" else "Mostrar",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        },
-                        visualTransformation = if (showCurrentPassword) VisualTransformation.None
-                        else PasswordVisualTransformation(),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary
-                        ),
-                        shape = RoundedCornerShape(12.dp)
+                        label = "Contraseña actual" ,
+                        leadingIcon = Icons.Default.Lock,
+                        isPassword = true
                     )
 
                     // Nueva contraseña
@@ -242,8 +250,25 @@ fun CambiarContrasenaScreenMejorada(
             Button(
                 onClick = {
                     if (isFormValid) {
-                        isLoading = true
-                        onCambiar(nuevaContrasena)
+                        usuarioViewModel.updatePassword(
+                            usuario = UpdatePasswordDTO(
+                                newPassword = nuevaContrasena,
+                                oldPassword = contrasenaActual,
+                                userId = RetrofitInstance.getUserId()
+                            ),
+                            onSuccess = {
+                                isVisible=true
+                                isError=false
+                                isLoading=false
+                            },
+                            onLoading = {isLoading=true},
+                            onError = {
+                                isLoading=false
+                                isVisible=true
+                                isError=true
+                                Log.d("CambiarContrasenaScreen", it)
+                            }
+                        )
                     }
                 },
                 enabled = isFormValid && !isLoading,
@@ -415,12 +440,14 @@ private fun SecurityTipsSection() {
     }
 }
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun CambiarContrasenaScreenMejoradaPreview() {
     FrontendappTheme {
-        CambiarContrasenaScreenMejorada(
-            onCambiar = {}
+        CambiarContrasenaScreen(
+            navController = rememberNavController(),
+            usuarioViewModel = UsuarioViewModel(AuthRepo(RetrofitInstance.userApi))
         )
     }
 }

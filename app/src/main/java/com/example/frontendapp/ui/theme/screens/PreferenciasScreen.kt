@@ -1,8 +1,11 @@
 package com.example.frontendapp.ui.theme.screens
 
 import android.content.res.Configuration
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -25,21 +28,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import android.Manifest
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.utils.UbicacionHelper
 
-data class UserPreferences(
-    val darkTheme: Boolean = false,
-    val notificationsEnabled: Boolean = true,
-    val language: String = "es"
-)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreferenciasScreenMejorada(
-    preferences: UserPreferences,
-    onDarkThemeChanged: (Boolean) -> Unit,
-    onLanguageChanged: (String) -> Unit,
     onNavigateToEditProfile: () -> Unit = {},
     onNavigateToChangePassword: () -> Unit = {}
 ) {
@@ -55,37 +50,6 @@ fun PreferenciasScreenMejorada(
         // Header
         HeaderSection()
 
-        // Configuración de apariencia
-        ConfigurationCard(
-            title = "Apariencia",
-            icon = Icons.Default.Palette
-        ) {
-            PreferenceItem(
-                icon = if (preferences.darkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
-                title = "Tema oscuro",
-                subtitle = if (preferences.darkTheme) "Activado" else "Desactivado",
-                trailing = {
-                    Switch(
-                        checked = preferences.darkTheme,
-                        onCheckedChange = onDarkThemeChanged,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.primary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    )
-                }
-            )
-
-            Divider(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-            )
-
-            LanguageSelector(
-                selectedLanguage = preferences.language,
-                onLanguageChanged = onLanguageChanged
-            )
-        }
 
         // Configuración de cuenta
         ConfigurationCard(
@@ -99,7 +63,7 @@ fun PreferenciasScreenMejorada(
                 onClick = onNavigateToEditProfile
             )
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
@@ -167,7 +131,6 @@ private fun ConfigurationCard(
         shape = RoundedCornerShape(16.dp)
     ) {
         Column {
-            // Header de la card
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -257,101 +220,25 @@ private fun PreferenceItem(
 }
 
 @Composable
-private fun LanguageSelector(
-    selectedLanguage: String,
-    onLanguageChanged: (String) -> Unit
-) {
-    val idiomas = listOf(
-        "es" to "Español",
-        "en" to "English",
-        "fr" to "Français"
-    )
-    var expanded by remember { mutableStateOf(false) }
-
-    PreferenceItem(
-        icon = Icons.Default.Language,
-        title = "Idioma",
-        subtitle = idiomas.find { it.first == selectedLanguage }?.second ?: selectedLanguage,
-        onClick = { expanded = true },
-        trailing = {
-            Box {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(
-                        MaterialTheme.colorScheme.surface,
-                        RoundedCornerShape(12.dp)
-                    )
-                ) {
-                    idiomas.forEach { (code, name) ->
-                        DropdownMenuItem(
-                            text = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = name,
-                                        color = if (code == selectedLanguage)
-                                            MaterialTheme.colorScheme.primary
-                                        else MaterialTheme.colorScheme.onSurface
-                                    )
-                                    if (code == selectedLanguage) {
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                    }
-                                }
-                            },
-                            onClick = {
-                                onLanguageChanged(code)
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    )
-}
-
-@Composable
-private fun LocationPermissionItem() {
+fun LocationPermissionItem() {
     val context = LocalContext.current
-    val activity = context as? ComponentActivity
 
     PreferenceItem(
         icon = Icons.Default.LocationOn,
         title = "Permisos de ubicación",
         subtitle = "Gestiona el acceso a tu ubicación",
         onClick = {
-            activity?.let {
-                UbicacionHelper.forzarSolicitudPermisoUbicacionDesde(
-                    activity = it,
-                    onConcedido = {
-                        Toast.makeText(context, "Permiso concedido", Toast.LENGTH_SHORT).show()
-                    },
-                    onRechazado = {
-                        Toast.makeText(context, "Permiso denegado", Toast.LENGTH_SHORT).show()
-                    }
-                )
-            }
+            UbicacionHelper.openAppSettings(context)
         }
     )
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun PreferenciasScreenMejoradaPreview() {
-    var preferences by remember { mutableStateOf(UserPreferences()) }
-
     FrontendappTheme {
-        PreferenciasScreenMejorada(
-            preferences = preferences,
-            onDarkThemeChanged = { preferences = preferences.copy(darkTheme = it) },
-            onLanguageChanged = { preferences = preferences.copy(language = it) }
-        )
+        PreferenciasScreenMejorada()
     }
 }
 
@@ -362,13 +249,7 @@ fun PreferenciasScreenMejoradaPreview() {
 )
 @Composable
 fun PreferenciasScreenMejoradaDarkPreview() {
-    var preferences by remember { mutableStateOf(UserPreferences(darkTheme = true)) }
-
     FrontendappTheme {
-        PreferenciasScreenMejorada(
-            preferences = preferences,
-            onDarkThemeChanged = { preferences = preferences.copy(darkTheme = it) },
-            onLanguageChanged = { preferences = preferences.copy(language = it) }
-        )
+        PreferenciasScreenMejorada()
     }
 }

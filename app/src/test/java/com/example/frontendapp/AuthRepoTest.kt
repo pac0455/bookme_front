@@ -8,14 +8,14 @@ import com.example.frontendapp.data.model.Usuario.Usuario
 import com.example.frontendapp.data.model.Usuario.toRegisterDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
 
-class AuthRemoteDataResourceTest {
+class AuthRepoTest {
 
-    private val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.userApi)
+    private val authRemoteDataResource = AuthRepo(RetrofitInstance.userApi)
     private val uniqueSuffix = (System.currentTimeMillis() % 1000000000).toString().padStart(9, '0')
 
     private val user = Usuario(

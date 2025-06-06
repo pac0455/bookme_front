@@ -2,7 +2,6 @@ package com.example.frontendapp.ui.theme.composables.tab
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.animation.*
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
@@ -31,11 +30,15 @@ import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.*
 import com.example.frontendapp.ui.theme.composables.Items.NegocioCard
+import com.example.frontendapp.ui.theme.composables.modals.FiltrosNegocio
+import com.example.frontendapp.ui.theme.composables.modals.FiltrosNegocioModal
+import com.example.frontendapp.ui.theme.composables.modals.OrdenarPor
 import com.example.frontendapp.ui.theme.composables.section.HeaderSeccion
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.utils.UbicacionHelper
+import kotlinx.coroutines.launch
 
 @Composable
 fun NegocioTabContent(
@@ -47,6 +50,7 @@ fun NegocioTabContent(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth * 0.85f
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
+    val corrutineScope = rememberCoroutineScope()
 
     // Estados para filtros y búsqueda
     var mostrarFiltros by remember { mutableStateOf(false) }
@@ -54,41 +58,73 @@ fun NegocioTabContent(
     var busqueda by remember { mutableStateOf("") }
 
     val negociosCardClienteState by negocioViewModel.negociosClienteState.collectAsState()
-    val negociosCard = remember { mutableStateListOf<NegocioCardCliente>() }
 
-    // Categorías disponibles (esto debería venir del ViewModel)
-    val categoriasDisponibles = remember(negociosCardClienteState.data) {
-        negociosCardClienteState.data?.map { it.categoria }?.distinct() ?: emptyList()
+    val negociosCard = when (negociosCardClienteState) {
+        is Resource.Success -> negociosCardClienteState.data ?: emptyList()
+        else -> emptyList()
     }
 
+    // Categorías disponibles
+    val categoriasDisponibles = remember(negociosCard) {
+        negociosCard.map { it.categoria }.distinct()
+    }
+
+    // CAMBIO: Usar LaunchedEffect con key para recargar cuando sea necesario
     LaunchedEffect(Unit) {
         val ubi = UbicacionHelper.obtenerUbicacionActual(context = context)
         negocioViewModel.getNegociosParaCliente(ubi)
     }
 
+    // Mostrar estado de carga
     when (negociosCardClienteState) {
-        is Resource.Success -> {
-            negociosCard.clear()
-            negociosCardClienteState.data?.let {
-                Log.d("NegocioTabContent", "Negocios recibidos: ${it.size}")
-                negociosCard.addAll(it)
+        is Resource.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
+            return
         }
         is Resource.Error -> {
-            Log.e("NegocioTabContent", "Error al obtener negocios")
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Error al cargar negocios",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            corrutineScope.launch {
+                                val ubi = UbicacionHelper.obtenerUbicacionActual(context = context)
+                                negocioViewModel.getNegociosParaCliente(ubi)
+                            }
+                        }
+                    ) {
+                        Text("Reintentar")
+                    }
+                }
+            }
+            return
         }
-        else -> Unit
+        else -> {}
     }
 
-    // Función para aplicar filtros
+    // Función para aplicar filtros - CAMBIO: usar negociosCard directamente
     val negociosFiltrados = remember(negociosCard, filtrosActivos, busqueda) {
-        var resultado = negociosCard.toList()
+        var resultado = negociosCard
 
         // Filtro por búsqueda
         if (busqueda.isNotBlank()) {
             resultado = resultado.filter { negocio ->
                 negocio.nombre.contains(busqueda, ignoreCase = true) ||
-                        negocio.descripcion?.contains(busqueda, ignoreCase = true) == true
+                        negocio.descripcion.contains(busqueda, ignoreCase = true)
             }
         }
 
@@ -124,12 +160,38 @@ fun NegocioTabContent(
             OrdenarPor.DISTANCIA -> resultado.sortedBy { it.distancia ?: Float.MAX_VALUE.toDouble() }
             OrdenarPor.RATING -> resultado.sortedByDescending { it.rating }
             OrdenarPor.NOMBRE -> resultado.sortedBy { it.nombre }
-            OrdenarPor.PRECIO -> resultado // Placeholder, necesitarías precio en el modelo
+            OrdenarPor.PRECIO -> resultado
         }
     }
 
     // Verificar si hay filtros activos
     val hayFiltrosActivos = filtrosActivos != FiltrosNegocio() || busqueda.isNotBlank()
+
+    // CAMBIO: Solo mostrar contenido si hay datos
+    if (negociosCard.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Store,
+                    contentDescription = null,
+                    modifier = Modifier.size(64.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "No hay negocios disponibles",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        return
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -161,19 +223,16 @@ fun NegocioTabContent(
                 }
             }
 
-            // Secciones mejoradas con animaciones
-            item {
-                AnimatedVisibility(
-                    visible = negociosFiltrados.filter { it.isOpen }.isNotEmpty(),
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
+            // Sección de negocios abiertos
+            val negociosAbiertos = negociosFiltrados.filter { it.isOpen }
+            if (negociosAbiertos.isNotEmpty()) {
+                item {
                     NegocioSeccion(
                         titulo = "Abiertos ahora",
-                        negocios = negociosFiltrados.filter { it.isOpen },
+                        negocios = negociosAbiertos,
                         negocioViewModel = negocioViewModel,
                         listState = rememberLazyListState(),
-                        flingBehavior = rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
+                        flingBehavior = flingBehavior,
                         cardWidth = cardWidth,
                         screenWidth = screenWidth,
                         navController = navController,
@@ -183,15 +242,13 @@ fun NegocioTabContent(
                 }
             }
 
-            item {
-                AnimatedVisibility(
-                    visible = negociosFiltrados.sortedByDescending { it.rating }.isNotEmpty(),
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
+            // Sección de mejor valorados
+            val negociosMejorValorados = negociosFiltrados.sortedByDescending { it.rating }
+            if (negociosMejorValorados.isNotEmpty()) {
+                item {
                     NegocioSeccion(
                         titulo = "Mejor valorados",
-                        negocios = negociosFiltrados.sortedByDescending { it.rating },
+                        negocios = negociosMejorValorados,
                         negocioViewModel = negocioViewModel,
                         listState = rememberLazyListState(),
                         flingBehavior = rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
@@ -204,20 +261,20 @@ fun NegocioTabContent(
                 }
             }
 
-            // ✅ Nueva sección: Cerca de ti
+            // Sección cerca de ti
             if (filtrosActivos.distanciaMaxima == null) {
-                item {
-                    AnimatedVisibility(
-                        visible = negociosFiltrados.sortedBy { it.distancia ?: Float.MAX_VALUE.toDouble() }.isNotEmpty(),
-                        enter = fadeIn() + slideInVertically(),
-                        exit = fadeOut() + slideOutVertically()
-                    ) {
+                val negociosCercanos = negociosFiltrados
+                    .sortedBy { it.distancia ?: Float.MAX_VALUE.toDouble() }
+                    .take(10)
+
+                if (negociosCercanos.isNotEmpty()) {
+                    item {
                         NegocioSeccion(
                             titulo = "Cerca de ti",
-                            negocios = negociosFiltrados.sortedBy { it.distancia ?: Float.MAX_VALUE.toDouble() }.take(10),
+                            negocios = negociosCercanos,
                             negocioViewModel = negocioViewModel,
                             listState = rememberLazyListState(),
-                            flingBehavior = rememberSnapFlingBehavior(lazyListState = rememberLazyListState()),
+                            flingBehavior = flingBehavior,
                             cardWidth = cardWidth,
                             screenWidth = screenWidth,
                             navController = navController,
@@ -229,7 +286,7 @@ fun NegocioTabContent(
             }
         }
 
-        // ✅ Modal de filtros
+        // Modal de filtros
         FiltrosNegocioModal(
             isVisible = mostrarFiltros,
             filtrosActuales = filtrosActivos,
@@ -246,7 +303,7 @@ fun NegocioTabContent(
     }
 }
 
-// ✅ Componente para mostrar resumen de filtros activos
+// Componente para mostrar resumen de filtros activos
 @Composable
 private fun FiltrosActivosResumen(
     filtros: FiltrosNegocio,
@@ -384,7 +441,7 @@ private fun FiltroChip(
     }
 }
 
-// ✅ Sección mejorada con colores del tema
+//  Sección mejorada con colores del tema
 @Composable
 fun NegocioSeccion(
     titulo: String,
@@ -401,7 +458,7 @@ fun NegocioSeccion(
     Column(
         modifier = Modifier.padding(vertical = 8.dp)
     ) {
-        // ✅ Header de sección mejorado
+        //  Header de sección mejorado
         Row(
             modifier = Modifier
                 .fillMaxWidth()

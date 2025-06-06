@@ -28,23 +28,21 @@ import com.example.frontendapp.ui.theme.composables.CustomSeachBar
 fun HeaderSeccion(
     titulo: String = "Servicios",
     modifier: Modifier = Modifier,
-    mostrarVerTodo: Boolean = false,
-    onVerTodoClick: () -> Unit = {},
-    // ✅ NUEVOS: Parámetros para filtros
     onSearchChange: (String) -> Unit = {},
     onFilterClick: () -> Unit = {},
     hasActiveFilters: Boolean = false,
     searchQuery: String = ""
 ) {
     var query by remember { mutableStateOf(searchQuery) }
-    val focusRequester = remember { FocusRequester() }
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val headerHeight = screenHeight * 0.25f
+    val headerHeight = screenHeight * 0.20f
 
-    // ✅ Actualizar query cuando cambie searchQuery externo
+    //  Actualizar query cuando cambie searchQuery externo
     LaunchedEffect(searchQuery) {
         query = searchQuery
+
     }
+
 
     Column(
         modifier = modifier
@@ -52,19 +50,14 @@ fun HeaderSeccion(
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // ✅ MEJORADO: Encabezado visual con colores del tema
+        //Encabezado visual con colores del tema
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(headerHeight)
                 .clip(RoundedCornerShape(bottomEnd = 40.dp, bottomStart = 40.dp))
                 .background(
-                    brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.primaryContainer
-                        )
-                    )
+                    MaterialTheme.colorScheme.primary
                 )
                 .padding(6.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -127,10 +120,9 @@ fun HeaderSeccion(
                     .weight(1f)
                     .height(56.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .focusRequester(focusRequester)
             )
 
-            // ✅ MEJORADO: Botón de filtro con animación
+            // Botón de filtro con animación
             FilterButton(
                 onClick = onFilterClick,
                 hasActiveFilters = hasActiveFilters
@@ -139,7 +131,7 @@ fun HeaderSeccion(
     }
 }
 
-// ✅ NUEVO: Componente de botón de filtro animado
+//  Componente de botón de filtro animado
 @Composable
 private fun FilterButton(
     onClick: () -> Unit,
@@ -180,10 +172,6 @@ private fun FilterButton(
                 color = animatedColor,
                 shape = RoundedCornerShape(16.dp)
             )
-            .shadow(
-                elevation = if (hasActiveFilters) 8.dp else 2.dp,
-                shape = RoundedCornerShape(16.dp)
-            )
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
@@ -205,16 +193,12 @@ fun PreviewHeaderSeccion() {
         Column {
             HeaderSeccion(
                 titulo = "Negocios",
-                mostrarVerTodo = true,
                 hasActiveFilters = false,
-                onVerTodoClick = { }
             )
             Spacer(modifier = Modifier.height(16.dp))
             HeaderSeccion(
                 titulo = "Servicios",
-                mostrarVerTodo = true,
                 hasActiveFilters = true,
-                onVerTodoClick = { }
             )
         }
     }

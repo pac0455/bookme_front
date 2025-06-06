@@ -2,9 +2,11 @@ package com.example.frontendapp.data.remote.api
 
 import com.example.frontendapp.data.model.Api.ApiResponse
 import com.example.frontendapp.data.model.Api.ValidationErrorResponse
+import com.example.frontendapp.data.model.UI.UpdatePasswordDTO
 import com.example.frontendapp.data.model.Usuario.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario.RegisterDTO
 import com.example.frontendapp.data.model.Usuario.Usuario
+import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
 import com.example.frontendapp.data.remote.reponses.DeleteResponse
 import com.example.frontendapp.data.remote.request.LoginRequest
 import retrofit2.Response
@@ -12,21 +14,12 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 
 private const val controller = "api/usuario"
 interface UserApi {
-
-    // Signup con cuenta de Google (envías todos los datos necesarios del usuario)
-    @POST("$controller/signup/google")
-    suspend fun signupWithGoogle(@Body usuario: Usuario): Response<Usuario>
-
-    // Login con Google (sólo envías el ID Token de Google)
-    @GET("$controller/login/{idToken}")
-    suspend fun loginWithGoogle(@Path("idToken") idToken: String): Response<LoginRegisterResultDTO>
-
     // Login tradicional con email/contraseña (puedes usar un modelo LoginRequest si prefieres)
     @POST("$controller/login")
     suspend fun login(@Body usuario: LoginRequest): Response<LoginRegisterResultDTO>
@@ -44,6 +37,11 @@ interface UserApi {
     @POST("$controller/validar-registro")
     suspend fun validateRegistration(@Body registerDTO: RegisterDTO): Response<ValidationErrorResponse>
 
+    @PUT("$controller/update-nombre")
+    suspend fun updateNombre(@Body dto: UpdateNombreDTO): Response<UpdateNombreDTO>
 
+    @PUT("$controller/update-password")
+    suspend fun updatePassword(@Body dto: UpdatePasswordDTO): Response<UpdatePasswordDTO>
+    
 
 }

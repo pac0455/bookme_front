@@ -10,7 +10,7 @@ import com.example.frontendapp.data.model.Servicio.ServicioUpdateRequest
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.data.remote.request.LoginRequest
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.data.remote.source.NegocioRepo
 import com.example.frontendapp.data.remote.source.ServicioRepo
 import kotlinx.coroutines.runBlocking
@@ -29,7 +29,7 @@ class ServicioApiTest {
     @Before
     fun setup() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.userApi)
+        val authRemoteDataResource = AuthRepo(RetrofitInstance.userApi)
         val loginResult = authRemoteDataResource.login(LoginRequest("negocio_test@bookme.com", "Negocio123!"))
         if (loginResult is Resource.Success) {
             val token = loginResult.data?.token

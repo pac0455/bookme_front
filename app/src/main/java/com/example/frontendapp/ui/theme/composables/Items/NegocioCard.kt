@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.composables.list.darken
-import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
+import com.example.frontendapp.ui.theme.composables.modals.ServicioImagePicker
 
 @Composable
 fun NegocioCard(

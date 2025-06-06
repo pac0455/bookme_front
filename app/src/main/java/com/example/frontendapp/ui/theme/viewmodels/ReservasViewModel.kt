@@ -20,6 +20,7 @@ import com.example.frontendapp.data.remote.source.NegocioRepo
 import com.example.frontendapp.data.remote.source.ReservaRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -108,12 +109,57 @@ open class ReservasViewModel(
     private val _reservaCancelaState = MutableStateFlow<Resource<ReservaResponseDTO>>(Resource.None())
     val reservaCancelaState: StateFlow<Resource<ReservaResponseDTO>> = _reservaCancelaState
 
+    private val _estadoPagoUpdateState = MutableStateFlow<Resource<Unit>>(Resource.None())
+    val estadoPagoUpdateState: StateFlow<Resource<Unit>> = _estadoPagoUpdateState
+
     // Estado de carga y error
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    fun actualizarEstadoPagoLocal(
+        reservaId: Int,
+        estadoPago: EstadoPago,
+    ) {
+        val currentResource = _reservasByNegocioState.value
+        if (currentResource is Resource.Success) {
+            val listaOriginal = currentResource.data ?: emptyList()
+            val listaActualizada = listaOriginal.map { reserva ->
+                if (reserva.id == reservaId) reserva.copy(estadoPago = estadoPago) else reserva
+            }
+            _reservasByNegocioState.value = Resource.Success(listaActualizada)
+        }
+    }
+
+    fun actualizarEstadoPago(
+        reservaId: Int,
+        estadoPago: EstadoPago,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {},
+        onLoading: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            onLoading()
+            _estadoPagoUpdateState.value = Resource.Loading()
+
+            when (val result = reservaRepo.actualizarEstadoPago(reservaId, estadoPago)) {
+                is Resource.Success -> {
+                    _estadoPagoUpdateState.value = result
+                    onSuccess()
+                }
+                is Resource.Error -> {
+                    _estadoPagoUpdateState.value = result
+                    onError(result.message ?: "Ocurrió un error inesperado")
+                }
+                else -> {
+                    _estadoPagoUpdateState.value = Resource.Error("Estado inesperado")
+                    onError("Estado inesperado")
+                }
+            }
+        }
+    }
 
     fun canecelarReserva(
         reservaId: Int,

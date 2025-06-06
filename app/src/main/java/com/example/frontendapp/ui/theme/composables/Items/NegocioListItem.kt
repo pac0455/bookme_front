@@ -25,7 +25,7 @@ import com.example.frontendapp.data.model.Categoria
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.ThemeColors
-import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
+import com.example.frontendapp.ui.theme.composables.modals.ServicioImagePicker
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 

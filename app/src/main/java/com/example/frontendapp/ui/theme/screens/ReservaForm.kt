@@ -81,6 +81,9 @@ import com.example.frontendapp.ui.theme.ThemeColors
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomBox
 import com.example.frontendapp.ui.theme.composables.calendar.Calendar
+import com.example.frontendapp.ui.theme.composables.modals.ModalConfig
+import com.example.frontendapp.ui.theme.composables.modals.ModalType
+import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.HorariosViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
@@ -120,7 +123,27 @@ fun ReservaForm(
     // Estado para el mensaje de error (inicialmente vacío)
     var errorMessage by remember { mutableStateOf("") }
     val errorPagoMessage by remember { mutableStateOf("") }
+    var isVisible by remember { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) }
 
+    ReusableModal(
+        isVisible = isVisible,
+        config = ModalConfig(
+            type = if(isError) ModalType.ERROR else ModalType.SUCCESS,
+            title = if(isError) "Error" else "Exito",
+            message = if(isError)
+                "Error inesperado al actualizar la contraseña del usuario"
+            else "Contraseña actulizada correctamente",
+            confirmText = if(isError) "Entendido" else "Aceptar"
+        ),
+        onConfirm = {
+            isVisible = false
+            navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route){
+                popUpTo(NavigationItem.RESERVA_FORM.createRoute(negocioId)){inclusive=true}
+            }
+        },
+        onDismiss = { isVisible = false }
+    )
     LaunchedEffect(Unit) {
         reservasViewModel.setServicio(servicioSeleccionado.id)
     }
@@ -188,13 +211,14 @@ fun ReservaForm(
                             monto = servicioSeleccionado.precio,
                             metodoPago = metodoPagoSeleccionado,
                             onSucces = {
+                                isVisible = true
                                 isLoading = false
                                 Toast.makeText(context,"Reserva y pago procesados con éxito", Toast.LENGTH_SHORT).show()
-                                navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route){
-                                    popUpTo(NavigationItem.RESERVA_FORM.createRoute(negocioId)){inclusive=true}
-                                }
+
                             },
                             onError = {
+                                isVisible = true
+                                isError = false
                                 isLoading = false
                                 Log.d("ReservaForm", it)
                                 Toast.makeText(context,"La reserva no se ha podido completar", Toast.LENGTH_SHORT).show()

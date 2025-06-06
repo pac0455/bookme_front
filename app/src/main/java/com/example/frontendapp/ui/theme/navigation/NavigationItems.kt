@@ -16,13 +16,16 @@ enum class Screen {
     RESERVA_FORM,
     VALORACION_FORM,
     PREFERENCES_SCREEN,
-    EDIT_PROFILE
+    EDIT_PROFILE,
+    CHANGE_PASSWORD,
 }
 
 sealed class NavigationItem(val route: String) {
     data object REGISTER : NavigationItem(Screen.REGISTER.name)
     data object PREFERENCES_SCREEN : NavigationItem(Screen.PREFERENCES_SCREEN.name)
     data object EDIT_PROFILE : NavigationItem(Screen.EDIT_PROFILE.name)
+    data object CHANGE_PASSWORD : NavigationItem(Screen.CHANGE_PASSWORD.name)
+
 
 
     data object NEGOCIO_CLIENTE : NavigationItem(Screen.NEGOCIO_CLIENTE.name)

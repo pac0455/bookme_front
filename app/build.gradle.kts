@@ -86,6 +86,7 @@ dependencies {
     // Optional: Jetpack Credentials for federated sign-in
     implementation("androidx.credentials:credentials-play-services-auth:1.0.0-alpha01")
     implementation(libs.androidx.storage)
+    implementation(libs.androidx.espresso.core)
 
     // Testing
     testImplementation(libs.junit)
@@ -106,6 +107,7 @@ dependencies {
     implementation("com.exyte:animated-navigation-bar:1.0.0")
 
     //implementation ("com.google.accompanist:accompanist-flowlayout:0.8.2")
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 
 
 }

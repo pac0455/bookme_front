@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.composables.list
 
+import android.util.Log
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import androidx.compose.foundation.background
@@ -31,6 +32,7 @@ import com.example.frontendapp.ui.theme.ThemeColors
 import com.example.frontendapp.ui.theme.composables.Items.NegocioReservaItem
 import java.time.LocalDate
 
+private const val TAG = "ListaReservas"
 @Composable
 fun ListaReservas(
     viewModel: ReservasViewModel,
@@ -54,7 +56,10 @@ fun ListaReservas(
 
     // Filtrar reservas cuando hay datos disponibles
     val filteredReservas = remember(reservasState.data, searchText, selectedEstadoReserva, selectedEstadoPago, selectedDateFilter) {
-        reservasState.data?.filter { reserva ->
+        Log.d(TAG, "Cambio detectado en la lista de reservas")
+
+
+        val lista = reservasState.data?.filter { reserva ->
             val matchesSearch = searchText.isEmpty() ||
                     reserva.username.contains(searchText, ignoreCase = true) ||
                     reserva.servicioNombre.contains(searchText, ignoreCase = true)
@@ -87,6 +92,9 @@ fun ListaReservas(
             }
             matchesSearch && matchesEstadoReserva && matchesEstadoPago && matchesDate
         } ?: emptyList()
+        lista.let { Log.d(TAG, it.toString()) }
+
+        lista
     }
 
     Column(
@@ -155,15 +163,30 @@ fun ListaReservas(
                         items(filteredReservas) { reserva ->
                             NegocioReservaItem(
                                 reservaNegocio = convertToReservaResponseNegocio(reserva),
-                                onVerUsuario = { /* vacío */ },
                                 onCancelarReserva = { viewModel.canecelarReserva(
                                     reserva.id,
                                     onSucces = {
                                         viewModel.getReservaByNegocioId(negocioId)
-                                               },
+                                    },
 
                                 ) },
-                                onCambiarEstadoPago = { _ -> /* cambiar estado */ }
+                                onCambiarEstadoPago = { nuevoEstado ->
+                                    viewModel.actualizarEstadoPago(
+                                        reservaId = reserva.id,
+                                        estadoPago = nuevoEstado,
+                                        onSuccess = {
+                                            //Actualizar la lista local
+                                            viewModel.actualizarEstadoPagoLocal(reserva.id, nuevoEstado)
+                                            Log.d("EstadoPago", "Estado de pago actualizado correctamente a $nuevoEstado para la reserva ${reserva.id}")
+                                        },
+                                        onError = { mensajeError ->
+                                            Log.e("EstadoPago", "Error al actualizar el estado de pago de la reserva ${reserva.id}: $mensajeError")
+                                        },
+                                        onLoading = {
+                                            Log.d("EstadoPago", "Actualizando estado de pago para la reserva ${reserva.id}...")
+                                        }
+                                    )
+                                }
                             )
                         }
                     }

@@ -1,7 +1,6 @@
 package com.example.frontendapp.ui.theme.screens
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -23,12 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.helper.ImageHelper
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomTextField
-import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
-import com.example.frontendapp.ui.theme.navigation.NavigationItem
+import com.example.frontendapp.ui.theme.composables.modals.ServicioImagePicker
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
 

@@ -1,9 +1,6 @@
-package com.example.frontendapp.ui.theme.composables.tab
+package com.example.frontendapp.ui.theme.composables.modals
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -27,7 +24,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.frontendapp.ui.theme.*
 
-// ✅ NUEVO: Data classes para filtros
+//  NUEVO: Data classes para filtros
 data class FiltrosNegocio(
     val categorias: Set<String> = emptySet(),
     val distanciaMaxima: Float? = null,
@@ -115,7 +112,7 @@ private fun FiltrosContent(
                 .fillMaxSize()
                 .padding(24.dp)
         ) {
-            // ✅ Header del modal
+            //  Header del modal
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -147,7 +144,7 @@ private fun FiltrosContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ✅ Contenido scrolleable
+            //  Contenido scrolleable
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -227,7 +224,7 @@ private fun FiltrosContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ✅ Botones de acción
+            //  Botones de acción
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -277,7 +274,7 @@ private fun FiltrosContent(
     }
 }
 
-// ✅ Componente para secciones de filtro
+//  Componente para secciones de filtro
 @Composable
 private fun FiltroSeccion(
     titulo: String,
@@ -307,7 +304,7 @@ private fun FiltroSeccion(
     }
 }
 
-// ✅ Filtro de categorías
+//  Filtro de categorías
 @Composable
 private fun CategoriasFilter(
     categoriasDisponibles: List<String>,
@@ -335,7 +332,7 @@ private fun CategoriasFilter(
     }
 }
 
-// ✅ Filtro de distancia
+//  Filtro de distancia
 @Composable
 private fun DistanciaFilter(
     distanciaSeleccionada: Float?,
@@ -380,7 +377,7 @@ private fun DistanciaFilter(
     }
 }
 
-// ✅ Filtro de rating
+//  Filtro de rating
 @Composable
 private fun RatingFilter(
     ratingSeleccionado: Float?,
@@ -439,7 +436,7 @@ private fun RatingFilter(
     }
 }
 
-// ✅ Filtro de estado
+//  Filtro de estado
 @Composable
 private fun EstadoFilter(
     soloAbiertos: Boolean,
@@ -490,7 +487,7 @@ private fun EstadoFilter(
     }
 }
 
-// ✅ Filtro de ordenamiento
+//  Filtro de ordenamiento
 @Composable
 private fun OrdenarPorFilter(
     ordenSeleccionado: OrdenarPor,

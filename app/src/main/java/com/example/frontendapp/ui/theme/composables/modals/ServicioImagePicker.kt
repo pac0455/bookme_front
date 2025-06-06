@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.modal
+package com.example.frontendapp.ui.theme.composables.modals
 
 import android.app.Activity
 import android.content.Intent
@@ -35,7 +35,6 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import kotlinx.coroutines.delay
 import java.io.File
 
 @Composable

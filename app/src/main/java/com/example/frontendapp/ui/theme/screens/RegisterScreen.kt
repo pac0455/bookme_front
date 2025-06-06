@@ -6,7 +6,6 @@ import androidx.compose.foundation.BorderStroke
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,25 +24,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
 import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.Btn.GoogleButton
-import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 import com.example.frontendapp.ui.theme.composables.text.TextNavigate
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
@@ -222,7 +216,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: RegisterViewM
 @Composable
 fun RegisterScreenPreview() {
     FrontendappTheme {
-        val usuario= RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
+        val usuario= RegisterViewModel(AuthRepo(RetrofitInstance.userApi))
         RegisterScreen(navController = rememberNavController(),usuario)
     }
 }

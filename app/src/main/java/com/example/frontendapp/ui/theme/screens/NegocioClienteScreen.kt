@@ -45,7 +45,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.example.frontendapp.data.model.UI.ERol
 import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 
@@ -182,7 +182,7 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
 fun PreviewNegocioClienteScrenn(){
     FrontendappTheme {
         val navController = rememberNavController()
-        val usuarioViewModel = RegisterViewModel(AuthRemoteDataResource(RetrofitInstance.userApi))
+        val usuarioViewModel = RegisterViewModel(AuthRepo(RetrofitInstance.userApi))
         NegocioClienteScrenn(navController, usuarioViewModel)
     }
 }

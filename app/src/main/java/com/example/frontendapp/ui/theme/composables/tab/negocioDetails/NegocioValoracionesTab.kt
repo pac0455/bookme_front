@@ -2,12 +2,14 @@ package com.example.frontendapp.ui.theme.composables.tab.negocioDetails
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.StarHalf
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,7 +28,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ValoracionesTabContent(
+fun NegocioValoracionesTab(
     negocioId: Int,
     valoracionViewModel: ValoracionViewModel,
     modifier: Modifier = Modifier
@@ -43,115 +45,327 @@ fun ValoracionesTabContent(
         )
     }
 
-    when (valoracionesState) {
-        is Resource.Loading -> {
-            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
-        is Resource.Success -> {
-            val valoraciones = (valoracionesState as Resource.Success<List<ValoracionResponseDTO>>).data ?: emptyList()
-            if (valoraciones.isEmpty()) {
-                Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "No hay valoraciones aún.")
-                }
-            } else {
-                LazyColumn(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        when (valoracionesState) {
+            is Resource.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(valoraciones, key = { it.id }) { valoracion ->
-                        ValoracionItem(valoracion)
-                        Spacer(Modifier.height(10.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Cargando valoraciones...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
-        }
-        is Resource.Error -> {
-            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Error: ${(valoracionesState as Resource.Error).message ?: "Desconocido"}")
+
+            is Resource.Success -> {
+                val valoraciones = (valoracionesState as Resource.Success<List<ValoracionResponseDTO>>).data ?: emptyList()
+
+                if (valoraciones.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Sin valoraciones aún",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Sé el primero en valorar este negocio",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        item {
+                            // Header de la sección con estadísticas
+                            ValoracionesHeader(valoraciones = valoraciones)
+                        }
+
+                        items(valoraciones, key = { it.id }) { valoracion ->
+                            ValoracionItemImproved(valoracion)
+                        }
+                    }
+                }
             }
-        }
-        else -> {
-            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Carga las valoraciones.")
+
+            is Resource.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Error,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Error al cargar valoraciones",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = (valoracionesState as Resource.Error).message ?: "Error desconocido",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            else -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Sin datos disponibles",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
-    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
+}
+
+@Composable
+private fun ValoracionesHeader(valoraciones: List<ValoracionResponseDTO>) {
+    val promedioRating = valoraciones.map { it.puntuacion }.average()
+    val totalValoraciones = valoraciones.size
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Valoraciones",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Surface(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "$totalValoraciones",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Rating promedio
+                Text(
+                    text = String.format("%.1f", promedioRating),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                // Estrellas
+                RatingStarsImproved(
+                    rating = promedioRating,
+                    starSize = 20.dp,
+                    starColor = Color(0xFFFFB300)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = "de $totalValoraciones ${if (totalValoraciones == 1) "valoración" else "valoraciones"}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
 }
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun ValoracionItem(valoracion: ValoracionResponseDTO) {
+private fun ValoracionItemImproved(valoracion: ValoracionResponseDTO) {
     val formattedDate = try {
         val localDateTime = LocalDateTime.parse(valoracion.fechaValoracion, DateTimeFormatter.ISO_DATE_TIME)
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         localDateTime.format(formatter)
     } catch (e: Exception) {
         valoracion.fechaValoracion
     }
 
-    val DarkYellow = remember { mutableStateOf(Color(0xFFFFB300)) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.padding(20.dp)
         ) {
-            Text(
-                text = valoracion.usuario.userName,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = formattedDate,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+            // Header con usuario y fecha
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .size(16.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = valoracion.usuario.userName,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
 
-        Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = formattedDate,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            RatingStars(
-                rating = valoracion.puntuacion,
-                starSize = 20.dp,
-                starColor = DarkYellow.value,
-                modifier = Modifier.weight(1f)
-            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Rating con estrellas
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                RatingStarsImproved(
+                    rating = valoracion.puntuacion,
+                    starSize = 18.dp,
+                    starColor = Color(0xFFFFB300)
+                )
+                Text(
+                    text = String.format("%.1f", valoracion.puntuacion),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Comentario
             Text(
-                text = String.format("%.1f", valoracion.puntuacion),
+                text = valoracion.comentario,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
             )
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = valoracion.comentario,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
     }
 }
 
 @Composable
-fun RatingStars(
+private fun RatingStarsImproved(
     rating: Double,
     modifier: Modifier = Modifier,
     starSize: Dp = 20.dp,
@@ -182,22 +396,18 @@ fun RatingStars(
             Icon(
                 imageVector = Icons.Outlined.Star,
                 contentDescription = null,
-                tint = starColor,
+                tint = starColor.copy(alpha = 0.3f),
                 modifier = Modifier.size(starSize)
             )
         }
     }
 }
 
-
-
 @Preview(showBackground = true)
 @Composable
-fun PreviewValoracionesScreen() {
-    // Usamos el FakeViewModel con repositorio simulado ya inicializado correctamente
+fun PreviewValoracionesTabContentImproved() {
     val fakeViewModel = remember { FakeValoracionViewModel() }
 
-    // Lanzamos la carga simulada de valoraciones solo una vez
     LaunchedEffect(Unit) {
         fakeViewModel.getValoracionesPorNegocio(
             negocioId = 1,
@@ -207,8 +417,7 @@ fun PreviewValoracionesScreen() {
         )
     }
 
-    // Mostramos directamente el composable real
-    ValoracionesTabContent(
+    NegocioValoracionesTab(
         negocioId = 1,
         valoracionViewModel = fakeViewModel,
         modifier = Modifier.fillMaxSize()

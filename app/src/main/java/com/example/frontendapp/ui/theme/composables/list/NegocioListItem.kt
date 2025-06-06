@@ -20,20 +20,18 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.ui.theme.ThemeColors
-import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
+import com.example.frontendapp.ui.theme.composables.modals.ServicioImagePicker
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 
 @Composable

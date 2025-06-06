@@ -7,7 +7,7 @@ import com.example.frontendapp.data.model.Usuario.Usuario
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.data.remote.source.HorarioRepo
 import com.example.frontendapp.data.remote.source.NegocioRepo
 import kotlinx.coroutines.runBlocking
@@ -26,14 +26,14 @@ class HorarioApiTest {
         isNegocio = true
     )
 
-    private lateinit var authRemoteDataResource: AuthRemoteDataResource
+    private lateinit var authRemoteDataResource: AuthRepo
     private lateinit var negocioRemoteSource: NegocioRepo
     private lateinit var horarioRemoteDataSource: HorarioRepo
     private var createdNegocioId: Int? = null
 
     @Before
     fun setup() = runBlocking {
-        authRemoteDataResource = AuthRemoteDataResource(RetrofitInstance.userApi)
+        authRemoteDataResource = AuthRepo(RetrofitInstance.userApi)
 
         val loginResult = authRemoteDataResource.login(LoginRequest(usuarioNegocio.email, usuarioNegocio.password))
         if (loginResult is Resource.Success) {

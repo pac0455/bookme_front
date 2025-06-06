@@ -7,14 +7,14 @@ import com.example.frontendapp.data.model.Api.ValidationErrorResponse
 import com.example.frontendapp.data.model.Usuario.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario.Usuario
 import com.example.frontendapp.data.model.Usuario.toRegisterDTO
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.data.remote.reponses.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RegisterViewModel(private val auth: AuthRemoteDataResource) : ViewModel() {
+class RegisterViewModel(private val auth: AuthRepo) : ViewModel() {
 
     // Estado del usuario
     private val _uiState = MutableStateFlow(Usuario())

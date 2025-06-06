@@ -3,6 +3,7 @@ package com.example.frontendapp.data.remote.source
 import ReservaResponseDTO
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
 import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
+import com.example.frontendapp.data.model.pago.EstadoPago
 import com.example.frontendapp.data.remote.api.ReservaApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import retrofit2.Response
@@ -18,6 +19,16 @@ class ReservaRepo(
             Resource.Error("Error de red: ${e.message}")
         }
     }
+
+    suspend fun actualizarEstadoPago(reservaId: Int, estadoPago: EstadoPago): Resource<Unit> {
+        return try {
+            val response = reservaApi.actualizarEstadoPago(reservaId, estadoPago.name)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error de red: ${e.message}")
+        }
+    }
+
 
     suspend fun cancelarReserva(reservaId: Int): Resource<ReservaResponseDTO> {
         return try {

@@ -2,8 +2,6 @@ package com.example.frontendapp.ui.theme.composables.tab
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,19 +33,21 @@ import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.*
 import com.example.frontendapp.ui.theme.composables.Items.ServicioCardItem
-import com.example.frontendapp.ui.theme.composables.modal.*
 import com.example.frontendapp.ui.theme.composables.section.HeaderSeccion
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
 import com.example.frontendapp.ui.theme.AppColors
+import com.example.frontendapp.ui.theme.composables.modals.ModalConfig
+import com.example.frontendapp.ui.theme.composables.modals.ModalType
+import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
 private const val TAG = "ServicioTabContent"
 
-// ✅ NUEVO: Data class para filtros de servicios
+//  Data class para filtros de servicios
 data class FiltrosServicio(
     val categorias: Set<String> = emptySet(),
     val precioMinimo: Double? = null,
@@ -57,7 +57,7 @@ data class FiltrosServicio(
     val ordenarPor: OrdenarServicioPor = OrdenarServicioPor.RELEVANCIA
 )
 
-// ✅ NUEVO: Enum para ordenamiento
+// Enum para ordenamiento
 enum class OrdenarServicioPor(val displayName: String, val icon: ImageVector) {
     RELEVANCIA("Relevancia", Icons.Default.Star),
     PRECIO_ASC("Precio: menor a mayor", Icons.Default.ArrowUpward),
@@ -66,7 +66,7 @@ enum class OrdenarServicioPor(val displayName: String, val icon: ImageVector) {
     VALORACION("Valoración", Icons.Default.ThumbUp)
 }
 
-// ✅ NUEVO: Enum para filtros de duración
+// Enum para filtros de duración
 enum class DuracionOption(val displayName: String, val value: Int?) {
     TODAS("Todas las duraciones", null),
     CORTA("Menos de 30 min", 30),
@@ -77,13 +77,10 @@ enum class DuracionOption(val displayName: String, val value: Int?) {
 @Composable
 fun ServicioTabContent(
     servicioViewModel: ServicioViewModel,
-    modifier: Modifier = Modifier,
     navController: NavController,
 ) {
-    val context = LocalContext.current
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
-    // ✅ NUEVO: Estados para filtros y búsqueda
+    //  Estados para filtros y búsqueda
     var mostrarFiltros by remember { mutableStateOf(false) }
     var filtrosActivos by remember { mutableStateOf(FiltrosServicio()) }
     var busqueda by remember { mutableStateOf("") }
@@ -91,7 +88,7 @@ fun ServicioTabContent(
     // Estado de los servicios del ViewModel
     val servicioListState by servicioViewModel.serviciosDetalleState.collectAsState()
 
-    // ✅ NUEVO: Extraer categorías disponibles
+    //  Extraer categorías disponibles
     val categoriasDisponibles = remember(servicioListState) {
         if (servicioListState is Resource.Success) {
             (servicioListState as Resource.Success).data
@@ -103,7 +100,7 @@ fun ServicioTabContent(
         }
     }
 
-    // ✅ NUEVO: Extraer rango de precios
+    // Extraer rango de precios
     val rangoPrecio = remember(servicioListState) {
         if (servicioListState is Resource.Success) {
             val servicios = (servicioListState as Resource.Success).data ?: emptyList()
@@ -119,7 +116,7 @@ fun ServicioTabContent(
         }
     }
 
-    // ✅ NUEVO: Lista filtrada según filtros y búsqueda
+    // Lista filtrada según filtros y búsqueda
     val serviciosFiltrados = remember(servicioListState, filtrosActivos, busqueda) {
         val servicios = if (servicioListState is Resource.Success) {
             (servicioListState as Resource.Success).data ?: emptyList()
@@ -178,10 +175,10 @@ fun ServicioTabContent(
         resultado
     }
 
-    // ✅ NUEVO: Verificar si hay filtros activos
+    //  Verificar si hay filtros activos
     val hayFiltrosActivos = filtrosActivos != FiltrosServicio() || busqueda.isNotBlank()
 
-    // ✅ NUEVO: Agrupar servicios por categoría para mostrarlos en secciones
+    //  Agrupar servicios por categoría para mostrarlos en secciones
     val serviciosPorCategoria = remember(serviciosFiltrados) {
         serviciosFiltrados.groupBy { it.categoria }
     }
@@ -194,6 +191,8 @@ fun ServicioTabContent(
             servicioViewModel.getServiciosDetalle()
         }
     }
+
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -208,7 +207,7 @@ fun ServicioTabContent(
                 onFilterClick = { mostrarFiltros = true }
             )
 
-            // ✅ NUEVO: Mostrar resumen de filtros activos
+            //  Mostrar resumen de filtros activos
             if (hayFiltrosActivos) {
                 FiltrosActivosResumen(
                     filtros = filtrosActivos,
@@ -424,7 +423,7 @@ fun ServicioTabContent(
             }
         }
 
-        // ✅ NUEVO: Modal de filtros
+        //  Modal de filtros
         FiltrosServicioModal(
             isVisible = mostrarFiltros,
             filtrosActuales = filtrosActivos,
@@ -442,7 +441,7 @@ fun ServicioTabContent(
     }
 }
 
-// ✅ NUEVO: Componente para mostrar resumen de filtros activos
+//  Componente para mostrar resumen de filtros activos
 @Composable
 private fun FiltrosActivosResumen(
     filtros: FiltrosServicio,
@@ -563,7 +562,7 @@ private fun FiltrosActivosResumen(
     }
 }
 
-// ✅ NUEVO: Chip para mostrar filtros activos
+//  Chip para mostrar filtros activos
 @Composable
 private fun FiltroChip(
     texto: String,
@@ -597,7 +596,7 @@ private fun FiltroChip(
     }
 }
 
-// ✅ NUEVO: Sección de servicios
+//  Sección de servicios
 @Composable
 fun ServicioSeccion(
     titulo: String,
@@ -615,7 +614,7 @@ fun ServicioSeccion(
     Column(
         modifier = Modifier.padding(vertical = 8.dp)
     ) {
-        // ✅ Header de sección mejorado
+        // Header de sección mejorado
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -754,7 +753,7 @@ private fun FiltrosContent(
                 .fillMaxSize()
                 .padding(24.dp)
         ) {
-            // ✅ Header del modal
+            //  Header del modal
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -786,7 +785,7 @@ private fun FiltrosContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ✅ Contenido scrolleable
+            //  Contenido scrolleable
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -922,7 +921,7 @@ private fun FiltrosContent(
     }
 }
 
-// ✅ Componente para secciones de filtro
+//  Componente para secciones de filtro
 @Composable
 private fun FiltroSeccion(
     titulo: String,
@@ -952,7 +951,7 @@ private fun FiltroSeccion(
     }
 }
 
-// ✅ Filtro de categorías
+// Filtro de categorías
 @Composable
 private fun CategoriasFilter(
     categoriasDisponibles: List<String>,
@@ -989,7 +988,7 @@ private fun CategoriasFilter(
     }
 }
 
-// ✅ Filtro de rango de precio
+// Filtro de rango de precio
 @Composable
 private fun PrecioRangeFilter(
     rangoPrecio: Pair<Double, Double>,

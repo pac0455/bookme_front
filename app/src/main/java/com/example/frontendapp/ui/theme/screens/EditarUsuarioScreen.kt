@@ -1,5 +1,7 @@
 package com.example.frontendapp.ui.theme.screens
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -14,32 +16,36 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
+import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.ui.theme.FrontendappTheme
+import com.example.frontendapp.ui.theme.composables.modals.ModalConfig
+import com.example.frontendapp.ui.theme.composables.modals.ModalType
+import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
+import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun EditarUsuarioScreenMejorada(
-    email: String,
-    initialName: String = "",
-    onNombreChanged: (String) -> Unit,
-    onGuardar: () -> Unit,
-    onBack: () -> Unit = {}
+    navController: NavController,
+    usuarioViewModel: UsuarioViewModel,
 ) {
-    var nombre by remember { mutableStateOf(initialName) }
+    val usuarioUI by usuarioViewModel.usuarioUI.collectAsState()
+    var nombre by remember { mutableStateOf(usuarioUI.userName) }
     var isLoading by remember { mutableStateOf(false) }
     var hasChanges by remember { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(false) }
 
     // Detectar cambios
-    LaunchedEffect(nombre) {
-        hasChanges = nombre != initialName && nombre.isNotBlank()
-        onNombreChanged(nombre)
-    }
+    LaunchedEffect(nombre) { hasChanges = nombre != usuarioUI.userName && nombre.isNotBlank() }
 
     val saveButtonColor by animateColorAsState(
         targetValue = if (hasChanges) MaterialTheme.colorScheme.primary
@@ -47,6 +53,21 @@ fun EditarUsuarioScreenMejorada(
         animationSpec = tween(300),
         label = "save_button_color"
     )
+    //Modal
+    ReusableModal(
+        isVisible = isVisible,
+        config = ModalConfig(
+            type = if(isError) ModalType.ERROR else ModalType.SUCCESS,
+            title = if(isError) "Error" else "Exito",
+            message = if(isError)
+             "Error inesperado al actualiza el nombre de usuario"
+             else "Nombre actulizado correctamente",
+            confirmText = if(isError) "Entendido" else "Aceptar"
+        ),
+        onConfirm = { isVisible = false },
+        onDismiss = { isVisible = false }
+    )
+
 
     Column(
         modifier = Modifier
@@ -55,15 +76,16 @@ fun EditarUsuarioScreenMejorada(
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
-        // Top App Bar personalizada
-        TopAppBarSection(onBack = onBack)
+        TopAppBarSection(onBack = {
+            navController.popBackStack()
+        })
 
         Column(
             modifier = Modifier.padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Avatar y título
-            ProfileHeaderSection(email = email)
+            ProfileHeaderSection()
 
             // Formulario
             Card(
@@ -107,37 +129,6 @@ fun EditarUsuarioScreenMejorada(
                         shape = RoundedCornerShape(12.dp)
                     )
 
-                    // Campo email (solo lectura)
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = {},
-                        label = { Text("Correo electrónico") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Email,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Campo bloqueado",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        },
-                        singleLine = true,
-                        enabled = false,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-
                     // Nota informativa
                     Row(
                         modifier = Modifier
@@ -171,10 +162,27 @@ fun EditarUsuarioScreenMejorada(
             Button(
                 onClick = {
                     if (hasChanges) {
-                        isLoading = true
-                        onGuardar()
-                        // Simular carga
-                        // En una app real, esto se manejaría con el estado del ViewModel
+
+                        usuarioViewModel.updateNombre(
+                            usuario = UpdateNombreDTO(
+                                userName = nombre,
+                                id = RetrofitInstance.getUserId()
+                            ),
+                            onSuccess = { updatedUser ->
+                                Log.d("EditarUsuairo", updatedUser.toString())
+                                isVisible = true
+                                isError = false
+                            },
+                            onError = {
+                                Log.d("EditarUsuario", it)
+                                isVisible = true
+                                isError = true
+                            },
+                            onLoading = {
+                                isLoading = true
+                            }
+                        )
+
                     }
                 },
                 enabled = hasChanges && !isLoading,
@@ -225,7 +233,7 @@ private fun TopAppBarSection(onBack: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
-            onClick = onBack,
+            onClick = { onBack() },
             modifier = Modifier
                 .background(
                     MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -251,7 +259,7 @@ private fun TopAppBarSection(onBack: () -> Unit) {
 }
 
 @Composable
-private fun ProfileHeaderSection(email: String) {
+private fun ProfileHeaderSection() {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -282,25 +290,17 @@ private fun ProfileHeaderSection(email: String) {
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
-
-        Text(
-            text = email,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
     }
 }
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun EditarUsuarioScreenMejoradaPreview() {
     FrontendappTheme {
         EditarUsuarioScreenMejorada(
-            email = "usuario@ejemplo.com",
-            initialName = "Juan Pérez",
-            onNombreChanged = {},
-            onGuardar = {}
+            navController = rememberNavController(),
+            usuarioViewModel = UsuarioViewModel(AuthRepo(RetrofitInstance.userApi))
         )
     }
 }

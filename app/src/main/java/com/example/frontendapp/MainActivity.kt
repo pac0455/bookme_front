@@ -1,12 +1,17 @@
 package com.example.frontendapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 
 import androidx.compose.ui.Modifier
@@ -15,7 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.remote.RetrofitInstance
-import com.example.frontendapp.data.remote.source.AuthRemoteDataResource
+import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.data.remote.source.CategoriaRemoteDataSource
 import com.example.frontendapp.data.remote.source.HorarioRepo
 import com.example.frontendapp.data.remote.source.NegocioRepo
@@ -32,6 +37,7 @@ import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
 import com.example.frontendapp.utils.UbicacionHelper
 
@@ -40,12 +46,35 @@ import com.example.frontendapp.utils.UbicacionHelper
 //https://medium.com/@kiwi47/create-a-flexible-and-customizable-calendar-view-in-android-with-jetpack-compose-56dfb911c2ab
 //https://www.youtube.com/watch?v=9r4st6dmyNE -> tabItems
 class MainActivity : ComponentActivity() {
+    private lateinit var permisoLauncher: ActivityResultLauncher<String>
+
+    @SuppressLint("ViewModelConstructorInComposable")
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
+        permisoLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                Log.d("PERMISO", "Concedido")
+            } else {
+                Log.d("PERMISO", "Rechazado")
+                // Aquí podrías mostrar diálogo para ir a ajustes si querés
+            }
+        }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             // Guardamos en remember si el permiso ya fue concedido
-           UbicacionHelper.solicitarPermisoUbicacionDesde(this)
+            LaunchedEffect(Unit) {
+                UbicacionHelper.solicitarPermisos(
+                    activity = this@MainActivity,
+                    permisoLauncher = permisoLauncher,
+                    onConcedido = { Log.d("MainActivity", "Permiso concedido") },
+                    onRechazado = { Log.d("MainActivity", "Permiso rechazado") }
+                )
+            }
 
 
             FrontendappTheme {
@@ -56,7 +85,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
 
                     // Repos
-                    val authRepo = remember { AuthRemoteDataResource(RetrofitInstance.userApi) }
+                    val authRepo = remember { AuthRepo(RetrofitInstance.userApi) }
                     val negocioRepo = remember { NegocioRepo(RetrofitInstance.negocioApi) }
                     val servicioRepo = remember { ServicioRepo(RetrofitInstance.servicioApi) }
                     val categoriaRepo = remember { CategoriaRemoteDataSource(RetrofitInstance.categoriaApi) }
@@ -86,6 +115,9 @@ class MainActivity : ComponentActivity() {
                     val horarioViewModel_ClienteMain: HorariosViewModel = viewModel(factory = factory)
                     val valoracionesViewModel_ClienteMain: ValoracionViewModel = viewModel(factory = factory)
 
+                    //Viewmodel para pantalla cambiar nombre
+                    val usuarioViewModel_EditProfile: UsuarioViewModel = viewModel(factory = factory)
+
 
 
                     //Uso solo una instancia de categorias ya que solo las listaré
@@ -106,7 +138,8 @@ class MainActivity : ComponentActivity() {
                         negocioViewModel_ClienteMain = negocioViewModel_ClienteMain,
                         categoriasViewModel = categoriasViewModel,
                         horarioViewModel_ClienteMain = horarioViewModel_ClienteMain,
-                        valoracionesViewModel_ClienteMain = valoracionesViewModel_ClienteMain
+                        valoracionesViewModel_ClienteMain = valoracionesViewModel_ClienteMain,
+                        usuarioViewModel_EditProfile = usuarioViewModel_EditProfile
                     )
                 }
             }
@@ -123,7 +156,7 @@ class MainActivity : ComponentActivity() {
 class AppViewModelFactory(
 
     // Dependencias que usaremos para inyectar en los distintos ViewModels
-    private val authRepo: AuthRemoteDataResource,
+    private val authRepo: AuthRepo,
     private val negocioRepo: NegocioRepo,
     private val servicioApi: ServicioRepo,
     private val categoriaSource: CategoriaRemoteDataSource,
@@ -172,6 +205,8 @@ class AppViewModelFactory(
                 HorariosViewModel(horarioSource) as T
             modelClass.isAssignableFrom(ValoracionViewModel::class.java) ->
                 ValoracionViewModel(valoracionesRepo) as T
+            modelClass.isAssignableFrom(UsuarioViewModel::class.java) ->
+                UsuarioViewModel(authRepo) as T
 
             // Si se pide un ViewModel que no está soportado, se lanza una excepción
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

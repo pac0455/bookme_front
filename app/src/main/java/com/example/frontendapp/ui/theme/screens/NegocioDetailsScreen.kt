@@ -1,56 +1,37 @@
 package com.example.frontendapp.ui.theme.screens
+
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.frontendapp.data.model.Horario
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.model.UI.TabItem
 import com.example.frontendapp.ui.theme.composables.Btn.BtnIconRounded
-import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.Items.EstadoEtiqueta
 import com.example.frontendapp.ui.theme.composables.Items.RatingStars
-import com.example.frontendapp.ui.theme.composables.modal.ServicioImagePicker
+import com.example.frontendapp.ui.theme.composables.modals.ServicioImagePicker
 import com.example.frontendapp.ui.theme.composables.navigation.TabPagerScaffold
-import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.NegocioHorarioTab
-import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.NegocioServicioTab
-import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.ValoracionesTabContent
+import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.*
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
-import com.example.frontendapp.ui.theme.viewmodels.HorariosViewModel
-import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
-import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
-import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
-import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeHorariosViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeValoracionViewModel
+import com.example.frontendapp.ui.theme.viewmodels.*
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.*
 
-private val TAG= "NegocioDetailScreen"
+private val TAG = "NegocioDetailScreen"
+
 @Composable
 fun NegocioDetailScreen(
     navController: NavController,
@@ -61,75 +42,21 @@ fun NegocioDetailScreen(
     modifier: Modifier = Modifier,
     valoracionesViewModel: ValoracionViewModel
 ) {
-
     val negocioCard by negocioViewModel.tempNegocioCard.collectAsState()
     val imagenUrl by remember { mutableStateOf(negocioViewModel.getNegocioImageUrl(negocioCard.id)) }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        ServicioImagePicker(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f),
-            imageModifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit,
-            id = negocioCard.id,
-            clickable = false,
-            showIconEdit = false,
-            borderColor = MaterialTheme.colorScheme.primary,
-            borderWidth = 1.dp,
-            imageUrl = imagenUrl
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Header mejorado con imagen y información
+        NegocioDetailHeader(
+            negocioCard = negocioCard,
+            imagenUrl = imagenUrl ?: ""
         )
 
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = negocioCard.nombre, style = MaterialTheme.typography.headlineSmall)
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = negocioCard.descripcion,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                EstadoEtiqueta(isOpen = negocioCard.isOpen)
-
-                if (negocioCard.reviewCount > 0) {
-                    RatingStars(rating = negocioCard.rating)
-                } else {
-                    Text(
-                        text = "Sin reseñas",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(text = negocioCard.descripcion, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Dirección: ${negocioCard.direccion}",
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            Text(
-                text = negocioCard.distancia?.let { "Distancia: %.2f km".format(it) }
-                    ?: "No se puede calcular la distancia desde tu ubicación",
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
+        // Tabs con contenido mejorado
         val tabItems = listOf(
             TabItem(
                 title = NegocioDetailTab.SERVICIOS.title,
@@ -150,7 +77,10 @@ fun NegocioDetailScreen(
                 selectedIcon = Icons.Default.Schedule,
                 unSelectedIcon = Icons.Default.Schedule,
                 content = {
-                    NegocioHorarioTab(viewModel = horariosViewModel, negocioId = negocioCard.id )
+                    NegocioHorarioTab(
+                        viewModel = horariosViewModel,
+                        negocioId = negocioCard.id
+                    )
                 }
             ),
             TabItem(
@@ -161,13 +91,12 @@ fun NegocioDetailScreen(
                     Box(modifier = Modifier.fillMaxSize()) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             // La lista ocupa todo menos el espacio del botón
-                            ValoracionesTabContent(
+                            NegocioValoracionesTab(
                                 negocioId = negocioCard.id,
                                 valoracionViewModel = valoracionesViewModel,
-
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(bottom = 60.dp) // deja espacio para el botón fijo,
+                                    .padding(bottom = 60.dp) // deja espacio para el botón fijo
                             )
                         }
 
@@ -178,13 +107,13 @@ fun NegocioDetailScreen(
                                 .padding(16.dp),
                             horizontalArrangement = Arrangement.End
                         ) {
-                           BtnIconRounded(
-                               icon = Icons.Default.Add,
-                               onClick = {
-                                   Log.d(TAG,"Id pasada a valoracion form: ${negocioCard.id}")
+                            BtnIconRounded(
+                                icon = Icons.Default.Add,
+                                onClick = {
+                                    Log.d(TAG, "Id pasada a valoracion form: ${negocioCard.id}")
                                     navController.navigate(NavigationItem.VALORACION_FORM.createRoute(negocioCard.id))
-                               }
-                           )
+                                }
+                            )
                         }
                     }
                 }
@@ -195,6 +124,169 @@ fun NegocioDetailScreen(
     }
 }
 
+@Composable
+private fun NegocioDetailHeader(
+    negocioCard: NegocioCardCliente,
+    imagenUrl: String
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column {
+            // Imagen del negocio
+            ServicioImagePicker(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                imageModifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                id = negocioCard.id,
+                clickable = false,
+                showIconEdit = false,
+                borderColor = MaterialTheme.colorScheme.primary,
+                borderWidth = 0.dp,
+                imageUrl = imagenUrl
+            )
+
+            // Información del negocio
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+                // Nombre y categoría
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = negocioCard.nombre,
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Surface(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = negocioCard.categoria,
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+
+                    EstadoEtiqueta(isOpen = negocioCard.isOpen)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Rating y reseñas
+                if (negocioCard.reviewCount > 0) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        RatingStars(rating = negocioCard.rating)
+                        Text(
+                            text = "${negocioCard.rating}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "(${negocioCard.reviewCount} ${if (negocioCard.reviewCount == 1) "reseña" else "reseñas"})",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Sin reseñas aún",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Descripción
+                Text(
+                    text = negocioCard.descripcion,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Información adicional
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    InfoRow(
+                        icon = Icons.Default.LocationOn,
+                        text = negocioCard.direccion
+                    )
+
+                    InfoRow(
+                        icon = Icons.Default.Navigation,
+                        text = negocioCard.distancia?.let { "A %.2f km de distancia".format(it) }
+                            ?: "Distancia no disponible"
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InfoRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
 
 enum class NegocioDetailTab(val title: String) {
     HORARIOS("Horarios"),
@@ -202,35 +294,33 @@ enum class NegocioDetailTab(val title: String) {
     SERVICIOS("Servicios");
 }
 
-
-
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
-fun PreviewNegocioDetailsScreen() {
+fun PreviewNegocioDetailScreenImproved() {
     val negocio = NegocioCardCliente(
         id = 1,
         nombre = "Peluquería Bella",
-        descripcion = "Cortes modernos y tratamientos capilares",
+        descripcion = "Cortes modernos y tratamientos capilares de alta calidad",
         categoria = "Belleza",
-        direccion = "Calle Falsa 123",
+        direccion = "Calle Falsa 123, Centro",
         rating = 4.5f,
         reviewCount = 34,
         isActive = true,
         isOpen = true,
-        distancia = 1350.0,
+        distancia = 1.35,
         latitud = 40.4168,
         longitud = -3.7038
     )
 
-
-
-    NegocioDetailScreen(
-        navController = rememberNavController(),
-        negocioViewModel =FakeNegocioViewModel(),
-        servicioViewModel = FakeServicioViewModel(),
-        horariosViewModel = FakeHorariosViewModel(),
-        reservaViewModel = FakeReservasViewModel(),
-        valoracionesViewModel = FakeValoracionViewModel()
-    )
+    MaterialTheme {
+        NegocioDetailScreen(
+            navController = rememberNavController(),
+            negocioViewModel = FakeNegocioViewModel(),
+            servicioViewModel = FakeServicioViewModel(),
+            horariosViewModel = FakeHorariosViewModel(),
+            reservaViewModel = FakeReservasViewModel(),
+            valoracionesViewModel = FakeValoracionViewModel()
+        )
+    }
 }
