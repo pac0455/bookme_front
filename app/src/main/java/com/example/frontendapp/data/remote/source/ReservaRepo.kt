@@ -3,6 +3,7 @@ package com.example.frontendapp.data.remote.source
 import ReservaResponseDTO
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
 import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
+import com.example.frontendapp.data.model.Reserva.ReservasPorDiaDTO
 import com.example.frontendapp.data.model.pago.EstadoPago
 import com.example.frontendapp.data.remote.api.ReservaApi
 import com.example.frontendapp.data.remote.reponses.Resource
@@ -28,6 +29,17 @@ class ReservaRepo(
             Resource.Error("Error de red: ${e.message}")
         }
     }
+
+    suspend fun getReservasPorDiaSemana(negocioId: Int): Resource<List<ReservasPorDiaDTO>> {
+        return try {
+            val response = reservaApi.getReservasPorDiaSemana(negocioId)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error de red: ${e.message}")
+        }
+    }
+
+
 
 
     suspend fun cancelarReserva(reservaId: Int): Resource<ReservaResponseDTO> {

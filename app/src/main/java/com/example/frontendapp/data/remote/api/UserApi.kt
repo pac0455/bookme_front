@@ -20,7 +20,7 @@ import retrofit2.http.Query
 
 private const val controller = "api/usuario"
 interface UserApi {
-    // Login tradicional con email/contraseña (puedes usar un modelo LoginRequest si prefieres)
+    // Login tradicional con email/contraseña
     @POST("$controller/login")
     suspend fun login(@Body usuario: LoginRequest): Response<LoginRegisterResultDTO>
 

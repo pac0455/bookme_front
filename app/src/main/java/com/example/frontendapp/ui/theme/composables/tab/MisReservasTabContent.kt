@@ -636,6 +636,7 @@ fun ReservaSeccion(
                                     Toast.makeText(context, "Error al cancelar la reserva", Toast.LENGTH_SHORT).show()
                                 },
                                 onSucces = {
+                                    reservaViewModel.getReservasByUserId(userId = RetrofitInstance.getUserId())
                                     Toast.makeText(context, "Reserva cancelada", Toast.LENGTH_SHORT).show()
                                 }
                             )

@@ -295,31 +295,30 @@ fun ReservaCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                     )
                 }
-
-                // ✅ BOTÓN DE DEBUG: Mostrar siempre para testing
-                TextButton(
-                    onClick = { showDeleteDialog = true },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = if (puedeSerCanceladaResult) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Cancel,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Cancelar",
-                        style = MaterialTheme.typography.labelMedium
-                    )
+                if(puedeSerCanceladaResult){
+                    TextButton(
+                        onClick = { showDeleteDialog = true },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor =  MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Cancel,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Cancelar",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-// ✅ FUNCIÓN MEJORADA: Con más logging para debug
 private fun puedeSerCancelada(reserva: ReservaResponseDTO): Boolean {
     Log.d("puedeSerCancelada", "=== DEBUGGING CANCELACIÓN ===")
     Log.d("puedeSerCancelada", "Reserva ID: ${reserva.id}")
@@ -330,7 +329,7 @@ private fun puedeSerCancelada(reserva: ReservaResponseDTO): Boolean {
     Log.d("puedeSerCancelada", "Estado permitido: $estadoPermitido (debe ser Confirmada o Pendiente)")
 
     if (!estadoPermitido) {
-        Log.d("puedeSerCancelada", "❌ Estado no permitido para cancelación")
+        Log.d("puedeSerCancelada", " Estado no permitido para cancelación")
         return false
     }
 
@@ -345,14 +344,14 @@ private fun puedeSerCancelada(reserva: ReservaResponseDTO): Boolean {
         Log.d("puedeSerCancelada", "Es futura o hoy: $esFuturaOHoy")
 
         if (esFuturaOHoy) {
-            Log.d("puedeSerCancelada", "✅ Reserva PUEDE ser cancelada")
+            Log.d("puedeSerCancelada", "Reserva PUEDE ser cancelada")
         } else {
-            Log.d("puedeSerCancelada", "❌ Reserva es del pasado, NO puede ser cancelada")
+            Log.d("puedeSerCancelada", "Reserva es del pasado, NO puede ser cancelada")
         }
 
         esFuturaOHoy
     } catch (e: Exception) {
-        Log.e("puedeSerCancelada", "❌ Error parseando fecha: ${e.message}")
+        Log.e("puedeSerCancelada", "Error parseando fecha: ${e.message}")
         Log.e("puedeSerCancelada", "Fecha recibida: '${reserva.fecha}'")
         false
     }

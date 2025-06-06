@@ -165,15 +165,6 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                     text = if (loginState is Resource.Loading) "Cargando..." else "Iniciar Sesión",
                     icon = if (loginState is Resource.Loading) Icons.Default.HourglassEmpty else Icons.Default.VerifiedUser,
                 )
-
-                CustomBox(
-                    borderTop = true,
-                    borderBottom = true,
-                ){
-                    Text("o")
-                }
-
-                GoogleButton(context)
             }
         }
     }

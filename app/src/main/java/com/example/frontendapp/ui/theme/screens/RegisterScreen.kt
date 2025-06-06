@@ -6,11 +6,14 @@ import androidx.compose.foundation.BorderStroke
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -54,6 +57,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: RegisterViewM
     val telefonoFocus = remember { FocusRequester() }
     val contrasenaFocus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val scroll = rememberScrollState()
 
 
 
@@ -83,6 +87,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: RegisterViewM
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scroll)
                 .padding(innerPadding)
                 .padding(24.dp),
             verticalArrangement = Arrangement.SpaceEvenly,
@@ -182,31 +187,6 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: RegisterViewM
                         )
                     },
                 )
-                val indicatorWidth = remember { mutableStateOf(1f) } // Grosor de la línea
-                Column(
-                    modifier = Modifier.padding(16.dp), // Añadiendo un margen de 16dp
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    // Borde superior
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(indicatorWidth.value.dp) // Altura del borde superior
-                            .border(BorderStroke(indicatorWidth.value.dp, Color.Black))
-                    )
-                    // Contenido central
-                    Box(modifier = Modifier.padding(vertical = 8.dp)) {
-                        Text(text = "También puedes registrarte con ...")
-                    }
-                    // Borde inferior
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(indicatorWidth.value.dp) // Altura del borde inferior
-                            .border(BorderStroke(indicatorWidth.value.dp, Color.Black))
-                    )
-                }
-                GoogleButton(context)
             }
         }
     }

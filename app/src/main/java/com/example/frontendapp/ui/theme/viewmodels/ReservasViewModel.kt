@@ -11,6 +11,7 @@ import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
+import com.example.frontendapp.data.model.Reserva.ReservasPorDiaDTO
 import com.example.frontendapp.data.model.Servicio.Servicio
 import com.example.frontendapp.data.model.pago.EstadoPago
 import com.example.frontendapp.data.model.pago.MetodoPagoDto
@@ -92,9 +93,6 @@ open class ReservasViewModel(
     //    ----------
 
 
-    // Reservas detalladas
-    protected val _reservasDetalladasState = MutableStateFlow<List<ReservaDetallada>>(emptyList())
-    val reservasDetalladasState: StateFlow<List<ReservaDetallada>> = _reservasDetalladasState
 
     protected val _reservaCreateState = MutableStateFlow<Resource<ReservaResponseDTO>>(Resource.None())
     val reservaCreateState: StateFlow<Resource<ReservaResponseDTO>> = _reservaCreateState
@@ -111,6 +109,9 @@ open class ReservasViewModel(
 
     private val _estadoPagoUpdateState = MutableStateFlow<Resource<Unit>>(Resource.None())
     val estadoPagoUpdateState: StateFlow<Resource<Unit>> = _estadoPagoUpdateState
+
+    private val _resumenPorDiaState = MutableStateFlow<Resource<List<ReservasPorDiaDTO>>>(Resource.None())
+    val resumenPorDiaState: StateFlow<Resource<List<ReservasPorDiaDTO>>> = _resumenPorDiaState
 
     // Estado de carga y error
     private val _isLoading = MutableStateFlow(false)
@@ -130,6 +131,14 @@ open class ReservasViewModel(
                 if (reserva.id == reservaId) reserva.copy(estadoPago = estadoPago) else reserva
             }
             _reservasByNegocioState.value = Resource.Success(listaActualizada)
+        }
+    }
+
+    fun cargarResumenPorDia(negocioId: Int) {
+        viewModelScope.launch {
+            _resumenPorDiaState.value = Resource.Loading()
+            val result = reservaRepo.getReservasPorDiaSemana(negocioId)
+            _resumenPorDiaState.value = result
         }
     }
 
