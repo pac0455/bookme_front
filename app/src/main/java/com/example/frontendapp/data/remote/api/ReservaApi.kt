@@ -31,11 +31,9 @@ interface ReservaApi {
     @GET("$reservaApi/por-dia-semana")
     suspend fun getReservasPorDiaSemana(@Query("negocioId") negocioId: Int): Response<List<ReservasPorDiaDTO>>
 
-
     @PUT("$reservaApi/ActualizarEstadoPago/{reservaId}")
     suspend fun actualizarEstadoPago(
         @Path("reservaId") reservaId: Int,
         @Query("nuevoEstado") nuevoEstado: String
     ): Response<Unit>
-
 }

@@ -21,13 +21,14 @@ data class Usuario(
 
     val firebaseUid: String? = null,
 
-    @SerializedName("rol")
-    val rol: String? = null,
 
     @SerializedName("fecha_registro")
     val fechaRegistro: Date? = null,
     @SerializedName("IsNegocio")
-    val isNegocio: Boolean = false
+    val isNegocio: Boolean = false,
+
+    @SerializedName("bloqueado")
+    val Bloqueado: Boolean = false
 )
 fun Usuario.toRegisterDTO(): RegisterDTO {
     return RegisterDTO(

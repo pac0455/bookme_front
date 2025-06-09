@@ -1,19 +1,64 @@
 package com.example.frontendapp.ui.theme.composables.Items
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -23,6 +68,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.data.model.Categoria
 import com.example.frontendapp.data.model.Negocio.Negocio
+import com.example.frontendapp.data.model.Negocio.NegocioResponseAdminDTO
 import com.example.frontendapp.data.model.UI.EstadoNegocio
 import com.example.frontendapp.data.model.UI.toEstadoNegocioUI
 import com.example.frontendapp.ui.theme.FrontendappTheme
@@ -33,24 +79,17 @@ import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 
 @Composable
-fun NegocioListItem(
-    negocio: Negocio,
-    onEditClick: (Negocio) -> Unit = {},
-    onDeleteClick: (Negocio) -> Unit = {},
-    onCLickVer: (Negocio) -> Unit = {},
+fun NegocioListAdminItem(
+    negocio: NegocioResponseAdminDTO,
+    onDelete: (Int) -> Unit = {},
+    onBloquear: (Int) -> Unit = {},
+    onDesBloquear: (Int) -> Unit = {},
     show: Boolean = false,
     viewModel: NegocioViewModel,
 ) {
     var expanded by remember { mutableStateOf(show) }
     val logoUrl = viewModel.getNegocioImageUrl(negocio.id)
-    val estadoNegocio = remember(negocio.activo, negocio.bloqueado) {
-        when {
-            negocio.bloqueado -> EstadoNegocio.BLOQUEADO
-            negocio.activo -> EstadoNegocio.ACTIVO
-            !negocio.activo -> EstadoNegocio.INACTIVO
-            else -> EstadoNegocio.SIN_ESPECICAR
-        }
-    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -70,22 +109,18 @@ fun NegocioListItem(
                 .padding(20.dp)
         ) {
             // Cabecera principal del negocio
-            NegocionHeader(
+            NegocioAdminHeader(
                 negocio = negocio,
                 logoUrl = logoUrl ?: "",
                 expanded = expanded,
-                onExpandToggle = {
-                    //Si esta bloqueado que no le deje mostrar opciones
-                    expanded = if(estadoNegocio == EstadoNegocio.BLOQUEADO) false else !expanded }
+                onExpandToggle = { expanded = !expanded }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Estado del negocio
-            NegocioStatusSection(
+            NegocioAdminStatusSection(
                 negocio = negocio,
-                estadoNegocio = estadoNegocio
             )
+
 
             // Panel expandible con acciones
             AnimatedVisibility(
@@ -95,11 +130,12 @@ fun NegocioListItem(
                 exit = fadeOut(animationSpec = tween(300)) +
                         shrinkVertically(animationSpec = tween(300))
             ) {
-                NegocioActionsSection(
+                // Estado del negocio
+                NegocioAdminActionsSection(
                     negocio = negocio,
-                    onEditClick = onEditClick,
-                    onDeleteClick = onDeleteClick,
-                    onViewClick = onCLickVer
+                    onBloquear = onBloquear,
+                    onDeleteClick = onDelete,
+                    onDesBloquear = onDesBloquear
                 )
             }
         }
@@ -107,8 +143,8 @@ fun NegocioListItem(
 }
 
 @Composable
-private fun NegocionHeader(
-    negocio: Negocio,
+private fun NegocioAdminHeader(
+    negocio: NegocioResponseAdminDTO,
     logoUrl: String,
     expanded: Boolean,
     onExpandToggle: () -> Unit
@@ -221,11 +257,15 @@ private fun NegocionHeader(
 }
 
 @Composable
-private fun NegocioStatusSection(
-    negocio: Negocio,
-    estadoNegocio: EstadoNegocio
-) {
-
+private fun NegocioAdminStatusSection(negocio: NegocioResponseAdminDTO) {
+    val estadoNegocio: EstadoNegocio = remember(negocio.bloqueado, negocio.isActive) {
+        when {
+            negocio.bloqueado -> EstadoNegocio.BLOQUEADO
+            negocio.isActive -> EstadoNegocio.ACTIVO
+            !negocio.isActive -> EstadoNegocio.INACTIVO
+            else -> EstadoNegocio.SIN_ESPECICAR
+        }
+    }
 
     val estadoUI = estadoNegocio.toEstadoNegocioUI()
 
@@ -244,7 +284,7 @@ private fun NegocioStatusSection(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = estadoUI.icon,
-                    contentDescription = "Estado del negocio: ${estadoUI.label.lowercase()}",
+                    contentDescription = "Estado del negocio: ${estadoUI.label}",
                     modifier = Modifier.size(20.dp),
                     tint = estadoUI.color
                 )
@@ -272,12 +312,14 @@ private fun NegocioStatusSection(
     }
 }
 
+
+
 @Composable
-private fun NegocioActionsSection(
-    negocio: Negocio,
-    onEditClick: (Negocio) -> Unit,
-    onDeleteClick: (Negocio) -> Unit,
-    onViewClick: (Negocio) -> Unit
+private fun NegocioAdminActionsSection(
+    negocio: NegocioResponseAdminDTO,
+    onDeleteClick: (Int) -> Unit,
+    onBloquear: (Int) -> Unit,
+    onDesBloquear: (Int) -> Unit
 ) {
     Column {
         Spacer(modifier = Modifier.height(16.dp))
@@ -300,48 +342,49 @@ private fun NegocioActionsSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Botón Editar
-            ActionButton(
-                icon = Icons.Default.Edit,
-                text = "Editar",
-                contentDescription = "Editar información del negocio ${negocio.nombre}",
-                onClick = { onEditClick(negocio) },
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.weight(1f)
-            )
-
             // Botón Eliminar
             ActionButton(
                 icon = Icons.Default.Delete,
                 text = "Eliminar",
                 contentDescription = "Eliminar negocio ${negocio.nombre}",
-                onClick = { onDeleteClick(negocio) },
+                onClick = { onDeleteClick(negocio.id) },
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 modifier = Modifier.weight(1f)
             )
 
-            // Botón Configurar
-            ActionButton(
-                icon = Icons.Default.Settings,
-                text = "Configurar",
-                contentDescription = "Configurar negocio ${negocio.nombre}",
-                onClick = { onViewClick(negocio) },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.weight(1f)
-            )
-
+            // Botón bloquear/desbloquear
+            if(!negocio.bloqueado){
+                ActionButton(
+                    icon =   Icons.Default.Lock,
+                    text = "Bloquear",
+                    contentDescription = "Bloquear negocio ${negocio.nombre}",
+                    onClick = { onBloquear(negocio.id) },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.weight(1f)
+                )
+            }else{
+                ActionButton(
+                    icon =   Icons.Default.LockOpen,
+                    text = "Desbloquear",
+                    contentDescription = "Desbloquear negocio ${negocio.nombre}",
+                    onClick = { onDesBloquear(negocio.id) },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
 
 
+
 @SuppressLint("ViewModelConstructorInComposable")
-@Preview(showBackground = true)
 @Composable
-fun NegocioListItemPreview() {
+@Preview
+fun NegocioListAdminItemPreview() {
     FrontendappTheme {
         Column(
             modifier = Modifier
@@ -350,61 +393,48 @@ fun NegocioListItemPreview() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Negocio activo
-            val negocioActivo = Negocio(
+            val negocioActivo = NegocioResponseAdminDTO(
+                id = 1,
                 nombre = "Gimnasio FitLife",
                 descripcion = "Gimnasio completo con equipos modernos",
                 direccion = "Av. Principal 123, Centro",
                 latitud = 40.0,
                 longitud = -3.0,
-                categoria = Categoria(
-                    id = 1,
-                    nombre = "Gimnasio"
-                ),
-                id = 1,
-            )
-            val negocioBloqueado = Negocio(
-                nombre = "Gimnasio FitLife",
-                descripcion = "Gimnasio completo con equipos modernos",
-                direccion = "Av. Principal 123, Centro",
-                latitud = 40.0,
-                longitud = -3.0,
-                categoria = Categoria(
-                    id = 1,
-                    nombre = "Gimnasio"
-                ),
-                id = 1,
-                bloqueado = true
-            )
-
-
-            NegocioListItem(
-                negocio = negocioActivo,
-                show = false,
-                viewModel = FakeNegocioViewModel()
+                categoria = Categoria(id = 10, nombre = "Gimnasio"),
+                rating = 4.5f,
+                reviewCount = 120,
+                isActive = true,
+                isOpen = true,
+                bloqueado = false
             )
 
             // Negocio inactivo expandido
-            val negocioInactivo = Negocio(
+            val negocioInactivo = NegocioResponseAdminDTO(
+                id = 2,
                 nombre = "Spa Relajación Total",
                 descripcion = "Centro de relajación y bienestar",
                 direccion = "Calle Tranquila 456, Zona Norte",
                 latitud = 40.1,
                 longitud = -3.1,
-                categoriaId = 2,
-                categoria = Categoria(nombre = "Spa"),
-                activo = false
+                categoria = Categoria(id = 20, nombre = "Spa"),
+                rating = 4.8f,
+                reviewCount = 80,
+                isActive = false,
+                isOpen = true,
+                bloqueado = true
             )
 
-            NegocioListItem(
-                negocio = negocioInactivo,
-                show = true,
-                viewModel = FakeNegocioViewModel()
-            )
-            NegocioListItem(
-                negocio = negocioBloqueado,
-                show = false,
-                viewModel = FakeNegocioViewModel()
-            )
+            LazyColumn {
+                items(listOf(negocioActivo, negocioInactivo)) { negocio ->
+                    NegocioListAdminItem(
+                        negocio = negocio,
+                        onBloquear = {},
+                        viewModel = FakeNegocioViewModel(),
+                        show = true,
+                        onDelete = {}
+                    )
+                }
+            }
         }
     }
 }

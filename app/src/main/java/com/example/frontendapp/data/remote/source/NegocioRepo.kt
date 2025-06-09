@@ -2,7 +2,9 @@ package com.example.frontendapp.data.remote.source
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.example.frontendapp.data.helper.ImageHelper
+import com.example.frontendapp.data.model.Negocio.GetAllNegociosResponse
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.model.Negocio.Ubicacion
@@ -10,6 +12,7 @@ import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.remote.api.NegocioApi
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.data.remote.reponses.SingleMessageResponse
 import retrofit2.Response
 
 class NegocioRepo(
@@ -38,6 +41,37 @@ class NegocioRepo(
             Resource.Error("Error de red: ${e.message}")
         }
     }
+    suspend fun getAllNegociosForAdmin(): Resource<GetAllNegociosResponse> {
+        try {
+            val response = negocioApi.getAllNegociosForAdmin()
+
+            // Si la respuesta NO es exitosa, retornamos error HTTP inmediatamente
+            if (!response.isSuccessful) {
+                return Resource.Error("Error HTTP: ${response.code()} - ${response.message()}")
+            }
+
+            val body = response.body() ?: return Resource.Error("Respuesta vacía del servidor")
+
+            // Si el cuerpo de la respuesta es nulo, retornamos error
+
+            // Si el body indica que NO fue exitoso, logeamos y retornamos error con el mensaje recibido
+            if (!body.success) {
+                Log.d("NegocioRepo", body.innerMessage ?: "Sin mensaje interno")
+                return Resource.Error(
+                    message = body.message ?: "Error desconocido del servidor",
+                    data = body
+                )
+            }
+            // Si todo está bien, retornamos éxito con los datos
+            return Resource.Success(body)
+
+        } catch (e: Exception) {
+            // Capturamos cualquier excepción y retornamos error con el mensaje de excepción
+            return Resource.Error("Error de red o excepción: ${e.localizedMessage ?: "Error desconocido"}")
+        }
+    }
+
+
 
     suspend fun getNegocio(id: Int): Resource<Negocio> {
         return try {
@@ -110,6 +144,23 @@ class NegocioRepo(
     suspend fun deleteNegocio(id: Int): Resource<Unit> {
         return try {
             val response = negocioApi.delete(id)
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error de red: ${e.message}")
+        }
+    }
+    suspend fun bloquearNegocio(id: Int): Resource<SingleMessageResponse> {
+        return try {
+            val response = negocioApi.bloquearNegocio(id) // ✅ llamada correcta
+            handleResponse(response)
+        } catch (e: Exception) {
+            Resource.Error("Error de red: ${e.message}")
+        }
+    }
+
+    suspend fun desbloquearNegocio(id: Int): Resource<SingleMessageResponse> {
+        return try {
+            val response = negocioApi.desbloquearNegocio(id)
             handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Error de red: ${e.message}")

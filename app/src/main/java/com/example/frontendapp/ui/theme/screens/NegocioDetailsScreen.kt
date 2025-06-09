@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -32,6 +33,7 @@ import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.*
 
 private val TAG = "NegocioDetailScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NegocioDetailScreen(
     navController: NavController,
@@ -45,84 +47,113 @@ fun NegocioDetailScreen(
     val negocioCard by negocioViewModel.tempNegocioCard.collectAsState()
     val imagenUrl by remember { mutableStateOf(negocioViewModel.getNegocioImageUrl(negocioCard.id)) }
 
-    Column(
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = negocioCard.nombre,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Volver"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        },
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Header mejorado con imagen y información
-        NegocioDetailHeader(
-            negocioCard = negocioCard,
-            imagenUrl = imagenUrl ?: ""
-        )
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // Header con imagen
+            NegocioDetailHeader(
+                negocioCard = negocioCard,
+                imagenUrl = imagenUrl ?: ""
+            )
 
-        // Tabs con contenido mejorado
-        val tabItems = listOf(
-            TabItem(
-                title = NegocioDetailTab.SERVICIOS.title,
-                selectedIcon = Icons.Default.Build,
-                unSelectedIcon = Icons.Default.Build,
-                content = {
-                    NegocioServicioTab(
-                        viewModel = servicioViewModel,
-                        reservaViewModel = reservaViewModel,
-                        negocioId = negocioCard.id,
-                        navController = navController,
-                        servicioViewModel = servicioViewModel
-                    )
-                }
-            ),
-            TabItem(
-                title = NegocioDetailTab.HORARIOS.title,
-                selectedIcon = Icons.Default.Schedule,
-                unSelectedIcon = Icons.Default.Schedule,
-                content = {
-                    NegocioHorarioTab(
-                        viewModel = horariosViewModel,
-                        negocioId = negocioCard.id
-                    )
-                }
-            ),
-            TabItem(
-                title = NegocioDetailTab.VALORACIONES.title,
-                selectedIcon = Icons.Default.Star,
-                unSelectedIcon = Icons.Default.StarBorder,
-                content = {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            // La lista ocupa todo menos el espacio del botón
-                            NegocioValoracionesTab(
-                                negocioId = negocioCard.id,
-                                valoracionViewModel = valoracionesViewModel,
+            // Tabs
+            val tabItems = listOf(
+                TabItem(
+                    title = NegocioDetailTab.SERVICIOS.title,
+                    selectedIcon = Icons.Default.Build,
+                    unSelectedIcon = Icons.Default.Build,
+                    content = {
+                        NegocioServicioTab(
+                            viewModel = servicioViewModel,
+                            reservaViewModel = reservaViewModel,
+                            negocioId = negocioCard.id,
+                            navController = navController,
+                            servicioViewModel = servicioViewModel
+                        )
+                    }
+                ),
+                TabItem(
+                    title = NegocioDetailTab.HORARIOS.title,
+                    selectedIcon = Icons.Default.Schedule,
+                    unSelectedIcon = Icons.Default.Schedule,
+                    content = {
+                        NegocioHorarioTab(
+                            viewModel = horariosViewModel,
+                            negocioId = negocioCard.id
+                        )
+                    }
+                ),
+                TabItem(
+                    title = NegocioDetailTab.VALORACIONES.title,
+                    selectedIcon = Icons.Default.Star,
+                    unSelectedIcon = Icons.Default.StarBorder,
+                    content = {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Column(modifier = Modifier.fillMaxSize()) {
+                                NegocioValoracionesTab(
+                                    negocioId = negocioCard.id,
+                                    valoracionViewModel = valoracionesViewModel,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(bottom = 60.dp)
+                                )
+                            }
+
+                            Row(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .padding(bottom = 60.dp) // deja espacio para el botón fijo
-                            )
-                        }
-
-                        // Botón fijo abajo
-                        Row(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            BtnIconRounded(
-                                icon = Icons.Default.Add,
-                                onClick = {
-                                    Log.d(TAG, "Id pasada a valoracion form: ${negocioCard.id}")
-                                    navController.navigate(NavigationItem.VALORACION_FORM.createRoute(negocioCard.id))
-                                }
-                            )
+                                    .align(Alignment.BottomEnd)
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                BtnIconRounded(
+                                    icon = Icons.Default.Add,
+                                    onClick = {
+                                        Log.d(TAG, "Id pasada a valoracion form: ${negocioCard.id}")
+                                        navController.navigate(NavigationItem.VALORACION_FORM.createRoute(negocioCard.id))
+                                    }
+                                )
+                            }
                         }
                     }
-                }
+                )
             )
-        )
 
-        TabPagerScaffold(tabItems = tabItems)
+            TabPagerScaffold(tabItems = tabItems)
+        }
     }
 }
+
 
 @Composable
 private fun NegocioDetailHeader(

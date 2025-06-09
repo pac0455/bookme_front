@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,7 +18,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,6 +31,7 @@ import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.ui.theme.FrontendappTheme
+import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.modals.ModalConfig
 import com.example.frontendapp.ui.theme.composables.modals.ModalType
 import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
@@ -39,6 +45,7 @@ fun EditarUsuarioScreenMejorada(
 ) {
     val usuarioUI by usuarioViewModel.usuarioUI.collectAsState()
     var nombre by remember { mutableStateOf(usuarioUI.userName) }
+    var telefono by remember { mutableStateOf(usuarioUI.telefono) }
     var isLoading by remember { mutableStateOf(false) }
     var hasChanges by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
@@ -108,25 +115,25 @@ fun EditarUsuarioScreenMejorada(
                     )
 
                     // Campo nombre
-                    OutlinedTextField(
+                    CustomTextField(
                         value = nombre,
                         onValueChange = { nombre = it },
-                        label = { Text("Nombre completo") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        singleLine = true,
+                        label = "Nombre completo",
+                        leadingIcon = Icons.Default.Person,
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            focusedLeadingIconColor = MaterialTheme.colorScheme.primary
-                        ),
-                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    CustomTextField(
+                        icon = Icons.Default.Phone,
+                        label = "Teléfono",
+                        value = telefono,
+                        onValueChange = { input ->
+                            val cleaned = input.filterNot { c -> c == '\n' || c == '\t' }
+                            if (cleaned.length <= 9 && cleaned.all { it.isDigit() }) {
+                                telefono = input
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
                     )
 
                     // Nota informativa
@@ -166,7 +173,8 @@ fun EditarUsuarioScreenMejorada(
                         usuarioViewModel.updateNombre(
                             usuario = UpdateNombreDTO(
                                 userName = nombre,
-                                id = RetrofitInstance.getUserId()
+                                id = RetrofitInstance.getUserId(),
+                                telefono = telefono,
                             ),
                             onSuccess = { updatedUser ->
                                 Log.d("EditarUsuairo", updatedUser.toString())

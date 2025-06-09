@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.frontendapp.ui.theme.composables.loadPages.TripleOrbitLoadingAnimation
+import com.example.frontendapp.ui.theme.screens.AdminPanel
 import com.example.frontendapp.ui.theme.screens.CambiarContrasenaScreen
 import com.example.frontendapp.ui.theme.screens.EditarUsuarioScreenMejorada
 import com.example.frontendapp.ui.theme.screens.NegociosScreen
@@ -67,6 +68,9 @@ private val TAG="NAVIGATOR"
         horarioViewModel_ClienteMain: HorariosViewModel,
         valoracionesViewModel_ClienteMain: ValoracionViewModel,
         usuarioViewModel_EditProfile: UsuarioViewModel,
+        usuarioViewModel_AdminPanel: UsuarioViewModel,
+        negocioViewModel_AdminPanel: NegocioViewModel,
+
 
     ) {
     NavHost(
@@ -207,6 +211,13 @@ private val TAG="NAVIGATOR"
             EditarUsuarioScreenMejorada(
                 navController = navController,
                 usuarioViewModel = usuarioViewModel_EditProfile
+            )
+        }
+        composable(NavigationItem.ADMIN_PANEL_SCREEN.route) {
+            AdminPanel(
+                usuarioViewModel= usuarioViewModel_AdminPanel,
+                negocioViewModel = negocioViewModel_AdminPanel,
+                navController=navController
             )
         }
         composable(

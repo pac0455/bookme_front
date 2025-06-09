@@ -41,6 +41,7 @@ import com.example.frontendapp.ui.theme.AppColors
 import com.example.frontendapp.ui.theme.composables.modals.ModalConfig
 import com.example.frontendapp.ui.theme.composables.modals.ModalType
 import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
+import com.example.frontendapp.ui.theme.composables.section.IconConfig
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -76,6 +77,7 @@ enum class DuracionOption(val displayName: String, val value: Int?) {
 
 @Composable
 fun ServicioTabContent(
+    onClick: () -> Unit,
     servicioViewModel: ServicioViewModel,
     navController: NavController,
 ) {
@@ -198,13 +200,17 @@ fun ServicioTabContent(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // : Header con búsqueda y filtros
+            //  Header con búsqueda y filtros
             HeaderSeccion(
                 titulo = "Servicios",
                 searchQuery = busqueda,
                 hasActiveFilters = hayFiltrosActivos,
                 onSearchChange = { busqueda = it },
-                onFilterClick = { mostrarFiltros = true }
+                onFilterClick = { mostrarFiltros = true },
+                iconConfig = IconConfig(
+                    isVisible = true,
+                    onClick= onClick
+                )
             )
 
             //  Mostrar resumen de filtros activos
@@ -409,8 +415,7 @@ fun ServicioTabContent(
                                             servicioViewModel = servicioViewModel,
                                             navController = navController,
                                             screenWidth = screenWidth,
-                                            icono = getCategoriaIcon(categoria),
-                                            colorTema = getCategoriaColor(categoria)
+                                            icono = Icons.Default.Category,
                                         )
                                     }
                                 }
@@ -543,7 +548,7 @@ private fun FiltrosActivosResumen(
                         items(filtros.categorias.toList()) { categoria ->
                             FiltroChip(
                                 texto = categoria,
-                                icono = getCategoriaIcon(categoria)
+                                icono = Icons.Default.Category
                             )
                         }
                     }
@@ -1160,7 +1165,7 @@ private fun MejorValoradosFilter(
     }
 }
 
-// ✅ Filtro de ordenamiento
+//  Filtro de ordenamiento
 @Composable
 private fun OrdenarPorFilter(
     ordenSeleccionado: OrdenarServicioPor,
@@ -1215,37 +1220,6 @@ private fun OrdenarPorFilter(
     }
 }
 
-//Funciones para obtener iconos y colores por categoría
-private fun getCategoriaIcon(categoria: String): ImageVector {
-    return when (categoria.lowercase()) {
-        "peluquería" -> Icons.Default.ContentCut
-        "estética" -> Icons.Default.Face
-        "masajes" -> Icons.Default.Spa
-        "uñas" -> Icons.Default.Brush
-        "maquillaje" -> Icons.Default.Palette
-        "barbería" -> Icons.Default.Person
-        "depilación" -> Icons.Default.Waves
-        "tratamientos faciales" -> Icons.Default.Face
-        "tratamientos corporales" -> Icons.Default.Accessibility
-        else -> Icons.Default.Spa
-    }
-}
-
-@Composable
-fun getCategoriaColor(categoria: String): Color {
-    return when (categoria.lowercase()) {
-        "peluquería" -> ThemeColors.info
-        "estética" -> ThemeColors.success
-        "masajes" -> ThemeColors.warning
-        "uñas" -> ThemeColors.error
-        "maquillaje" -> AppColors.GreenAccent
-        "barbería" -> AppColors.GreenDark
-        "depilación" -> AppColors.GreenSecondary
-        "tratamientos faciales" -> AppColors.GreenMuted
-        "tratamientos corporales" -> AppColors.GreenLight
-        else -> MaterialTheme.colorScheme.onPrimary
-    }
-}
 
 // Preview con datos de ejemplo
 @SuppressLint("ViewModelConstructorInComposable")
@@ -1255,7 +1229,8 @@ fun PreviewServicioTabContent() {
     FrontendappTheme {
         ServicioTabContent(
             servicioViewModel = FakeServicioViewModel(),
-            navController = rememberNavController()
+            navController = rememberNavController(),
+            onClick = {}
         )
     }
 }

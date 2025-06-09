@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.screens
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -74,8 +75,10 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
         val roles = RetrofitInstance.getRoles()
         if (!token.isNullOrBlank()) {
             when {
-                roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route) { popUpTo(0) }
+                roles.contains(ERol.ADMIN.toString()) -> navController.navigate(NavigationItem.ADMIN_PANEL_SCREEN.route) { popUpTo(0) }
                 roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route) { popUpTo(0) }
+                roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route) { popUpTo(0) }
+
             }
         }
     }
@@ -177,6 +180,8 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
         }
     }
 }
+
+@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 @Preview(showBackground = true)
 fun PreviewNegocioClienteScrenn(){

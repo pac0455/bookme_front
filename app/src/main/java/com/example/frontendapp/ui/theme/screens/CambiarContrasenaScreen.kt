@@ -47,7 +47,6 @@ fun CambiarContrasenaScreen(
     var isLoading by remember { mutableStateOf(false) }
 
     // Estados de visibilidad de contraseñas
-    var showCurrentPassword by remember { mutableStateOf(false) }
     var showNewPassword by remember { mutableStateOf(false) }
     var showConfirmPassword by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
@@ -60,7 +59,8 @@ fun CambiarContrasenaScreen(
             type = if(isError) ModalType.ERROR else ModalType.SUCCESS,
             title = if(isError) "Error" else "Exito",
             message = if(isError)
-                "Error inesperado al actualizar la contraseña del usuario"
+                "Error inesperado al actualizar la contraseña del usuario, " +
+                        "comprueba que tu contraseña es valida"
             else "Contraseña actulizada correctamente",
             confirmText = if(isError) "Entendido" else "Aceptar"
         ),

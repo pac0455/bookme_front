@@ -745,6 +745,8 @@ private fun getEstadoPagoColor(estado: EstadoPago): Color {
         EstadoPago.Pendiente -> ThemeColors.warning
         EstadoPago.Confirmado -> ThemeColors.success
         EstadoPago.Fallido -> ThemeColors.error
+        EstadoPago.Reembolsado -> ThemeColors.info
+
     }
 }
 
@@ -753,6 +755,7 @@ private fun getEstadoReservaDisplayName(estado: EstadoReserva): String {
         EstadoReserva.Pendiente -> "Pendiente"
         EstadoReserva.Finalizada -> "Finalizada"
         EstadoReserva.Cancelada -> "Cancelada"
+
     }
 }
 
@@ -761,6 +764,7 @@ private fun getEstadoPagoDisplayName(estado: EstadoPago): String {
         EstadoPago.Pendiente -> "Pendiente"
         EstadoPago.Confirmado -> "Confirmado"
         EstadoPago.Fallido -> "Fallido"
+        EstadoPago.Reembolsado -> EstadoPago.Reembolsado.toString()
     }
 }
 

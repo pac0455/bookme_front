@@ -201,7 +201,9 @@ fun ListaReservas(
 }
 
 @Composable
-fun LoadingState() {
+fun LoadingState(
+    msg: String = "Cargando reservas"
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -216,7 +218,7 @@ fun LoadingState() {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Cargando reservas...",
+                text = msg,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -1,5 +1,6 @@
 package com.example.frontendapp.data.remote
 
+import com.example.frontendapp.data.model.Usuario.Usuario
 import com.example.frontendapp.data.remote.api.CategoriaApi
 import com.example.frontendapp.data.remote.api.HorarioApi
 import com.example.frontendapp.data.remote.api.NegocioApi
@@ -24,11 +25,14 @@ object RetrofitInstance {
     private val ip = server
     private var roles: List<String> = emptyList()
     private lateinit var userId: String
-
+    private lateinit var user: Usuario
     fun getToken(): String? = jwtToken
     fun setRoles(rolesList: List<String>) {
         roles = rolesList
     }
+    fun getUsuario(): Usuario { return user }
+    fun setUsuario(usuario: Usuario){ this.user = usuario }
+
 
     fun getRoles(): List<String> = roles
 

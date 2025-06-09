@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.model.UI.TabItem
@@ -26,18 +25,13 @@ import com.example.frontendapp.ui.theme.composables.tab.ReservaTabContent
 import com.example.frontendapp.ui.theme.composables.tab.ServicioTabContent
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.screens.PreferenciasScreenMejorada
-import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
-import com.example.frontendapp.ui.theme.viewmodels.HorariosViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
-import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeCategoriaViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeHorariosViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
-import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeValoracionViewModel
+
 
 @Composable
 fun ClienteMainScreen(
@@ -72,7 +66,8 @@ fun ClienteMainScreen(
             content = {
                 NegocioTabContent(
                 negocioViewModel,
-                navController=navController
+                    navController=navController,
+                    onClick = { show=true }
             )},
             index = 0
         ),
@@ -84,6 +79,7 @@ fun ClienteMainScreen(
                 ServicioTabContent(
                     servicioViewModel= servicioViewModel,
                     navController = navController,
+                    onClick = {show=true}
                 )},
             index = 1
         ),
@@ -93,7 +89,8 @@ fun ClienteMainScreen(
             selectedIcon = Icons.Filled.Bookmark,
             content = { ReservaTabContent(
                 reservaViewModel = reservasViewModel,
-                navController = navController
+                navController = navController,
+                onClick = { show=true }
             ) },
             index = 2
         ),
@@ -106,7 +103,9 @@ fun ClienteMainScreen(
                     onNavigateToEditProfile = {
                         navController.navigate(NavigationItem.EDIT_PROFILE.route)
                     },
-                    onNavigateToChangePassword = { navController.navigate(NavigationItem.EDIT_PROFILE.route) }
+                    onNavigateToChangePassword = {
+                        navController.navigate(NavigationItem.CHANGE_PASSWORD.route)
+                    }
                 )
             },
             index = 3

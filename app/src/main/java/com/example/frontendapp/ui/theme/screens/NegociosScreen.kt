@@ -21,8 +21,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.frontendapp.data.remote.RetrofitInstance
+import com.example.frontendapp.ui.theme.composables.Btn.ActionButton
 import com.example.frontendapp.ui.theme.composables.list.NegocioList
+import com.example.frontendapp.ui.theme.composables.modals.ErrorModal
 import com.example.frontendapp.ui.theme.composables.modals.LogoutConfirmationDialog
+import com.example.frontendapp.ui.theme.composables.modals.ModalType
+import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 
@@ -33,12 +37,22 @@ fun NegociosScreen(
     negocioViewModel: NegocioViewModel
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val user by remember { mutableStateOf(RetrofitInstance.getUsuario()) }
+    var show by remember { mutableStateOf(false) }
 
 
 
     BackHandler {
         showLogoutDialog = true
     }
+
+    ErrorModal(
+        isVisible = show,
+        title = "ERROR",
+        onConfirm = {show = false},
+        onDismiss = {show = false},
+        message = "No se puede crear un modal ya que la cuenta todavia no ha sido autenticada"
+    )
 
     Scaffold(
         topBar = {
@@ -75,8 +89,13 @@ fun NegociosScreen(
             // Panel de acciones rápidas
             QuickActionsPanel(
                 onAddNegocio = {
-                    negocioViewModel.startNewNegocio()
-                    navController.navigate(NavigationItem.NEGOCIO_FORM_SCREEN.route)
+                    if(user.Bloqueado){
+                        show=true
+                    }else{
+                        negocioViewModel.startNewNegocio()
+                        navController.navigate(NavigationItem.NEGOCIO_FORM_SCREEN.route)
+                    }
+
                 },
                 onActualizar = {
                     negocioViewModel.getNegociosByUserId()
@@ -146,6 +165,7 @@ fun QuickActionsPanel(
                 ActionButton(
                     icon = Icons.Default.AddBusiness,
                     text = "Nuevo Negocio",
+                    contentDescription = "Agregar nuevo negocio",
                     onClick = onAddNegocio,
                     modifier = Modifier.weight(1f),
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -155,6 +175,7 @@ fun QuickActionsPanel(
                 ActionButton(
                     icon = Icons.Default.Refresh,
                     text = "Actualizar",
+                    contentDescription = "Actualizar información",
                     onClick = onActualizar,
                     modifier = Modifier.weight(1f),
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -164,56 +185,20 @@ fun QuickActionsPanel(
                 ActionButton(
                     icon = Icons.Default.Settings,
                     text = "Configuración",
+                    contentDescription = "Ir a configuración",
                     onClick = onNavigateToSettings,
                     modifier = Modifier.weight(1f),
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                 )
+
             }
         }
     }
 }
 
 
-@Composable
-fun ActionButton(
-    icon: ImageVector,
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
-) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier
-            .height(100.dp),
-        shape = RoundedCornerShape(12.dp),
-        color = containerColor
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = contentColor,
-                modifier = Modifier.size(32.dp)
-            )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = contentColor
-            )
-        }
-    }
-}
 
 @Composable
 fun NegociosHeader() {

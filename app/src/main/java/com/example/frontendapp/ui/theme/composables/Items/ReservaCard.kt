@@ -411,6 +411,12 @@ fun EstadoPagoChip(estado: EstadoPago) {
             ThemeColors.warning,
             "Pendiente"
         )
+        EstadoPago.Reembolsado -> Triple(
+            ThemeColors.info.copy(alpha = 0.15f),
+            ThemeColors.info,
+            EstadoPago.Reembolsado.toString()
+        )
+
     }
 
     Surface(

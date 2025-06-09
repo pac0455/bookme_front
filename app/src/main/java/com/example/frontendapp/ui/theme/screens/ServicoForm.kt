@@ -88,8 +88,13 @@ fun ServicioForm(
         },
         bottomBar = {
             BtnStyle1(
+                enabled = errors.isEmpty(), // Si no hay errores sera clickable
                 isLoading = isLoading,
                 onClick = {
+                    servicioViewModel.validateServicio()
+                    //Si hay errores que la ejecución se pare aquí
+                    if(errors.any()) return@BtnStyle1
+
                     isLoading = true
 
                     val onErrorUpdateServicio: (String) -> Unit = { errorMsg ->
@@ -118,7 +123,7 @@ fun ServicioForm(
                                 onError = { errorMsg ->
                                     Log.d("ServicioForm", "Error actualizando imagen: $errorMsg")
                                     isLoading = false
-                                    Toast.makeText(context, "Servicio actualizado pero error al actualizar imagen: $errorMsg", Toast.LENGTH_SHORT).show()
+                                    Log.d("updateImagenServicio", "Servicio actualizado pero error al actualizar imagen: $errorMsg")
                                     navController.popBackStack()
                                     servicioViewModel.resetStates()
                                 }

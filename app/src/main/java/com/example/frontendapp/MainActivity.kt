@@ -114,6 +114,9 @@ class MainActivity : ComponentActivity() {
                     val negocioViewModel_ClienteMain: NegocioViewModel = viewModel(factory = factory) //Para listar y ver detaller de los negocios
                     val horarioViewModel_ClienteMain: HorariosViewModel = viewModel(factory = factory)
                     val valoracionesViewModel_ClienteMain: ValoracionViewModel = viewModel(factory = factory)
+                    //ViewModel para admin
+                    val negocioViewModel_AdminPanel: NegocioViewModel = viewModel(factory = factory) //Para listar y ver detaller de los negocios
+                    val usuarioViewModel_AdminPanel: UsuarioViewModel = viewModel(factory=factory)
 
                     //Viewmodel para pantalla cambiar nombre
                     val usuarioViewModel_EditProfile: UsuarioViewModel = viewModel(factory = factory)
@@ -139,7 +142,10 @@ class MainActivity : ComponentActivity() {
                         categoriasViewModel = categoriasViewModel,
                         horarioViewModel_ClienteMain = horarioViewModel_ClienteMain,
                         valoracionesViewModel_ClienteMain = valoracionesViewModel_ClienteMain,
-                        usuarioViewModel_EditProfile = usuarioViewModel_EditProfile
+                        usuarioViewModel_EditProfile = usuarioViewModel_EditProfile,
+                        negocioViewModel_AdminPanel = negocioViewModel_AdminPanel,
+                        usuarioViewModel_AdminPanel = usuarioViewModel_AdminPanel
+
                     )
                 }
             }

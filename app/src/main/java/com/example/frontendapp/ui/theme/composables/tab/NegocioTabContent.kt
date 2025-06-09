@@ -34,6 +34,7 @@ import com.example.frontendapp.ui.theme.composables.modals.FiltrosNegocio
 import com.example.frontendapp.ui.theme.composables.modals.FiltrosNegocioModal
 import com.example.frontendapp.ui.theme.composables.modals.OrdenarPor
 import com.example.frontendapp.ui.theme.composables.section.HeaderSeccion
+import com.example.frontendapp.ui.theme.composables.section.IconConfig
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
@@ -43,7 +44,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun NegocioTabContent(
     negocioViewModel: NegocioViewModel,
-    navController: NavController
+    navController: NavController,
+    onClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -204,7 +206,11 @@ fun NegocioTabContent(
                     searchQuery = busqueda,
                     hasActiveFilters = hayFiltrosActivos,
                     onSearchChange = { busqueda = it },
-                    onFilterClick = { mostrarFiltros = true }
+                    onFilterClick = { mostrarFiltros = true },
+                    iconConfig = IconConfig(
+                        isVisible = true,
+                        onClick = onClick
+                    )
                 )
             }
 
@@ -541,7 +547,8 @@ fun NegocioTabContentPreview() {
     FrontendappTheme {
         NegocioTabContent(
             negocioViewModel = FakeNegocioViewModel(),
-            navController = navController
+            navController = navController,
+            onClick = {}
         )
     }
 }

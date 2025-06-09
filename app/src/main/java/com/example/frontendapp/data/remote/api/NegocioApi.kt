@@ -1,10 +1,13 @@
 package com.example.frontendapp.data.remote.api
 
+import com.example.frontendapp.data.model.Api.ApiResponse
+import com.example.frontendapp.data.model.Negocio.GetAllNegociosResponse
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaDetallada
+import com.example.frontendapp.data.remote.reponses.SingleMessageResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -29,6 +32,9 @@ interface NegocioApi {
 
     @GET(controller)
     suspend fun getAll(): Response<List<Negocio>>
+
+    @GET("$controller/getAll")
+    suspend fun getAllNegociosForAdmin(): Response<GetAllNegociosResponse>
 
     @PUT("$controller/{id}")
     suspend fun update(@Path("id") id: Int, @Body negocio: Negocio): Response<Unit>
@@ -59,6 +65,16 @@ interface NegocioApi {
         @Path("id") negocioId: Int,
         @Body ubicacion: Ubicacion? = null
     ): Response<NegocioCardCliente>
+
+    @PUT("api/Negocio/{id}/bloquear")
+    suspend fun bloquearNegocio(
+        @Path("id") id: Int
+    ): Response<SingleMessageResponse>
+
+    @PUT("api/Negocio/{id}/desbloquear")
+    suspend fun desbloquearNegocio(
+        @Path("id") id: Int
+    ): Response<SingleMessageResponse>
 
 
 }

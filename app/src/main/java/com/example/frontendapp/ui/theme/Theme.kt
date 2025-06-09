@@ -15,14 +15,15 @@ import androidx.compose.ui.platform.LocalContext
 // Colores complementarios para un sistema completo
 object AppColors {
     // Verdes principales
-    val GreenPrimary = Principal
-    val GreenLight = Principal_variacion1
-    val GreenSoft = Principal_variacion2
-    val GreenDark = Principal_variacion3
-    val GreenMuted = Principal_variacion4
-    val GreenAccent = Principal_variacion5
-    val GreenBackground = Principal_variacion6
-    val GreenSecondary = Secundario
+    val GreenPrimary = Color(0xFF92B4A7)
+    val GreenLight = Color(0xFFB0C9C0)
+    val GreenSoft = Color(0xFFA9CBBE)
+    val GreenDark = Color(0xFF749F8F)
+    val GreenMuted = Color(0xFF9CAAA5)
+    val GreenAccent = Color(0xFF90BBB4)
+    val GreenBackground = Color(0xFFE1EAE7)
+    val GreenSecondary = Color(0xFF3A5A40)
+
 
     // Colores de estado (manteniendo armonía con tu paleta)
     val Success = Color(0xFF4CAF50)

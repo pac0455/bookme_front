@@ -3,9 +3,11 @@ package com.example.frontendapp.ui.theme.composables.section
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,17 +15,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.frontendapp.ui.theme.*
 import com.example.frontendapp.ui.theme.composables.CustomSeachBar
 
+
+data class IconConfig(
+    val isVisible: Boolean = false,
+    val onClick: () -> Unit= {},
+    val icon: ImageVector=Icons.Default.ArrowBackIosNew,
+    val iconSize:Dp = 24.dp
+)
 @Composable
 fun HeaderSeccion(
     titulo: String = "Servicios",
@@ -31,70 +40,96 @@ fun HeaderSeccion(
     onSearchChange: (String) -> Unit = {},
     onFilterClick: () -> Unit = {},
     hasActiveFilters: Boolean = false,
-    searchQuery: String = ""
+    searchQuery: String = "",
+    iconConfig: IconConfig = IconConfig()
 ) {
     var query by remember { mutableStateOf(searchQuery) }
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val headerHeight = screenHeight * 0.20f
 
-    //  Actualizar query cuando cambie searchQuery externo
     LaunchedEffect(searchQuery) {
         query = searchQuery
-
     }
-
-
+    //Caja genral(sin color)
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //Encabezado visual con colores del tema
-        Row(
+        // HEADER
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(headerHeight)
-                .clip(RoundedCornerShape(bottomEnd = 40.dp, bottomStart = 40.dp))
-                .background(
-                    MaterialTheme.colorScheme.primary
-                )
-                .padding(6.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = titulo,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp)
-            )
+            // ICONO alineado a la derecha
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                if (iconConfig.isVisible) {
+                    IconButton(
+                        onClick = iconConfig.onClick,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.onSecondary)
+                            .size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = iconConfig.icon,
+                            contentDescription = "Icono de navegación",
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(iconConfig.iconSize)
+                        )
+                    }
+                } else {
+                    Spacer(modifier = Modifier.size(40.dp))
+                }
+            }
 
-            Spacer(modifier = Modifier.weight(1f))
+            // TÍTULO + FILTROS
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = titulo,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
+                )
 
-            // ✅ NUEVO: Indicador de filtros activos
-            if (hasActiveFilters) {
-                Surface(
-                    color = ThemeColors.warning,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.padding(end = 16.dp)
-                ) {
-                    Text(
-                        text = "Filtros activos",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
+                if (hasActiveFilters) {
+                    Surface(
+                        color = ThemeColors.warning,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text(
+                            text = "Filtros activos",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
         }
 
-        // ✅ MEJORADO: Barra de búsqueda con colores del tema
+        // BARRA DE BÚSQUEDA superpuesta (sin Box, solo offset negativo)
         Row(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(68.dp)
-                .offset(y = (-32).dp)
+                .offset(y = (-34).dp) // superposición con el header
                 .shadow(
                     elevation = 12.dp,
                     shape = RoundedCornerShape(24.dp),
@@ -122,7 +157,6 @@ fun HeaderSeccion(
                     .clip(RoundedCornerShape(16.dp))
             )
 
-            // Botón de filtro con animación
             FilterButton(
                 onClick = onFilterClick,
                 hasActiveFilters = hasActiveFilters
@@ -130,6 +164,7 @@ fun HeaderSeccion(
         }
     }
 }
+
 
 //  Componente de botón de filtro animado
 @Composable
@@ -199,6 +234,10 @@ fun PreviewHeaderSeccion() {
             HeaderSeccion(
                 titulo = "Servicios",
                 hasActiveFilters = true,
+                iconConfig = IconConfig(
+                    isVisible = true,
+                    icon = Icons.AutoMirrored.Filled.Logout
+                )
             )
         }
     }

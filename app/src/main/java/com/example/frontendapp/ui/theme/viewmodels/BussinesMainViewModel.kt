@@ -32,18 +32,5 @@ open class BussinesMainViewModel(protected val negocioRemoteSource: NegocioRepo)
         }
     }
 
-    open fun deleteNegocio(negocioId: Int) {
-        viewModelScope.launch {
-            _negocioDeleteState.value = Resource.Loading()
-            val result = negocioRemoteSource.deleteNegocio(negocioId)
-            _negocioDeleteState.value = result
-            // Opcional: actualizar la lista si borrado correcto
-            if (result is Resource.Success) {
-                loadNegociosByUser()
-            }
-            // Reiniciar estado después de consumirlo
-            _negocioDeleteState.value = Resource.None()
-        }
-    }
 }
 

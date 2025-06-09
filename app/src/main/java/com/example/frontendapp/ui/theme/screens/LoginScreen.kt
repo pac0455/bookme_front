@@ -54,7 +54,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
+import com.example.frontendapp.data.model.UI.ERol
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.ui.theme.composables.modals.ErrorModal
 import com.example.frontendapp.ui.theme.composables.text.TextNavigate
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
@@ -68,9 +70,18 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
 
     val emailFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
+    var showModal by remember { mutableStateOf(false) }
 
 
     val context = LocalContext.current
+
+    ErrorModal(
+        message = "No se puede loguear con este cuenta debido a que este usuario esta bloqueado",
+        isVisible = showModal,
+        onConfirm = {showModal=false},
+        onDismiss = {showModal=false},
+        title = "USUARIO BLOQUEADO"
+    )
 
     Scaffold(
         topBar = {
@@ -141,14 +152,21 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                 Log.d("Login", "Cargando...")
                             },
                             onSuccess = { result ->
+
                                 isLoading = false
                                 Log.d("Login", "Éxito: $result")
+                                if(result.usuario.Bloqueado){
+                                    showModal=true
+                                    return@loginUsuario
+                                }
                                 RetrofitInstance.setToken(result.token)
+                                RetrofitInstance.setUsuario(result.usuario)
                                 result.usuario.id?.let { RetrofitInstance.setUserId(it) }
                                 val roles = result.roles
                                 when {
-                                    roles.contains("CLIENTE") -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
-                                    roles.contains("NEGOCIO") -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                                    roles.contains(ERol.ADMIN.toString()) -> navController.navigate(NavigationItem.ADMIN_PANEL_SCREEN.route) { popUpTo(0) }
+                                    roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
+                                    roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
                                 }
                                 loginViewModel.reset()
                             },

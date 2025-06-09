@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.Api.ValidationValidateState
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.model.Horario
+import com.example.frontendapp.data.model.Negocio.GetAllNegociosResponse
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.model.Reserva.Reserva
@@ -18,6 +19,7 @@ import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.NegocioRepo
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.data.remote.reponses.SingleMessageResponse
 import com.example.frontendapp.utils.UbicacionHelper.getFromLocationCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -82,6 +84,15 @@ open class NegocioViewModel(
 
     private val _tempNegocioCard = MutableStateFlow(NegocioCardCliente.init())
     val tempNegocioCard: StateFlow<NegocioCardCliente> = _tempNegocioCard
+
+
+    private val _negociosForAdmin = MutableStateFlow<Resource<GetAllNegociosResponse>>(Resource.None())
+    val negociosForAdmin: StateFlow<Resource<GetAllNegociosResponse>> = _negociosForAdmin
+
+    private val _bloqueoNegocioState = MutableStateFlow<Resource<SingleMessageResponse>>(Resource.None())
+    val bloqueoNegocioState: StateFlow<Resource<SingleMessageResponse>> = _bloqueoNegocioState
+
+
 
 
     val descripcionLabel by mutableStateOf("Pulsa el icono para poder insertar una dirección")
@@ -260,6 +271,34 @@ open class NegocioViewModel(
     // -------------------------
 
 
+    fun getNegociosForAdmin(
+
+        onLoading: () -> Unit = {},
+        onSuccess: (GetAllNegociosResponse) -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) = viewModelScope.launch {
+        onLoading()
+        _negociosForAdmin.value = Resource.Loading()
+
+        val result = negocioRemoteSource.getAllNegociosForAdmin()
+        Log.d("NegocioViewModel", "Resultado recibido: $result")
+        _negociosForAdmin.value = result
+
+        when (result) {
+            is Resource.Success -> {
+                onSuccess(result.data!!)
+            }
+            is Resource.Error -> {
+                Log.e("NegocioViewModel", "Error al cargar negocios: ${result.message}")
+                onError(result.message ?: "Error desconocido")
+            }
+            else -> {
+                Log.d("NegocioViewModel", "Estado no manejado: $result")
+            }
+        }
+    }
+
+
     fun getNegociosParaCliente(
         ubicacion: Ubicacion,
         onLoading: () -> Unit = {},
@@ -288,6 +327,54 @@ open class NegocioViewModel(
             }
         }
     }
+    fun bloquearNegocio(
+        id: Int,
+        onLoading: () -> Unit = {},
+        onSuccess: (String) -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) = viewModelScope.launch {
+        onLoading()
+        _bloqueoNegocioState.value = Resource.Loading()
+        val result = negocioRemoteSource.bloquearNegocio(id)
+        _bloqueoNegocioState.value = result
+
+        when (result) {
+            is Resource.Success -> {
+                result.data?.message?.let { onSuccess(it) }
+            }
+            is Resource.Error -> {
+                onError(result.message ?: "Error al bloquear el negocio")
+            }
+            else -> {}
+        }
+    }
+
+    fun desbloquearNegocio(
+        id: Int,
+        onLoading: () -> Unit = {},
+        onSuccess: (String) -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) = viewModelScope.launch {
+        onLoading()
+        _bloqueoNegocioState.value = Resource.Loading()
+        val result = negocioRemoteSource.desbloquearNegocio(id)
+        _bloqueoNegocioState.value = result
+
+        when (result) {
+            is Resource.Success -> {
+                result.data?.message?.let { onSuccess(it) }
+            }
+            is Resource.Error -> {
+                onError(result.message ?: "Error al desbloquear el negocio")
+            }
+            else -> {}
+        }
+    }
+
+    fun clearBloqueoNegocioState() {
+        _bloqueoNegocioState.value = Resource.None()
+    }
+
 
     fun addNegocioDB(
         onLoading: () -> Unit = {},
@@ -399,7 +486,9 @@ open class NegocioViewModel(
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {}
     ) = viewModelScope.launch {
+        Log.d("deleteNegocio", "Borrando negocio...")
         onLoading()
+        //A partir del rol especificamos qn es el que lo ha eliminado
         val result = negocioRemoteSource.deleteNegocio(id)
         _deleteNegocioState.value = result
         when (result) {

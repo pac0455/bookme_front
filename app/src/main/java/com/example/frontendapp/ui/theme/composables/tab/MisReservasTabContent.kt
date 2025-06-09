@@ -40,6 +40,7 @@ import com.example.frontendapp.ui.theme.composables.modals.FiltrosReserva
 import com.example.frontendapp.ui.theme.composables.modals.FiltrosReservaModal
 import com.example.frontendapp.ui.theme.composables.modals.OrdenarReservaPor
 import com.example.frontendapp.ui.theme.composables.section.HeaderSeccion
+import com.example.frontendapp.ui.theme.composables.section.IconConfig
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
@@ -47,6 +48,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ReservaTabContent(
+    onClick: () -> Unit,
     reservaViewModel: ReservasViewModel,
     navController: NavController
 ) {
@@ -245,11 +247,15 @@ fun ReservaTabContent(
         ) {
             item {
                 HeaderSeccion(
-                    titulo = "Mis Reservas",
+                    titulo = "Mis reservas",
                     searchQuery = busqueda,
                     hasActiveFilters = hayFiltrosActivos,
                     onSearchChange = { busqueda = it },
-                    onFilterClick = { mostrarFiltros = true }
+                    onFilterClick = { mostrarFiltros = true },
+                    iconConfig = IconConfig(
+                        isVisible = true,
+                        onClick = onClick
+                    )
                 )
             }
 
@@ -488,6 +494,8 @@ private fun FiltrosActivosResumenReserva(
                                     EstadoPago.Pendiente -> "Pago pendiente"
                                     EstadoPago.Confirmado -> "Pago confirmado"
                                     EstadoPago.Fallido -> "Pago fallido"
+                                    EstadoPago.Reembolsado -> "Pago Reembolsado"
+
                                 },
                                 icono = Icons.Default.Payment
                             )
@@ -656,7 +664,8 @@ fun ReservaTabContentPreview() {
     FrontendappTheme {
         ReservaTabContent(
             reservaViewModel = FakeReservasViewModel(),
-            navController = navController
+            navController = navController,
+            onClick = {  }
         )
     }
 }

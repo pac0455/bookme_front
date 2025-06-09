@@ -14,5 +14,6 @@ data class Negocio(
     val categoria: Categoria?= null,
     var horarioAtencion: List<Horario> = listOf(),
     var activo: Boolean = true,
+    val bloqueado: Boolean= false,
     var logoUrl: String = "",
 )

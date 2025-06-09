@@ -35,7 +35,8 @@ open class ServicioViewModel(
 
 
     // Función para validar los campos del servicio
-    fun validateServicio(servicio: Servicio): Boolean {
+    fun validateServicio(): Boolean {
+        val servicio = _servicioState.value
         val errors = mutableMapOf<String, String>()
 
         if (servicio.nombre.isBlank()) {
@@ -52,7 +53,7 @@ open class ServicioViewModel(
             errors["duracionMinutos"] = "La duración debe ser mayor a cero minutos"
         }
 
-        if (servicio.precio < 0.0) {
+        if (servicio.precio <= 0.0) {
             errors["precio"] = "El precio no puede ser negativo"
         }
 

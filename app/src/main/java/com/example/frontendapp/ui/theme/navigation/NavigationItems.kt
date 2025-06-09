@@ -18,6 +18,7 @@ enum class Screen {
     PREFERENCES_SCREEN,
     EDIT_PROFILE,
     CHANGE_PASSWORD,
+    ADMIN_PANEL_SCREEN
 }
 
 sealed class NavigationItem(val route: String) {
@@ -25,6 +26,7 @@ sealed class NavigationItem(val route: String) {
     data object PREFERENCES_SCREEN : NavigationItem(Screen.PREFERENCES_SCREEN.name)
     data object EDIT_PROFILE : NavigationItem(Screen.EDIT_PROFILE.name)
     data object CHANGE_PASSWORD : NavigationItem(Screen.CHANGE_PASSWORD.name)
+    data object ADMIN_PANEL_SCREEN : NavigationItem(Screen.ADMIN_PANEL_SCREEN.name)
 
 
 
