@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.frontendapp.data.model.UI.ResusableModalDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.Btn.ActionButton
 import com.example.frontendapp.ui.theme.composables.list.NegocioList
@@ -38,8 +39,14 @@ fun NegociosScreen(
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     val user by remember { mutableStateOf(RetrofitInstance.getUsuario()) }
+    val modalState = remember { mutableStateOf(ResusableModalDTO()) }
     var show by remember { mutableStateOf(false) }
-
+    fun showModal(title: String, msg: String) {
+        modalState.value = ResusableModalDTO(
+            title = title,
+            msg = msg
+        )
+    }
 
 
     BackHandler {
@@ -48,10 +55,10 @@ fun NegociosScreen(
 
     ErrorModal(
         isVisible = show,
-        title = "ERROR",
+        title = modalState.value.title,
         onConfirm = {show = false},
         onDismiss = {show = false},
-        message = "No se puede crear un modal ya que la cuenta todavia no ha sido autenticada"
+        message = modalState.value.title
     )
 
     Scaffold(
@@ -91,11 +98,14 @@ fun NegociosScreen(
                 onAddNegocio = {
                     if(user?.Bloqueado == true){
                         show=true
+                        showModal(
+                            title = "Usuario bloqueado",
+                            msg = "Su usuario esta bloqueado por lo tanto no se pueden añadir negocios",
+                        )
                     }else{
                         negocioViewModel.startNewNegocio()
                         navController.navigate(NavigationItem.NEGOCIO_FORM_SCREEN.route)
                     }
-
                 },
                 onActualizar = {
                     negocioViewModel.getNegociosByUserId()

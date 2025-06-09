@@ -28,7 +28,10 @@ data class Usuario(
     val isNegocio: Boolean = false,
 
     @SerializedName("bloqueado")
-    val Bloqueado: Boolean = false
+    val Bloqueado: Boolean = false,
+
+    @SerializedName("EmailConfirmed")
+    val isAutentificado: Boolean = false
 )
 fun Usuario.toRegisterDTO(): RegisterDTO {
     return RegisterDTO(
