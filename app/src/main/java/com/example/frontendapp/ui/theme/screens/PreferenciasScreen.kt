@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import android.Manifest
+import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.utils.UbicacionHelper
 
@@ -38,6 +39,8 @@ fun PreferenciasScreenMejorada(
     onNavigateToEditProfile: () -> Unit = {},
     onNavigateToChangePassword: () -> Unit = {}
 ) {
+    val usuario by remember { mutableStateOf(RetrofitInstance.getUsuario()) }
+    val rol by remember { mutableStateOf(RetrofitInstance.getRoles().first()) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,6 +75,14 @@ fun PreferenciasScreenMejorada(
                 icon = Icons.Default.Lock,
                 title = "Cambiar contraseña",
                 subtitle = "Actualiza tu contraseña de acceso",
+                onClick = onNavigateToChangePassword
+            )
+
+            //if(rol.equals)
+            PreferenceItem(
+                icon = Icons.Default.Lock,
+                title = "Autentificar cuenta",
+                subtitle = "Autentificate para crear y mostrar negocios",
                 onClick = onNavigateToChangePassword
             )
         }

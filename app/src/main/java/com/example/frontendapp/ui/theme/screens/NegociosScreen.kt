@@ -58,7 +58,7 @@ fun NegociosScreen(
         title = modalState.value.title,
         onConfirm = {show = false},
         onDismiss = {show = false},
-        message = modalState.value.title
+        message = modalState.value.msg
     )
 
     Scaffold(
@@ -96,15 +96,16 @@ fun NegociosScreen(
             // Panel de acciones rápidas
             QuickActionsPanel(
                 onAddNegocio = {
-                    if(user?.Bloqueado == true){
-                        show=true
-                        showModal(
-                            title = "Usuario bloqueado",
-                            msg = "Su usuario esta bloqueado por lo tanto no se pueden añadir negocios",
-                        )
-                    }else{
+                    if(user?.isAutentificado ?: false){
                         negocioViewModel.startNewNegocio()
                         navController.navigate(NavigationItem.NEGOCIO_FORM_SCREEN.route)
+
+                    }else{
+                        show=true
+                        showModal(
+                            title = "Usuario no autentificado",
+                            msg = "Su usuario esta no autentificado por lo tanto no se pueden añadir negocios",
+                        )
                     }
                 },
                 onActualizar = {
