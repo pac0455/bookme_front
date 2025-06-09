@@ -132,8 +132,8 @@ fun ReservaForm(
             type = if(isError) ModalType.ERROR else ModalType.SUCCESS,
             title = if(isError) "Error" else "Exito",
             message = if(isError)
-                "Error inesperado al actualizar la contraseña del usuario"
-            else "Contraseña actulizada correctamente",
+                "La reserva no se ha podido completar"
+            else "Reserva y pago procesados con éxito",
             confirmText = if(isError) "Entendido" else "Aceptar"
         ),
         onConfirm = {

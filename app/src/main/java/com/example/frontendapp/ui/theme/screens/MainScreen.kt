@@ -41,9 +41,7 @@ fun MainScreen(navController: NavController) {
                     containerColor = Principal_variacion3,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
-                title = {
-                    Text("Bookme")
-                }
+                title = {}
             )
         },
         modifier = Modifier

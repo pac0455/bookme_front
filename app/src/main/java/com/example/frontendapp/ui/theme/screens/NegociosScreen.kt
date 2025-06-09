@@ -89,7 +89,7 @@ fun NegociosScreen(
             // Panel de acciones rápidas
             QuickActionsPanel(
                 onAddNegocio = {
-                    if(user.Bloqueado){
+                    if(user?.Bloqueado == true){
                         show=true
                     }else{
                         negocioViewModel.startNewNegocio()

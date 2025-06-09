@@ -208,19 +208,22 @@ open class ReservasViewModel(
         viewModelScope.launch {
             onLoading()
 
-            // Obtienes el estado actual de la reserva
             val currentReserva = _reservaState.value
-            // Crear reserva formateada con método de pago insertado
-            Log.d(TAG, "fecha antes de formatearla: ${_reservaState.value.fecha}")
+            Log.d(TAG, "Reserva original -> fecha: ${currentReserva.fecha}")
+
+            val fechaFormateada = LocalDate.parse(currentReserva.fecha)
+                .format(DateTimeFormatter.ISO_LOCAL_DATE)
+
             val reservaFormateada = currentReserva.copy(
-                fecha = LocalDate.parse(currentReserva.fecha)
-                    .format(DateTimeFormatter.ISO_LOCAL_DATE),
+                fecha = fechaFormateada,
                 pago = PagoCreateDto(
                     monto = monto,
                     metodo = metodoPago
                 )
             )
-            Log.d(TAG, "fecha despues de formatearla: ${_reservaState.value.fecha}")
+
+            Log.d(TAG, "Reserva formateada -> fecha: ${reservaFormateada.fecha}")
+
             _reservaCreateState.value = Resource.Loading()
 
             when (val result = reservaRepo.addReserva(reservaFormateada)) {
@@ -239,6 +242,7 @@ open class ReservasViewModel(
             }
         }
     }
+
     fun getReservaByNegocioId(
         negocioId: Int,
         onSuccess: (List<ReservaResponseNegocioDTO>) -> Unit = {},

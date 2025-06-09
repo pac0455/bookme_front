@@ -295,6 +295,7 @@ fun ServicioTabContent(
                 }
 
                 is Resource.Success -> {
+
                     if (serviciosFiltrados.isEmpty()) {
                         // Mensaje cuando no hay resultados
                         Box(

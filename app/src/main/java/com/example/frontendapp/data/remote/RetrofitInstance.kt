@@ -25,13 +25,16 @@ object RetrofitInstance {
     private val ip = server
     private var roles: List<String> = emptyList()
     private lateinit var userId: String
-    private lateinit var user: Usuario
+    private var user: Usuario? = null
+
     fun getToken(): String? = jwtToken
     fun setRoles(rolesList: List<String>) {
         roles = rolesList
     }
-    fun getUsuario(): Usuario { return user }
-    fun setUsuario(usuario: Usuario){ this.user = usuario }
+    fun getUsuario(): Usuario? = user
+    fun setUsuario(usuario: Usuario) {
+        this.user = usuario
+    }
 
 
     fun getRoles(): List<String> = roles

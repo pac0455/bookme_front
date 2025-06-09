@@ -2,6 +2,7 @@ package com.example.frontendapp.data.remote.source
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.example.frontendapp.data.helper.ImageHelper
 import com.example.frontendapp.data.model.Servicio.Servicio
 import com.example.frontendapp.data.model.Servicio.ServicioDetalleDto
@@ -83,6 +84,7 @@ class ServicioRepo(
     suspend fun getServiciosDetalle(): Resource<List<ServicioDetalleDto>> {
         return try {
             val response = servicioApi.getServiciosDetalle()
+
             handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Error al obtener servicios detallados: ${e.message}")
@@ -141,6 +143,10 @@ class ServicioRepo(
     private fun <T> handleResponse(response: Response<T>): Resource<T> {
         return if (response.isSuccessful) {
             val result = response.body()
+
+            // Log del cuerpo exitoso
+            Log.d("API_SUCCESS", "Body: $result")
+
             if (result != null) {
                 Resource.Success(result)
             } else {
@@ -148,11 +154,15 @@ class ServicioRepo(
                 if (response.code() == 204) {
                     Resource.Success(Unit as T)
                 } else {
-                    Resource.Error("Respuesta vacia del servidor.")
+                    Resource.Error("Respuesta vacía del servidor.")
                 }
             }
         } else {
             val rawError = response.errorBody()?.string()
+
+            // Log del error completo
+            Log.e("API_ERROR", "ErrorBody: $rawError")
+
             val errorMessage = try {
                 JSONObject(rawError ?: "").optString("message", "Error desconocido del servidor.")
             } catch (e: Exception) {
@@ -162,6 +172,5 @@ class ServicioRepo(
             Resource.Error("Error del servidor: ${response.code()} - $errorMessage")
         }
     }
-
 
 }

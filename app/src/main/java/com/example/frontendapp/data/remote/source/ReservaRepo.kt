@@ -1,6 +1,7 @@
 package com.example.frontendapp.data.remote.source
 
 import ReservaResponseDTO
+import android.util.Log
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
 import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
 import com.example.frontendapp.data.model.Reserva.ReservasPorDiaDTO
@@ -12,14 +13,27 @@ import retrofit2.Response
 class ReservaRepo(
     private val reservaApi: ReservaApi
 ){
+
     suspend fun addReserva(reserva: ReservaCreateDto): Resource<ReservaResponseDTO> {
-        return try {
+        try {
+            Log.d("ReservaDebug", "Reserva enviada: " +
+                    "NegocioId=${reserva.negocioId}, " +
+                    "ServicioId=${reserva.servicioId}, " +
+                    "ClienteId=${reserva.usuarioId}, " +
+                    "Fecha=${reserva.fecha}, " +
+                    "HoraInicio=${reserva.horaInicio}, " +
+                    "HoraFin=${reserva.horaFin}, " +
+                    "Estado=${reserva.estado}"
+            )
+
             val response = reservaApi.addReserva(reserva)
-            handleResponse(response)
+            return handleResponse(response)
         } catch (e: Exception) {
-            Resource.Error("Error de red: ${e.message}")
+            Log.e("ReservaDebug", "Error al enviar reserva: ${e.message}")
+            return Resource.Error("Error de red: ${e.message}")
         }
     }
+
 
     suspend fun actualizarEstadoPago(reservaId: Int, estadoPago: EstadoPago): Resource<Unit> {
         return try {

@@ -1,5 +1,6 @@
 package com.example.frontendapp.data.remote.source
 
+import android.util.Log
 import com.example.frontendapp.data.remote.api.HorarioApi
 import com.example.frontendapp.data.remote.reponses.Resource
 import org.json.JSONObject
@@ -17,6 +18,8 @@ class HorarioRepo(
     }
 
     suspend fun getHorariosDisponibles(negocioId: Int, servicioId: Int, selectedDay: String) = try {
+        Log.d("HORARIO_REQUEST", "Enviando -> negocioId: $negocioId, servicioId: $servicioId, dia: $selectedDay")
+
         val response = horarioApi.getHorarioDisponible(negocioId,servicioId, selectedDay)
         handleResponse(response)
     } catch (ex: Exception) {
@@ -26,6 +29,7 @@ class HorarioRepo(
     private fun <T> handleResponse(response: Response<T>): Resource<T> {
         if (response.isSuccessful) {
             val result = response.body()
+            Log.d("API_RESPONSE", "Body recibido: $result")
             return if (result != null) Resource.Success(result)
             else if (response.code() == 204) Resource.Success(Unit as T)
             else Resource.Error("Respuesta vacía del servidor.")

@@ -20,7 +20,7 @@ data class ReservaCreateDto(
             return ReservaCreateDto(
                 negocioId = 0,
                 usuarioId = "",
-                fecha = LocalDate.MIN.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                fecha = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
                 horaInicio = "",
                 horaFin = "",
                 estado = null,
