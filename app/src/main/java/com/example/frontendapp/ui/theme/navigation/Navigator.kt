@@ -2,11 +2,8 @@ package com.example.frontendapp.ui.theme.navigation
 
 import ClienteMainScreen
 import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,7 +18,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.navigation.navDeepLink
 import com.example.frontendapp.ui.theme.composables.loadPages.TripleOrbitLoadingAnimation
 import com.example.frontendapp.ui.theme.screens.AdminPanel
 import com.example.frontendapp.ui.theme.screens.CambiarContrasenaScreen
