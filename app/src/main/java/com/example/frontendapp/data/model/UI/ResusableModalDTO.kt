@@ -6,5 +6,6 @@ data class ResusableModalDTO(
     var msg: String="Sin info",
     var title: String="Sin titulo",
     var type: ModalType = ModalType.ERROR,
-    var show: Boolean=false
+    var show: Boolean=false,
+    var onConfirm : () -> Unit= {}
 )

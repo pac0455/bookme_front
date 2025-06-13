@@ -26,11 +26,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.data.model.Negocio.Negocio
+import com.example.frontendapp.data.model.Reserva.ReservaPorDiaDTO
+import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.list.ListaReservas
 import com.example.frontendapp.ui.theme.composables.QuickActionsExpandable
+import com.example.frontendapp.ui.theme.composables.chart.LineChart
 import com.example.frontendapp.ui.theme.composables.list.ServicioList
 import com.example.frontendapp.ui.theme.composables.modals.ModalSelectorDeImagen
+import com.example.frontendapp.ui.theme.composables.tab.adminPanel.EmptyList
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
@@ -38,6 +42,9 @@ import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
+
 
 
 enum class ContentType {
@@ -190,9 +197,9 @@ fun AnimatedContentArea(
                     negocioId = negocio.id,
                     navController = navController
                 )
-                ContentType.SUBSCRIPTOR -> Text(
-                    "Contenido de Subscriptores",
-                    style = MaterialTheme.typography.bodyLarge
+                ContentType.SUBSCRIPTOR -> ReservasPorSemana(
+                    negocioId = negocio.id,
+                    reservasViewModel= reservasViewModel
                 )
                 else -> Text(
                     "Selecciona una sección",
@@ -227,6 +234,48 @@ fun AnimatedContentArea(
         }
     }
 }
+
+@Composable
+fun ReservasPorSemana(
+    negocioId: Int,
+    reservasViewModel: ReservasViewModel
+) {
+    val resumenPorDiaState by reservasViewModel.resumenPorDiaState.collectAsState()
+
+    val modelProducer = remember { CartesianChartModelProducer() }
+    val xLabelsState = remember { mutableStateOf<List<String>>(emptyList()) }
+
+    // Carga los datos al iniciar
+    LaunchedEffect(Unit) {
+        reservasViewModel.cargarResumenPorDia(negocioId = negocioId)
+    }
+
+    // Actualiza el gráfico cuando llegan los datos
+    LaunchedEffect(resumenPorDiaState) {
+        if (resumenPorDiaState is Resource.Success) {
+            val data = (resumenPorDiaState as Resource.Success).data ?: emptyList()
+
+            xLabelsState.value = data.map { it.dia }
+
+            modelProducer.runTransaction {
+                lineSeries {
+                    series(data.map { it.cantidad.toFloat() })
+                }
+            }
+        }
+    }
+
+    // Renderiza el gráfico si hay datos
+    if (xLabelsState.value.isNotEmpty()) {
+        LineChart(
+            modelProducer = modelProducer,
+            xLabels = xLabelsState.value
+        )
+    }else{
+        EmptyList()
+    }
+}
+
 
 
 

@@ -20,9 +20,9 @@ import com.example.frontendapp.data.model.UI.TabItem
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.modals.LogoutConfirmationDialog
 import com.example.frontendapp.ui.theme.composables.navigation.TabAnimatedScaffold
-import com.example.frontendapp.ui.theme.composables.tab.NegocioTabContent
-import com.example.frontendapp.ui.theme.composables.tab.ReservaTabContent
-import com.example.frontendapp.ui.theme.composables.tab.ServicioTabContent
+import com.example.frontendapp.ui.theme.composables.tab.clienteMain.NegocioTabContent
+import com.example.frontendapp.ui.theme.composables.tab.clienteMain.ReservaTabContent
+import com.example.frontendapp.ui.theme.composables.tab.clienteMain.ServicioTabContent
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.screens.PreferenciasScreenMejorada
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
@@ -68,7 +68,8 @@ fun ClienteMainScreen(
                 negocioViewModel,
                     navController=navController,
                     onClick = { show=true }
-            )},
+            )
+            },
             index = 0
         ),
         TabItem(
@@ -80,7 +81,8 @@ fun ClienteMainScreen(
                     servicioViewModel= servicioViewModel,
                     navController = navController,
                     onClick = {show=true}
-                )},
+                )
+            },
             index = 1
         ),
         TabItem(

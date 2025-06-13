@@ -18,7 +18,9 @@ enum class Screen {
     PREFERENCES_SCREEN,
     EDIT_PROFILE,
     CHANGE_PASSWORD,
-    ADMIN_PANEL_SCREEN
+    ADMIN_PANEL_SCREEN,
+    SEND_MAIL_SCREEN,
+    CONFIRM_MAIL_SCREEN
 }
 
 sealed class NavigationItem(val route: String) {
@@ -27,9 +29,8 @@ sealed class NavigationItem(val route: String) {
     data object EDIT_PROFILE : NavigationItem(Screen.EDIT_PROFILE.name)
     data object CHANGE_PASSWORD : NavigationItem(Screen.CHANGE_PASSWORD.name)
     data object ADMIN_PANEL_SCREEN : NavigationItem(Screen.ADMIN_PANEL_SCREEN.name)
-
-
-
+    data object SEND_MAIL_SCREEN : NavigationItem(Screen.SEND_MAIL_SCREEN.name)
+    data object CONFIRM_MAIL_SCREEN : NavigationItem(Screen.CONFIRM_MAIL_SCREEN.name)
     data object NEGOCIO_CLIENTE : NavigationItem(Screen.NEGOCIO_CLIENTE.name)
     data object LOGIN : NavigationItem(Screen.LOGIN.name)
     data object MAIN : NavigationItem(Screen.MAIN.name)

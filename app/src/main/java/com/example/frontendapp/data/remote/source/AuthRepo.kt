@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.frontendapp.data.model.Api.ApiResponse
 import com.example.frontendapp.data.model.Api.ValidationErrorResponse
 import com.example.frontendapp.data.model.UI.UpdatePasswordDTO
+import com.example.frontendapp.data.model.Usuario.ConfirmMailDTO
 import com.example.frontendapp.data.model.Usuario.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario.RegisterDTO
 import com.example.frontendapp.data.model.Usuario.Usuario
@@ -81,6 +82,20 @@ class AuthRepo(private val userApi: UserApi) {
     suspend fun validateRegistration(registerDTO: RegisterDTO): Resource<ValidationErrorResponse> = try {
         val response = userApi.validateRegistration(registerDTO)
         handleResponse(response)
+    } catch (ex: Exception) {
+        Resource.Error("Error de red: ${ex.message}")
+    }
+
+    suspend fun sendAuthenticationCode(userId: String): Resource<SingleMessageResponse> = try {
+        val response = userApi.sendAuthenticationCode(userId)
+        handleResponse(response) // Convierte Response<T> a Resource<T>
+    } catch (ex: Exception) {
+        Resource.Error("Error de red: ${ex.message}")
+    }
+
+    suspend fun confirmCode(model: ConfirmMailDTO): Resource<SingleMessageResponse> = try {
+        val response = userApi.confirmEmail(model)
+        handleResponse(response) // Convierte Response<T> a Resource<T>
     } catch (ex: Exception) {
         Resource.Error("Error de red: ${ex.message}")
     }

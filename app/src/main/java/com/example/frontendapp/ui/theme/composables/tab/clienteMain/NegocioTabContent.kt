@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.tab
+package com.example.frontendapp.ui.theme.composables.tab.clienteMain
 
 import android.annotation.SuppressLint
 import android.util.Log

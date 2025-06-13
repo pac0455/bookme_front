@@ -3,6 +3,7 @@ package com.example.frontendapp.ui.theme.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.UI.UpdatePasswordDTO
+import com.example.frontendapp.data.model.Usuario.ConfirmMailDTO
 import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
 import com.example.frontendapp.data.model.Usuario.Usuario
 import com.example.frontendapp.data.remote.reponses.Resource
@@ -79,6 +80,50 @@ open class UsuarioViewModel(
             }
         }
     }
+
+    fun confirmCode(
+        model: ConfirmMailDTO,
+        onSuccess: (SingleMessageResponse) -> Unit = {},
+        onError: (String) -> Unit = {},
+        onLoading: () -> Unit = {}
+    ) = viewModelScope.launch {
+        onLoading()
+        when (val response = authRepo.confirmCode(model)) {
+            is Resource.Success -> {
+                onSuccess(response.data!!)
+            }
+            is Resource.Error -> {
+                    onError(response.message ?: "Error desconocido")
+            }
+            else -> {
+                onError("Error desconocido")
+            }
+        }
+    }
+
+
+    fun enviarCodigoAutenticacion(
+        usuarioId: String,
+        onSuccess: (SingleMessageResponse) -> Unit = {},
+        onError: (String) -> Unit = {},
+        onLoading: () -> Unit = {}
+    ) = viewModelScope.launch {
+        onLoading()
+        when (val response = authRepo.sendAuthenticationCode(usuarioId)) {
+            is Resource.Success -> {
+                onSuccess(response.data!!)
+            }
+
+            is Resource.Error -> {
+                onError(response.message ?: "Error al enviar el código")
+            }
+
+            else -> {
+                onError("Error desconocido")
+            }
+        }
+    }
+
 
 
     fun bloquearUsuario(

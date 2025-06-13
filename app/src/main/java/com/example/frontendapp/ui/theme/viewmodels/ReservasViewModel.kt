@@ -1,30 +1,23 @@
 package com.example.frontendapp.ui.theme.viewmodels
 
-import PagoDTO
 import ReservaResponseDTO
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontendapp.data.model.Api.ValidationValidateState
-import com.example.frontendapp.data.model.Horario
-import com.example.frontendapp.data.model.Reserva.Reserva
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
-import com.example.frontendapp.data.model.Reserva.ReservaDetallada
 import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
-import com.example.frontendapp.data.model.Reserva.ReservasPorDiaDTO
+import com.example.frontendapp.data.model.Reserva.ReservaPorDiaDTO
 import com.example.frontendapp.data.model.Servicio.Servicio
 import com.example.frontendapp.data.model.pago.EstadoPago
 import com.example.frontendapp.data.model.pago.MetodoPagoDto
 import com.example.frontendapp.data.model.pago.PagoCreateDto
 import com.example.frontendapp.data.remote.reponses.Resource
-import com.example.frontendapp.data.remote.source.NegocioRepo
 import com.example.frontendapp.data.remote.source.ReservaRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 private val TAG="ReservasViewModel"
@@ -110,8 +103,8 @@ open class ReservasViewModel(
     private val _estadoPagoUpdateState = MutableStateFlow<Resource<Unit>>(Resource.None())
     val estadoPagoUpdateState: StateFlow<Resource<Unit>> = _estadoPagoUpdateState
 
-    private val _resumenPorDiaState = MutableStateFlow<Resource<List<ReservasPorDiaDTO>>>(Resource.None())
-    val resumenPorDiaState: StateFlow<Resource<List<ReservasPorDiaDTO>>> = _resumenPorDiaState
+    private val _resumenPorDiaState = MutableStateFlow<Resource<List<ReservaPorDiaDTO>>>(Resource.None())
+    val resumenPorDiaState: StateFlow<Resource<List<ReservaPorDiaDTO>>> = _resumenPorDiaState
 
     // Estado de carga y error
     private val _isLoading = MutableStateFlow(false)
@@ -136,11 +129,32 @@ open class ReservasViewModel(
 
     fun cargarResumenPorDia(negocioId: Int) {
         viewModelScope.launch {
+            Log.d("ResumenPorDia", "Inicio de carga para negocioId: $negocioId")
+            val startTime = System.currentTimeMillis()
+
             _resumenPorDiaState.value = Resource.Loading()
+
             val result = reservaRepo.getReservasPorDiaSemana(negocioId)
+
+            val endTime = System.currentTimeMillis()
+            val duration = endTime - startTime
+
+            Log.d("ResumenPorDia", "Fin de carga. Tiempo: ${duration}ms")
+
+            when (result) {
+                is Resource.Success -> {
+                    Log.d("ResumenPorDia", "Carga exitosa. Datos: ${result.data}")
+                }
+                is Resource.Error -> {
+                    Log.e("ResumenPorDia", "Error en la carga: ${result.message}")
+                }
+                else -> Unit
+            }
+
             _resumenPorDiaState.value = result
         }
     }
+
 
     fun actualizarEstadoPago(
         reservaId: Int,

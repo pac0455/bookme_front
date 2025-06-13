@@ -84,7 +84,9 @@ class ServicioRepo(
     suspend fun getServiciosDetalle(): Resource<List<ServicioDetalleDto>> {
         return try {
             val response = servicioApi.getServiciosDetalle()
-
+            response.body()?.forEach{
+                Log.d("ServicoRepo", it.toString())
+            }
             handleResponse(response)
         } catch (e: Exception) {
             Resource.Error("Error al obtener servicios detallados: ${e.message}")

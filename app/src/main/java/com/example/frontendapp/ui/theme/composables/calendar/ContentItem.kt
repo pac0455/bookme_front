@@ -5,6 +5,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -90,7 +91,7 @@ fun ContentItem(
             .background(backgroundColor)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = if (date.isEnabled) rememberRipple(bounded = true) else null,
+                indication = if (date.isEnabled) LocalIndication.current else null,
                 enabled = date.isEnabled,
                 onClick = { onClickListener(date) }
             ),

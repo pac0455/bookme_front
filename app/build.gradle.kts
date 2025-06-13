@@ -109,5 +109,8 @@ dependencies {
     //implementation ("com.google.accompanist:accompanist-flowlayout:0.8.2")
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
+
 
 }

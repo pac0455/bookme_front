@@ -4,7 +4,7 @@ import ReservaResponseDTO
 import android.util.Log
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
 import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
-import com.example.frontendapp.data.model.Reserva.ReservasPorDiaDTO
+import com.example.frontendapp.data.model.Reserva.ReservaPorDiaDTO
 import com.example.frontendapp.data.model.pago.EstadoPago
 import com.example.frontendapp.data.remote.api.ReservaApi
 import com.example.frontendapp.data.remote.reponses.Resource
@@ -44,7 +44,7 @@ class ReservaRepo(
         }
     }
 
-    suspend fun getReservasPorDiaSemana(negocioId: Int): Resource<List<ReservasPorDiaDTO>> {
+    suspend fun getReservasPorDiaSemana(negocioId: Int): Resource<List<ReservaPorDiaDTO>> {
         return try {
             val response = reservaApi.getReservasPorDiaSemana(negocioId)
             handleResponse(response)

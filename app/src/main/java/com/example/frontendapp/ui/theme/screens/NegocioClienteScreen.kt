@@ -159,10 +159,18 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
                                     RetrofitInstance.setToken(token)
                                 }
                                 result.usuario.id?.let { RetrofitInstance.setUserId(it) }
-                                val roles = result.roles
-                                when {
-                                    roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
-                                    roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+
+                                //Si esta autenticado obliglarle a que lo haga
+                                if(result.usuario.isAutentificado){
+                                    val roles = result.roles
+                                    when {
+                                        roles.contains(ERol.ADMIN.toString()) -> navController.navigate(NavigationItem.ADMIN_PANEL_SCREEN.route) { popUpTo(0) }
+                                        roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
+                                        roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                                    }
+                                }else{
+                                    //Enviar a la pantalla de envio de mail
+                                    navController.navigate(NavigationItem.SEND_MAIL_SCREEN.route)
                                 }
                             },
                             onError = { errorMsg ->

@@ -1,8 +1,6 @@
-package com.example.frontendapp.ui.theme.composables.tab
+package com.example.frontendapp.ui.theme.composables.tab.clienteMain
 
-import PagoDTO
 import ReservaResponseDTO
-import ServicioDTO
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
@@ -41,10 +39,8 @@ import com.example.frontendapp.ui.theme.composables.modals.FiltrosReservaModal
 import com.example.frontendapp.ui.theme.composables.modals.OrdenarReservaPor
 import com.example.frontendapp.ui.theme.composables.section.HeaderSeccion
 import com.example.frontendapp.ui.theme.composables.section.IconConfig
-import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun ReservaTabContent(

@@ -1,4 +1,4 @@
-package com.example.frontendapp.ui.theme.composables.tab
+package com.example.frontendapp.ui.theme.composables.tab.clienteMain
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -17,7 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,9 +37,6 @@ import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
 import com.example.frontendapp.ui.theme.AppColors
-import com.example.frontendapp.ui.theme.composables.modals.ModalConfig
-import com.example.frontendapp.ui.theme.composables.modals.ModalType
-import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
 import com.example.frontendapp.ui.theme.composables.section.IconConfig
 import kotlin.math.max
 import kotlin.math.min
@@ -186,12 +182,9 @@ fun ServicioTabContent(
     }
 
     // Carga inicial de servicios si no hay datos
-    LaunchedEffect(servicioListState) {
+    LaunchedEffect(Unit) {
         Log.d(TAG, "Estado servicioListState cambiado: $servicioListState")
-        if (servicioListState is Resource.None) {
-            Log.d(TAG, "Estado None detectado. Iniciando carga de servicios...")
-            servicioViewModel.getServiciosDetalle()
-        }
+        servicioViewModel.getServiciosDetalle()
     }
 
 

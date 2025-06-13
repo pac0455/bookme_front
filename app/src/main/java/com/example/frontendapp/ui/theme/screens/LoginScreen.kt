@@ -1,12 +1,14 @@
 package com.example.frontendapp.ui.theme.screens
 
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,6 +63,7 @@ import com.example.frontendapp.ui.theme.composables.text.TextNavigate
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 
+private val TAG= "LoginScreen"
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
     val loginState by loginViewModel.loginState.collectAsState()
@@ -88,7 +91,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .fillMaxHeight(0.2f)
                     .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
                     .background(Principal_variacion3),
                 contentAlignment = Alignment.Center
@@ -160,14 +163,26 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                     return@loginUsuario
                                 }
                                 RetrofitInstance.setToken(result.token)
+                                Log.d(TAG, result.usuario.toString())
                                 RetrofitInstance.setUsuario(result.usuario)
                                 result.usuario.id?.let { RetrofitInstance.setUserId(it) }
-                                val roles = result.roles
-                                when {
-                                    roles.contains(ERol.ADMIN.toString()) -> navController.navigate(NavigationItem.ADMIN_PANEL_SCREEN.route) { popUpTo(0) }
-                                    roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
-                                    roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                                //Si esta autenticado obliglarle a que lo haga
+                                if(result.usuario.isAutentificado){
+                                    val roles = result.roles
+                                    when {
+                                        roles.contains(ERol.ADMIN.toString()) -> navController.navigate(NavigationItem.ADMIN_PANEL_SCREEN.route) { popUpTo(0) }
+                                        roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
+                                        roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
+                                    }
+                                }else{
+                                    //Enviar a la pantalla de envio de mail
+
+
+                                    navController.navigate(NavigationItem.SEND_MAIL_SCREEN.route)
+
                                 }
+
+
                                 loginViewModel.reset()
                             },
                             onError = { error ->
@@ -188,6 +203,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
     }
 }
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {

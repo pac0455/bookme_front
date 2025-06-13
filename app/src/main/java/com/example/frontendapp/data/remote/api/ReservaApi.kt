@@ -5,7 +5,7 @@ package com.example.frontendapp.data.remote.api
 import ReservaResponseDTO
 import com.example.frontendapp.data.model.Reserva.ReservaCreateDto
 import com.example.frontendapp.data.model.Reserva.ReservaResponseNegocioDTO
-import com.example.frontendapp.data.model.Reserva.ReservasPorDiaDTO
+import com.example.frontendapp.data.model.Reserva.ReservaPorDiaDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -28,8 +28,8 @@ interface ReservaApi {
     @GET("$reservaApi/Negocio/{negocioId}/reservas")
     suspend fun getReservasByNegocioId(@Path("negocioId") negocioId: Int): Response<List<ReservaResponseNegocioDTO>>
 
-    @GET("$reservaApi/por-dia-semana")
-    suspend fun getReservasPorDiaSemana(@Query("negocioId") negocioId: Int): Response<List<ReservasPorDiaDTO>>
+    @GET("$reservaApi/Estadisticas/PorDiaSemana")
+    suspend fun getReservasPorDiaSemana(@Query("negocioId") negocioId: Int): Response<List<ReservaPorDiaDTO>>
 
     @PUT("$reservaApi/ActualizarEstadoPago/{reservaId}")
     suspend fun actualizarEstadoPago(
