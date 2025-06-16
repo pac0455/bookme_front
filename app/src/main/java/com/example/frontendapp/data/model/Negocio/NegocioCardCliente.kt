@@ -12,7 +12,9 @@ data class NegocioCardCliente(
     val isOpen: Boolean,
     val distancia: Double?,
     val latitud: Double?,
-    val longitud: Double?
+    val longitud: Double?,
+    val logoUrl: String? = null,
+    val logoUpdatedAt: Long? = null
 ) {
     companion object {
         fun init(): NegocioCardCliente {
@@ -28,9 +30,10 @@ data class NegocioCardCliente(
                 isOpen = true,
                 distancia = null,
                 latitud = null,
-                longitud = null
+                longitud = null,
+                logoUrl = null, // Inicializar también si se añade
+                logoUpdatedAt = null // Inicializar el nuevo campo
             )
         }
     }
 }
-

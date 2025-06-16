@@ -25,10 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.example.frontendapp.R
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.Btn.IconPosition
 
@@ -67,7 +69,7 @@ fun LogoutConfirmationDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "¿Cerrar sesión?",
+                        text = stringResource(R.string.logout_dialog_title),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -100,14 +102,14 @@ fun LogoutConfirmationDialog(
                         ) {
                             Image(
                                 painter = painterResource(id = imageRes),
-                                contentDescription = null,
+                                contentDescription = stringResource(R.string.logout_icon_desc),
                                 modifier = Modifier.size(100.dp)
                             )
                         }
                     } else {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.logout_icon_desc),
                             modifier = Modifier.size(80.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -116,7 +118,7 @@ fun LogoutConfirmationDialog(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Se cerrará tu sesión actual y tendrás que volver a iniciar sesión para acceder a tu cuenta.",
+                        text = stringResource(R.string.logout_dialog_message),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -135,7 +137,7 @@ fun LogoutConfirmationDialog(
                         modifier = Modifier.weight(1f),
                         containerColor = MaterialTheme.colorScheme.errorContainer,
                         contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                        text = "Cancelar",
+                        text = stringResource(R.string.logout_cancel_button),
                         icon = Icons.Default.Cancel,
                         onClick = onDismiss
                     )
@@ -145,7 +147,7 @@ fun LogoutConfirmationDialog(
                         modifier = Modifier.weight(1f),
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
-                        text = "Cerrar",
+                        text = stringResource(R.string.logout_confirm_button),
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
                         onClick = onConfirmLogout
                     )

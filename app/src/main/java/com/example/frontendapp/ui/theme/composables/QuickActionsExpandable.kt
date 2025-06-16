@@ -19,9 +19,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PhotoAlbum
+import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -59,13 +63,13 @@ fun QuickActionsExpandable(
         expandedState = expanded
     }
 
-    // Lista completa de acciones
     val allActions = listOf(
-        Triple(ContentType.RESERVAS, Icons.Default.Notifications, "Reservas"),
-        Triple(ContentType.SERVICIOS, Icons.Default.CalendarMonth, "Servicios"),
-        Triple(ContentType.SUBSCRIPTOR, Icons.Filled.Stars, "Suscriptor"),
-        Triple(ContentType.GALLERIA, Icons.Filled.PhotoAlbum, "Galería"),
+        Triple(ContentType.RESERVAS, Icons.Default.Event, "Reservas"),             // Calendario/Evento
+        Triple(ContentType.SERVICIOS, Icons.Default.Build, "Servicios"),           // Herramientas/Servicios
+        Triple(ContentType.SUBSCRIPTOR, Icons.Default.People, "Reservas por semana"),  // Personas/Grupo para suscriptores
+        Triple(ContentType.GALLERIA, Icons.Default.StarRate, "Valoraciones"),      // Estrella para valoraciones
     )
+
 
     // Cálculo más preciso de alturas
     val collapsedHeight = 220.dp

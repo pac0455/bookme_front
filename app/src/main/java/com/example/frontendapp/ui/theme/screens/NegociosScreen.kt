@@ -1,6 +1,5 @@
 package com.example.frontendapp.ui.theme.screens
 
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.ui.theme.FrontendappTheme
@@ -16,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -26,8 +24,6 @@ import com.example.frontendapp.ui.theme.composables.Btn.ActionButton
 import com.example.frontendapp.ui.theme.composables.list.NegocioList
 import com.example.frontendapp.ui.theme.composables.modals.ErrorModal
 import com.example.frontendapp.ui.theme.composables.modals.LogoutConfirmationDialog
-import com.example.frontendapp.ui.theme.composables.modals.ModalType
-import com.example.frontendapp.ui.theme.composables.modals.ReusableModal
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 
@@ -160,7 +156,9 @@ fun QuickActionsPanel(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

@@ -13,12 +13,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.data.model.UI.TabItem
 import com.example.frontendapp.ui.theme.composables.Btn.BtnIconRounded
@@ -46,6 +48,7 @@ fun NegocioDetailScreen(
 ) {
     val negocioCard by negocioViewModel.tempNegocioCard.collectAsState()
     val imagenUrl by remember { mutableStateOf(negocioViewModel.getNegocioImageUrl(negocioCard.id)) }
+    val logMessage = stringResource(id = R.string.log_valoracion_form_id, negocioCard.id)
 
     Scaffold(
         topBar = {
@@ -61,7 +64,7 @@ fun NegocioDetailScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver"
+                            contentDescription = stringResource(id = R.string.back_button_content_description) // String resource
                         )
                     }
                 },
@@ -90,7 +93,7 @@ fun NegocioDetailScreen(
             // Tabs
             val tabItems = listOf(
                 TabItem(
-                    title = NegocioDetailTab.SERVICIOS.title,
+                    title = stringResource(id = R.string.tab_title_services), // String resource
                     selectedIcon = Icons.Default.Build,
                     unSelectedIcon = Icons.Default.Build,
                     content = {
@@ -104,7 +107,7 @@ fun NegocioDetailScreen(
                     }
                 ),
                 TabItem(
-                    title = NegocioDetailTab.HORARIOS.title,
+                    title = stringResource(id = R.string.tab_title_schedules), // String resource
                     selectedIcon = Icons.Default.Schedule,
                     unSelectedIcon = Icons.Default.Schedule,
                     content = {
@@ -115,7 +118,7 @@ fun NegocioDetailScreen(
                     }
                 ),
                 TabItem(
-                    title = NegocioDetailTab.VALORACIONES.title,
+                    title = stringResource(id = R.string.tab_title_reviews), // String resource
                     selectedIcon = Icons.Default.Star,
                     unSelectedIcon = Icons.Default.StarBorder,
                     content = {
@@ -126,9 +129,10 @@ fun NegocioDetailScreen(
                                     valoracionViewModel = valoracionesViewModel,
                                     modifier = Modifier
                                         .weight(1f)
-                                        .padding(bottom = 60.dp)
+                                        .padding(bottom = 30.dp)
                                 )
                             }
+
 
                             Row(
                                 modifier = Modifier
@@ -139,9 +143,9 @@ fun NegocioDetailScreen(
                                 BtnIconRounded(
                                     icon = Icons.Default.Add,
                                     onClick = {
-                                        Log.d(TAG, "Id pasada a valoracion form: ${negocioCard.id}")
+                                        Log.d("NegocioDetailScreen", logMessage)
                                         navController.navigate(NavigationItem.VALORACION_FORM.createRoute(negocioCard.id))
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -160,6 +164,12 @@ private fun NegocioDetailHeader(
     negocioCard: NegocioCardCliente,
     imagenUrl: String
 ) {
+    val singularReviewText = stringResource(id = R.string.singular_review_count)
+    val pluralReviewText = stringResource(id = R.string.plural_review_count)
+    val noReviewsYetText = stringResource(id = R.string.no_reviews_yet)
+    val distanceAvailableText = stringResource(id = R.string.distance_available)
+    val distanceNotAvailableText = stringResource(id = R.string.distance_not_available)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -179,7 +189,7 @@ private fun NegocioDetailHeader(
                     .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
                 imageModifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
-                id = negocioCard.id,
+                imageUpdatedAt = negocioCard.logoUpdatedAt,
                 clickable = false,
                 showIconEdit = false,
                 borderColor = MaterialTheme.colorScheme.primary,
@@ -240,7 +250,11 @@ private fun NegocioDetailHeader(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "(${negocioCard.reviewCount} ${if (negocioCard.reviewCount == 1) "reseña" else "reseñas"})",
+                            text = stringResource(
+                                id = R.string.of_total_reviews, // Reusing existing string for consistency
+                                negocioCard.reviewCount,
+                                if (negocioCard.reviewCount == 1) singularReviewText else pluralReviewText
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -251,13 +265,13 @@ private fun NegocioDetailHeader(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = null,
+                            contentDescription = stringResource(id = R.string.cd_star_icon), // String resource
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Sin reseñas aún",
+                            text = noReviewsYetText, // String resource
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -282,13 +296,15 @@ private fun NegocioDetailHeader(
                 ) {
                     InfoRow(
                         icon = Icons.Default.LocationOn,
-                        text = negocioCard.direccion
+                        text = negocioCard.direccion,
+                        contentDescription = stringResource(id = R.string.cd_location_icon) // Added content description
                     )
 
                     InfoRow(
                         icon = Icons.Default.Navigation,
-                        text = negocioCard.distancia?.let { "A %.2f km de distancia".format(it) }
-                            ?: "Distancia no disponible"
+                        text = negocioCard.distancia?.let { String.format(distanceAvailableText, it) }
+                            ?: distanceNotAvailableText, // String resource with format
+                        contentDescription = stringResource(id = R.string.cd_navigation_icon) // Added content description
                     )
                 }
             }
@@ -299,7 +315,8 @@ private fun NegocioDetailHeader(
 @Composable
 private fun InfoRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    text: String
+    text: String,
+    contentDescription: String? = null // Added contentDescription parameter
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -307,7 +324,7 @@ private fun InfoRow(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = contentDescription, // Use contentDescription parameter
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(16.dp)
         )

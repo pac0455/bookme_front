@@ -13,9 +13,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.UI.TabItem
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.modals.LogoutConfirmationDialog
@@ -43,7 +45,7 @@ fun ClienteMainScreen(
     var show by remember { mutableStateOf(false) }
     LogoutConfirmationDialog(
         showDialog = show,
-        onDismiss = {show=false},
+        onDismiss = { show = false },
         onConfirmLogout = {
             // Limpiar token y roles
             RetrofitInstance.setToken("")
@@ -55,49 +57,49 @@ fun ClienteMainScreen(
                 launchSingleTop = true
             }
         }
-
     )
     val tabs = listOf(
-
         TabItem(
-            title = "Negocio",
+            title = stringResource(id = R.string.tab_title_business), // Replaced hardcoded string
             unSelectedIcon = Icons.Outlined.Storefront,
             selectedIcon = Icons.Filled.Store,
             content = {
                 NegocioTabContent(
-                negocioViewModel,
-                    navController=navController,
-                    onClick = { show=true }
-            )
+                    negocioViewModel,
+                    navController = navController,
+                    onClick = { show = true }
+                )
             },
             index = 0
         ),
         TabItem(
-            title = "Servicios",
+            title = stringResource(id = R.string.tab_title_services), // Replaced hardcoded string
             unSelectedIcon = Icons.Outlined.Event,
             selectedIcon = Icons.Filled.EventAvailable,
             content = {
                 ServicioTabContent(
-                    servicioViewModel= servicioViewModel,
+                    servicioViewModel = servicioViewModel,
                     navController = navController,
-                    onClick = {show=true}
+                    onClick = { show = true }
                 )
             },
             index = 1
         ),
         TabItem(
-            title = "Mis reservas",
+            title = stringResource(id = R.string.tab_title_my_bookings), // Replaced hardcoded string
             unSelectedIcon = Icons.Outlined.Book,
             selectedIcon = Icons.Filled.Bookmark,
-            content = { ReservaTabContent(
-                reservaViewModel = reservasViewModel,
-                navController = navController,
-                onClick = { show=true }
-            ) },
+            content = {
+                ReservaTabContent(
+                    reservaViewModel = reservasViewModel,
+                    navController = navController,
+                    onClick = { show = true }
+                )
+            },
             index = 2
         ),
         TabItem(
-            title = "Configuración",
+            title = stringResource(id = R.string.tab_title_settings), // Replaced hardcoded string
             unSelectedIcon = Icons.Outlined.Settings,
             selectedIcon = Icons.Filled.Settings,
             content = {
@@ -107,7 +109,9 @@ fun ClienteMainScreen(
                     },
                     onNavigateToChangePassword = {
                         navController.navigate(NavigationItem.CHANGE_PASSWORD.route)
-                    }
+                    },
+                    onNavigateToHelp = { navController.navigate(NavigationItem.HELP_SCREEN.route) },
+                    onBack = { navController.popBackStack() }
                 )
             },
             index = 3

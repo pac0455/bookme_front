@@ -22,6 +22,7 @@ import com.example.frontendapp.ui.theme.composables.loadPages.TripleOrbitLoading
 import com.example.frontendapp.ui.theme.screens.AdminPanel
 import com.example.frontendapp.ui.theme.screens.CambiarContrasenaScreen
 import com.example.frontendapp.ui.theme.screens.EditarUsuarioScreenMejorada
+import com.example.frontendapp.ui.theme.screens.HelpScreen
 import com.example.frontendapp.ui.theme.screens.NegociosScreen
 import com.example.frontendapp.ui.theme.screens.HorarioForm
 import com.example.frontendapp.ui.theme.screens.LoginScreen
@@ -202,6 +203,8 @@ private val TAG="NAVIGATOR"
                 onNavigateToChangePassword = {
                     navController.navigate(NavigationItem.CHANGE_PASSWORD.route)
                 },
+                onNavigateToHelp = { navController.navigate(NavigationItem.HELP_SCREEN.route)},
+                onBack = { navController.popBackStack() }
             )
         }
         composable(NavigationItem.CHANGE_PASSWORD.route) {
@@ -209,6 +212,9 @@ private val TAG="NAVIGATOR"
                 usuarioViewModel = usuarioViewModel_EditProfile,
                 navController = navController,
             )
+        }
+        composable(NavigationItem.HELP_SCREEN.route) {
+            HelpScreen()
         }
 
 
@@ -306,6 +312,7 @@ private val TAG="NAVIGATOR"
                     viewModel = negocioFormViewModel,
                     reservasViewModel = reservasNegocioScreenViewModel,
                     servicioViewModel = serviciosNegocioScreenViewModel,
+                    valoracionViewModel = valoracionesViewModel_ClienteMain
                 )
             } else {
                 Box(

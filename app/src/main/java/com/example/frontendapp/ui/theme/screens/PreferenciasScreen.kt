@@ -29,15 +29,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import android.Manifest
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.LiveHelp
 import com.example.frontendapp.ui.theme.FrontendappTheme
+import com.example.frontendapp.ui.theme.composables.modals.AboutModal
+import com.example.frontendapp.ui.theme.composables.modals.DeveloperInfo
+import com.example.frontendapp.ui.theme.composables.modals.getDefaultDeveloperInfo
 import com.example.frontendapp.utils.UbicacionHelper
 
 
 @Composable
 fun PreferenciasScreenMejorada(
     onNavigateToEditProfile: () -> Unit = {},
-    onNavigateToChangePassword: () -> Unit = {}
+    onNavigateToChangePassword: () -> Unit = {},
+    onNavigateToHelp: () -> Unit,
+    onBack: () -> Unit
 ) {
+    var showAboutModal by remember { mutableStateOf(false) }
+    val  developerInfo by remember {
+        mutableStateOf(
+            getDefaultDeveloperInfo()
+        )
+    }
+    AboutModal(
+        isVisible = showAboutModal,
+        onDismiss = { showAboutModal = false },
+        developerInfo = developerInfo
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,7 +66,7 @@ fun PreferenciasScreenMejorada(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Header
-        HeaderSection()
+        HeaderSection(onBack)
 
 
         // Configuración de cuenta
@@ -89,11 +107,37 @@ fun PreferenciasScreenMejorada(
 
             LocationPermissionItem()
         }
+        // Configuración de privacidad
+        ConfigurationCard(
+            title = "Centro de ayuda",
+            icon = Icons.AutoMirrored.Filled.HelpOutline
+        ) {
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            )
+
+            PreferenceItem(
+                icon = Icons.AutoMirrored.Filled.LiveHelp,
+                title = "Ir a pagina de ayuda",
+                subtitle = "Tiene dudas sobre la app?",
+                onClick = onNavigateToHelp
+            )
+            PreferenceItem(
+                icon = Icons.Default.Info,
+                title = "Acerca de...",
+                subtitle = "Conoce más sobre el autor",
+                onClick = { showAboutModal = true }
+            )
+        }
     }
 }
 
 @Composable
-private fun HeaderSection() {
+private fun HeaderSection(
+    onBack: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,10 +145,12 @@ private fun HeaderSection() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Default.Settings,
+            imageVector = Icons.Default.ArrowBackIosNew,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(32.dp)
+            modifier = Modifier
+                .size(32.dp)
+                .clickable { onBack() }
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
@@ -238,7 +284,10 @@ fun LocationPermissionItem() {
 @Composable
 fun PreferenciasScreenMejoradaPreview() {
     FrontendappTheme {
-        PreferenciasScreenMejorada()
+        PreferenciasScreenMejorada(
+            onNavigateToHelp = {},
+            onBack = {}
+        )
     }
 }
 
@@ -250,6 +299,9 @@ fun PreferenciasScreenMejoradaPreview() {
 @Composable
 fun PreferenciasScreenMejoradaDarkPreview() {
     FrontendappTheme {
-        PreferenciasScreenMejorada()
+        PreferenciasScreenMejorada(
+            onNavigateToHelp = {},
+            onBack = {}
+        )
     }
 }

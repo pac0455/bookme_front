@@ -21,12 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.composables.CustomMultilineTextField
 import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
@@ -49,10 +51,10 @@ fun ValoracionFormulario(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nueva Valoración") },
+                title = { Text(stringResource(id = R.string.new_review_title)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Volver")
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = stringResource(id = R.string.back_button_description))
                     }
                 }
             )
@@ -65,14 +67,14 @@ fun ValoracionFormulario(
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(text = "Deja tu valoración", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(id = R.string.leave_your_review), fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
             // Rating Bar
             Row {
                 for (i in 1..5) {
                     Icon(
                         imageVector = if (i <= valoracionStateUI.puntuacion) Icons.Default.Star else Icons.Default.StarBorder,
-                        contentDescription = "Estrella $i",
+                        contentDescription = stringResource(id = R.string.star_description, i),
                         tint = Color(0xFFFFD700),
                         modifier = Modifier
                             .size(32.dp)
@@ -85,7 +87,7 @@ fun ValoracionFormulario(
             CustomMultilineTextField(
                 value = valoracionStateUI.comentario,
                 onValueChange = { valoracionesViewModel.setComentario(it) },
-                label = "Comentario",
+                label = stringResource(id = R.string.comment_label),
                 modifier = Modifier
                     .height(200.dp)
                     .fillMaxWidth(),
@@ -115,28 +117,27 @@ fun ValoracionFormulario(
                                 // opcional: mostrar loading
                             },
                             onSuccess = {
-                                Toast.makeText(context, "Comentario subido", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.comment_uploaded_message), Toast.LENGTH_SHORT).show()
                                 navController.popBackStack()
                             },
                             onError = { mensaje ->
-                                Toast.makeText(context, "Error al subir el comentario", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.error_uploading_comment_message), Toast.LENGTH_SHORT).show()
                                 Log.d("ValoracionFormulario", mensaje)
                             }
                         )
                     } else {
-                        Toast.makeText(context, "Revisa los errores del formulario", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.form_errors_message), Toast.LENGTH_SHORT).show()
                     }
                 },
                 enabled = true,
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Enviar")
+                Text(stringResource(id = R.string.send_button_text))
             }
 
         }
     }
 }
-
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable

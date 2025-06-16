@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.screens
 
+
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
@@ -28,14 +29,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.frontendapp.data.model.UI.ERol
 import com.example.frontendapp.data.model.UI.ResusableModalDTO
-import com.example.frontendapp.data.model.Usuario.ConfirmMailDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.ui.theme.*
 import com.example.frontendapp.ui.theme.composables.modals.ModalConfig
@@ -46,27 +47,33 @@ import com.example.frontendapp.ui.theme.viewmodels.UsuarioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeUsuarioViewModel
 import kotlinx.coroutines.delay
 
+private val TAG = "PasswordResetScreen"
 
-
-private val TAG="SendMailScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SendMailScreen(
+fun PasswordResetScreen(
     navController: NavController,
-    usuarioViewModel: UsuarioViewModel
+    usuarioViewModel: UsuarioViewModel,
+    userEmail: String = "usuario@ejemplo.com"
 ) {
-    val user by remember { mutableStateOf(RetrofitInstance.getUsuario()) }
     val verificationCode = remember { mutableStateOf("") }
+    val newPassword = remember { mutableStateOf("") }
+    val confirmPassword = remember { mutableStateOf("") }
+    val showNewPassword = remember { mutableStateOf(false) }
+    val showConfirmPassword = remember { mutableStateOf(false) }
     val showError = remember { mutableStateOf(false) }
+    val errorMessage = remember { mutableStateOf("") }
     val showSuccess = remember { mutableStateOf(false) }
     val isLoading = remember { mutableStateOf(false) }
     val isResending = remember { mutableStateOf(false) }
     val modalState = remember { mutableStateOf(ResusableModalDTO()) }
+    val timeLeft = remember { mutableStateOf(600) } // 10 minutos en segundos
 
-    fun showModal(title: String,
-                  msg: String,
-                  type: ModalType,
-                  onConfirm: () -> Unit = {}
+    fun showModal(
+        title: String,
+        msg: String,
+        type: ModalType,
+        onConfirm: () -> Unit = {}
     ) {
         modalState.value = ResusableModalDTO(
             title = title,
@@ -77,6 +84,43 @@ fun SendMailScreen(
         )
     }
 
+    fun validateForm(): Boolean {
+        when {
+            verificationCode.value.length != 6 -> {
+                errorMessage.value = "El código debe tener 6 dígitos"
+                showError.value = true
+                return false
+            }
+            newPassword.value.length < 8 -> {
+                errorMessage.value = "La contraseña debe tener al menos 8 caracteres"
+                showError.value = true
+                return false
+            }
+            newPassword.value != confirmPassword.value -> {
+                errorMessage.value = "Las contraseñas no coinciden"
+                showError.value = true
+                return false
+            }
+            else -> {
+                showError.value = false
+                return true
+            }
+        }
+    }
+
+    fun formatTime(seconds: Int): String {
+        val mins = seconds / 60
+        val secs = seconds % 60
+        return String.format("%d:%02d", mins, secs)
+    }
+
+    // Contador regresivo
+    LaunchedEffect(timeLeft.value) {
+        if (timeLeft.value > 0) {
+            delay(1000)
+            timeLeft.value = timeLeft.value - 1
+        }
+    }
 
     ReusableModal(
         isVisible = modalState.value.show,
@@ -102,20 +146,6 @@ fun SendMailScreen(
         label = "pulse"
     )
 
-    LaunchedEffect(Unit) {
-        val userId = RetrofitInstance.getUserId()
-        val user = RetrofitInstance.getUsuario()
-        Log.d(TAG, "Enviando código para usuarioId: $userId")
-        Log.d(TAG, "Usuario es: $user")
-
-        usuarioViewModel.enviarCodigoAutenticacion(
-            usuarioId = userId,
-            onSuccess = {Log.d(TAG, "enviado correctamente")},
-            onError =  {Log.d(TAG, it)}
-            )
-    }
-
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -124,7 +154,7 @@ fun SendMailScreen(
                 ),
                 title = {
                     Text(
-                        "Verificación de Email",
+                        "Restablecer Contraseña",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = AppColors.GreenSecondary
@@ -210,8 +240,8 @@ fun SendMailScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.MailOutline,
-                                contentDescription = "Email",
+                                imageVector = Icons.Default.Security,
+                                contentDescription = "Seguridad",
                                 modifier = Modifier.size(40.dp),
                                 tint = AppColors.GreenPrimary
                             )
@@ -222,7 +252,7 @@ fun SendMailScreen(
 
                     // Título principal
                     Text(
-                        text = "Verifica tu email",
+                        text = "Crear nueva contraseña",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -239,7 +269,6 @@ fun SendMailScreen(
                         textAlign = TextAlign.Center
                     )
 
-
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Email del usuario
@@ -249,7 +278,7 @@ fun SendMailScreen(
                         color = AppColors.GreenBackground.copy(alpha = 0.5f)
                     ) {
                         Text(
-                            text = user?.email ?: "user@gmail.com",
+                            text = userEmail,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                             color = AppColors.GreenSecondary,
@@ -257,8 +286,11 @@ fun SendMailScreen(
                             modifier = Modifier.padding(12.dp)
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
-                        text = "Tiempo de uso: 10 minutos",
+                        text = "Tiempo restante: ${formatTime(timeLeft.value)}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -268,7 +300,7 @@ fun SendMailScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo de código de verificación
+            // Formulario
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -278,25 +310,26 @@ fun SendMailScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp)
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Text(
-                        text = "Código de verificación",
+                        text = "Datos de restablecimiento",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
+                    // Campo de código de verificación
                     OutlinedTextField(
                         value = verificationCode.value,
                         onValueChange = {
-                            if (it.length <= 6) {
+                            if (it.length <= 6 && it.all { char -> char.isDigit() }) {
                                 verificationCode.value = it
                                 showError.value = false
                             }
                         },
-                        label = { Text("Ingresa el código de 6 dígitos") },
+                        label = { Text("Código de verificación") },
                         placeholder = { Text("000000") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
@@ -313,16 +346,92 @@ fun SendMailScreen(
                                 tint = AppColors.GreenPrimary
                             )
                         },
-                        isError = showError.value,
-                        supportingText = if (showError.value) {
-                            {
-                                Text(
-                                    "Código incorrecto o expirado",
-                                    color = MaterialTheme.colorScheme.error
+                        isError = showError.value && errorMessage.value.contains("código")
+                    )
+
+                    // Nueva contraseña
+                    OutlinedTextField(
+                        value = newPassword.value,
+                        onValueChange = {
+                            newPassword.value = it
+                            showError.value = false
+                        },
+                        label = { Text("Nueva contraseña") },
+                        placeholder = { Text("Mínimo 8 caracteres") },
+                        visualTransformation = if (showNewPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppColors.GreenPrimary,
+                            focusedLabelColor = AppColors.GreenPrimary,
+                            cursorColor = AppColors.GreenPrimary
+                        ),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = AppColors.GreenPrimary
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { showNewPassword.value = !showNewPassword.value }) {
+                                Icon(
+                                    imageVector = if (showNewPassword.value) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = if (showNewPassword.value) "Ocultar contraseña" else "Mostrar contraseña",
+                                    tint = AppColors.GreenPrimary
                                 )
                             }
-                        } else null
+                        },
+                        isError = showError.value && errorMessage.value.contains("contraseña") && !errorMessage.value.contains("coinciden")
                     )
+
+                    // Confirmar contraseña
+                    OutlinedTextField(
+                        value = confirmPassword.value,
+                        onValueChange = {
+                            confirmPassword.value = it
+                            showError.value = false
+                        },
+                        label = { Text("Confirmar contraseña") },
+                        placeholder = { Text("Repite la contraseña") },
+                        visualTransformation = if (showConfirmPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppColors.GreenPrimary,
+                            focusedLabelColor = AppColors.GreenPrimary,
+                            cursorColor = AppColors.GreenPrimary
+                        ),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.LockReset,
+                                contentDescription = null,
+                                tint = AppColors.GreenPrimary
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { showConfirmPassword.value = !showConfirmPassword.value }) {
+                                Icon(
+                                    imageVector = if (showConfirmPassword.value) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = if (showConfirmPassword.value) "Ocultar contraseña" else "Mostrar contraseña",
+                                    tint = AppColors.GreenPrimary
+                                )
+                            }
+                        },
+                        isError = showError.value && errorMessage.value.contains("coinciden")
+                    )
+
+                    // Mensaje de error
+                    if (showError.value) {
+                        Text(
+                            text = errorMessage.value,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
                 }
             }
 
@@ -334,75 +443,76 @@ fun SendMailScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
-                // Botón principal - Verificar
+                // Botón principal - Restablecer contraseña
                 ModernButton(
                     onClick = {
-                        if (verificationCode.value.isNotEmpty()) {
-
-//                             Simular verificación
-                             usuarioViewModel.confirmCode(
-                                 model = ConfirmMailDTO(
-                                     Id = user?.id!!,
-                                     CODE = verificationCode.value
-                                 ),
-                                 onSuccess = {
-                                     isLoading.value = false
-                                     showModal(
-                                         msg = "Correo autentificado correctamente",
-                                         title = "EXITO!",
-                                         type = ModalType.SUCCESS,
-                                            onConfirm = {
-                                            modalState.value = modalState.value.copy(show = false)
-                                            //Navegar a la pantalla de login
-                                            val roles= RetrofitInstance.getRoles()
-                                            when {
-                                                roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
-                                                roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
-                                            }
-                                        }
-                                     )
-                                 },
-                                 onError = {
-                                     isLoading.value = false
-                                     Log.d(TAG, it)
-
-                                 },
-                                 onLoading = {
-                                     isLoading.value = true
-                                 }
-                             )
+                        if (validateForm()) {
+//                            usuarioViewModel.resetPassword(
+//                                model = ResetPasswordDTO(
+//                                    email = userEmail,
+//                                    code = verificationCode.value,
+//                                    newPassword = newPassword.value
+//                                ),
+//                                onSuccess = {
+//                                    isLoading.value = false
+//                                    showModal(
+//                                        msg = "Contraseña restablecida correctamente",
+//                                        title = "¡ÉXITO!",
+//                                        type = ModalType.SUCCESS,
+//                                        onConfirm = {
+//                                            modalState.value = modalState.value.copy(show = false)
+//                                            navController.navigate(NavigationItem.LOGIN.route)
+//                                        }
+//                                    )
+//                                },
+//                                onError = {
+//                                    isLoading.value = false
+//                                    errorMessage.value = it
+//                                    showError.value = true
+//                                    Log.d(TAG, it)
+//                                },
+//                                onLoading = {
+//                                    isLoading.value = true
+//                                }
+//                            )
                         }
                     },
-                    text = "Verificar código",
-                    icon = Icons.Default.Verified,
+                    text = "Restablecer contraseña",
+                    icon = Icons.Default.Security,
                     isLoading = isLoading.value,
-                    enabled = verificationCode.value.length == 6,
+                    enabled = verificationCode.value.length == 6 &&
+                            newPassword.value.isNotEmpty() &&
+                            confirmPassword.value.isNotEmpty(),
                     isPrimary = true
                 )
 
-                // Botón secundario - Reenviar
+                // Botón secundario - Reenviar código
                 val context = LocalContext.current
 
                 ModernButton(
                     onClick = {
-
-                         usuarioViewModel.enviarCodigoAutenticacion(
-                             usuarioId = RetrofitInstance.getUserId(),
-                             onLoading = {isResending.value = true},
-                             onSuccess = {
-                                 isResending.value = false
-                                 Toast.makeText(context, "Correro reenviado, mire la bandeja de entrada", Toast.LENGTH_LONG).show()
-
-                             },
-                             onError = {
-                                 isResending.value = false
-                                 Toast.makeText(context, "Error inesperado", Toast.LENGTH_LONG).show()
-                             }
-                         )
+//                        usuarioViewModel.resendResetCode(
+//                            email = userEmail,
+//                            onLoading = { isResending.value = true },
+//                            onSuccess = {
+//                                isResending.value = false
+//                                timeLeft.value = 600 // Reiniciar contador
+//                                Toast.makeText(
+//                                    context,
+//                                    "Código reenviado, revisa tu bandeja de entrada",
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                            },
+//                            onError = {
+//                                isResending.value = false
+//                                Toast.makeText(context, "Error inesperado", Toast.LENGTH_LONG).show()
+//                            }
+//                        )
                     },
                     text = "Reenviar código",
                     icon = Icons.AutoMirrored.Filled.Send,
                     isLoading = isResending.value,
+                    enabled = timeLeft.value > 0,
                     isPrimary = false
                 )
             }
@@ -416,7 +526,7 @@ fun SendMailScreen(
                 exit = slideOutVertically() + fadeOut()
             ) {
                 SuccessMessage(
-                    message = "¡Verificación exitosa!",
+                    message = "¡Contraseña restablecida exitosamente!",
                     onDismiss = { showSuccess.value = false }
                 )
             }
@@ -429,23 +539,48 @@ fun SendMailScreen(
                     containerColor = AppColors.GreenBackground.copy(alpha = 0.3f)
                 )
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = AppColors.GreenPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "El código expira en 10 minutos. Si no lo recibes, revisa tu carpeta de spam.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AppColors.GreenSecondary,
-                        lineHeight = MaterialTheme.typography.bodySmall.lineHeight
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = AppColors.GreenPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Información importante:",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AppColors.GreenSecondary
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier.padding(start = 28.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "• El código expira en 10 minutos",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AppColors.GreenSecondary
+                        )
+                        Text(
+                            text = "• La contraseña debe tener al menos 8 caracteres",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AppColors.GreenSecondary
+                        )
+                        Text(
+                            text = "• Si no recibes el código, revisa tu carpeta de spam",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AppColors.GreenSecondary
+                        )
+                    }
                 }
             }
 
@@ -575,23 +710,12 @@ private fun SuccessMessage(
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
-fun SendMailScreenPreview() {
+fun PasswordResetScreenPreview() {
     FrontendappTheme {
-        SendMailScreen(
+        PasswordResetScreen(
             navController = rememberNavController(),
-            usuarioViewModel = FakeUsuarioViewModel()
-        )
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun SuccessMessagePreview() {
-    FrontendappTheme {
-        SuccessMessage(
-            onDismiss = {},
-            message = "sfdasfsdafksdafksdaf"
+            usuarioViewModel = FakeUsuarioViewModel(),
+            userEmail = "usuario@ejemplo.com"
         )
     }
 }

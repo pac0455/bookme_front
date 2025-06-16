@@ -125,6 +125,7 @@ private fun NegocionHeader(
         ) {
             ServicioImagePicker(
                 imageUrl = logoUrl,
+                imageUpdatedAt = negocio.logoUpdatedAt,
                 modifier = Modifier
                     .size(70.dp)
                     .clip(CircleShape),

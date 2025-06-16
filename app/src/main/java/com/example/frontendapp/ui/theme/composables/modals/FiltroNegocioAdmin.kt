@@ -24,47 +24,62 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.frontendapp.ui.theme.*
 
-//  NUEVO: Data classes para filtros
-data class FiltrosNegocio(
+// Data classes para filtros de negocios admin específicos
+data class FiltrosNegocioAdmin(
     val categorias: Set<String> = emptySet(),
-    val distanciaMaxima: Float? = null,
     val ratingMinimo: Float? = null,
-    val soloAbiertos: Boolean = false,
-    val ordenarPor: OrdenarPor = OrdenarPor.RELEVANCIA,
-    val precioMaximo: Float? = null
+    val reviewCountMinimo: Int? = null,
+    val estado: EstadoNegocioAdmin? = null,
+    val estadoOperacion: EstadoOperacionNegocio? = null,
+    val ordenarPor: OrdenarNegocioPor = OrdenarNegocioPor.NOMBRE
 )
 
-enum class OrdenarPor(val displayName: String, val icon: ImageVector) {
-    RELEVANCIA("Relevancia", Icons.Default.Star),
-    DISTANCIA("Distancia", Icons.Default.LocationOn),
-    RATING("Valoración", Icons.Default.ThumbUp),
-    PRECIO("Precio", Icons.Default.AttachMoney),
-    NOMBRE("Nombre", Icons.Default.SortByAlpha)
+enum class OrdenarNegocioPor(val displayName: String, val icon: ImageVector) {
+    NOMBRE("Nombre", Icons.Default.SortByAlpha),
+    RATING("Valoración", Icons.Default.Star),
+    REVIEWS("Número de reseñas", Icons.Default.Reviews),
+    CATEGORIA("Categoría", Icons.Default.Category)
 }
 
-enum class DistanciaOption(val displayName: String, val value: Float?) {
-    TODAS("Todas las distancias", null),
-    CERCA("Menos de 1 km", 1f),
-    MEDIO("Menos de 5 km", 5f),
-    LEJOS("Menos de 10 km", 10f)
+enum class EstadoNegocioAdmin(val displayName: String, val icon: ImageVector) {
+    TODOS("Todos los estados", Icons.Default.Business),
+    ACTIVOS("Solo activos", Icons.Default.CheckCircle),
+    INACTIVOS("Solo inactivos", Icons.Default.Cancel),
+    BLOQUEADOS("Solo bloqueados", Icons.Default.Block),
+    NO_BLOQUEADOS("Solo no bloqueados", Icons.Default.CheckCircleOutline)
 }
 
-enum class RatingOption(val displayName: String, val value: Float?) {
-    TODAS("Todas las valoraciones", null),
-    BUENO("4+ estrellas", 4f),
-    MUY_BUENO("4.5+ estrellas", 4.5f),
-    EXCELENTE("5 estrellas", 5f)
+enum class EstadoOperacionNegocio(val displayName: String, val icon: ImageVector) {
+    TODOS("Todos", Icons.Default.Schedule),
+    ABIERTOS("Solo abiertos", Icons.Default.LockOpen),
+    CERRADOS("Solo cerrados", Icons.Default.Lock)
+}
+
+enum class RangoRating(val displayName: String, val value: Float?) {
+    TODOS("Todas las valoraciones", null),
+    BUENO("3+ estrellas", 3f),
+    MUY_BUENO("4+ estrellas", 4f),
+    EXCELENTE("4.5+ estrellas", 4.5f),
+    PERFECTO("5 estrellas", 5f)
+}
+
+enum class RangoReviews(val displayName: String, val value: Int?) {
+    TODOS("Todas las cantidades", null),
+    MINIMO_5("5+ reseñas", 5),
+    MINIMO_10("10+ reseñas", 10),
+    MINIMO_25("25+ reseñas", 25),
+    MINIMO_50("50+ reseñas", 50),
+    MINIMO_100("100+ reseñas", 100)
 }
 
 @Composable
-fun FiltrosNegocioModal(
+fun FiltrosNegocioAdminModal(
     isVisible: Boolean,
-    filtrosActuales: FiltrosNegocio,
+    filtrosActuales: FiltrosNegocioAdmin,
     categoriasDisponibles: List<String>,
     onDismiss: () -> Unit,
-    onAplicarFiltros: (FiltrosNegocio) -> Unit,
-    onLimpiarFiltros: () -> Unit,
-    isAdmin: Boolean = false
+    onAplicarFiltros: (FiltrosNegocioAdmin) -> Unit,
+    onLimpiarFiltros: () -> Unit
 ) {
     if (isVisible) {
         Dialog(
@@ -75,8 +90,7 @@ fun FiltrosNegocioModal(
                 dismissOnClickOutside = true
             )
         ) {
-            FiltrosContent(
-                isAdmin = isAdmin,
+            FiltrosNegocioAdminContent(
                 filtrosActuales = filtrosActuales,
                 categoriasDisponibles = categoriasDisponibles,
                 onDismiss = onDismiss,
@@ -88,13 +102,12 @@ fun FiltrosNegocioModal(
 }
 
 @Composable
-private fun FiltrosContent(
-    filtrosActuales: FiltrosNegocio,
+private fun FiltrosNegocioAdminContent(
+    filtrosActuales: FiltrosNegocioAdmin,
     categoriasDisponibles: List<String>,
     onDismiss: () -> Unit,
-    onAplicarFiltros: (FiltrosNegocio) -> Unit,
-    onLimpiarFiltros: () -> Unit,
-    isAdmin: Boolean=false
+    onAplicarFiltros: (FiltrosNegocioAdmin) -> Unit,
+    onLimpiarFiltros: () -> Unit
 ) {
     var filtros by remember { mutableStateOf(filtrosActuales) }
     val scrollState = rememberScrollState()
@@ -115,14 +128,14 @@ private fun FiltrosContent(
                 .fillMaxSize()
                 .padding(24.dp)
         ) {
-            //  Header del modal
+            // Header del modal
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Filtros",
+                    text = "Filtros de Negocios",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -147,7 +160,7 @@ private fun FiltrosContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            //  Contenido scrolleable
+            // Contenido scrolleable
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -155,45 +168,57 @@ private fun FiltrosContent(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 // Categorías
-                FiltroSeccion(
-                    titulo = "Categorías",
-                    icono = Icons.Default.Category
-                ) {
-                    CategoriasFilter(
-                        categoriasDisponibles = categoriasDisponibles,
-                        categoriasSeleccionadas = filtros.categorias,
-                        onCategoriaToggle = { categoria ->
-                            filtros = if (categoria in filtros.categorias) {
-                                filtros.copy(categorias = filtros.categorias - categoria)
-                            } else {
-                                filtros.copy(categorias = filtros.categorias + categoria)
-                            }
-                        }
-                    )
-                }
-                if(!isAdmin){
-                    // Distancia
-                    FiltroSeccion(
-                        titulo = "Distancia",
-                        icono = Icons.Default.LocationOn
+                if (categoriasDisponibles.isNotEmpty()) {
+                    FiltroSeccionNegocioAdmin(
+                        titulo = "Categorías",
+                        icono = Icons.Default.Category
                     ) {
-                        DistanciaFilter(
-                            distanciaSeleccionada = filtros.distanciaMaxima,
-                            onDistanciaChange = { distancia ->
-                                filtros = filtros.copy(distanciaMaxima = distancia)
+                        CategoriasNegocioFilter(
+                            categoriasDisponibles = categoriasDisponibles,
+                            categoriasSeleccionadas = filtros.categorias,
+                            onCategoriaToggle = { categoria ->
+                                filtros = if (categoria in filtros.categorias) {
+                                    filtros.copy(categorias = filtros.categorias - categoria)
+                                } else {
+                                    filtros.copy(categorias = filtros.categorias + categoria)
+                                }
                             }
                         )
                     }
                 }
 
+                // Estado del negocio (activo/inactivo/bloqueado)
+                FiltroSeccionNegocioAdmin(
+                    titulo = "Estado del negocio",
+                    icono = Icons.Default.Business
+                ) {
+                    EstadoNegocioAdminFilter(
+                        estadoSeleccionado = filtros.estado,
+                        onEstadoChange = { estado ->
+                            filtros = filtros.copy(estado = estado)
+                        }
+                    )
+                }
 
+                // Estado de operación (abierto/cerrado)
+                FiltroSeccionNegocioAdmin(
+                    titulo = "Estado de operación",
+                    icono = Icons.Default.Schedule
+                ) {
+                    EstadoOperacionFilter(
+                        estadoSeleccionado = filtros.estadoOperacion,
+                        onEstadoChange = { estado ->
+                            filtros = filtros.copy(estadoOperacion = estado)
+                        }
+                    )
+                }
 
-                // Rating
-                FiltroSeccion(
+                // Rating mínimo
+                FiltroSeccionNegocioAdmin(
                     titulo = "Valoración mínima",
                     icono = Icons.Default.Star
                 ) {
-                    RatingFilter(
+                    RatingNegocioFilter(
                         ratingSeleccionado = filtros.ratingMinimo,
                         onRatingChange = { rating ->
                             filtros = filtros.copy(ratingMinimo = rating)
@@ -201,25 +226,25 @@ private fun FiltrosContent(
                     )
                 }
 
-                // Estado (Abierto/Cerrado)
-                FiltroSeccion(
-                    titulo = "Estado",
-                    icono = Icons.Default.Schedule
+                // Número mínimo de reseñas
+                FiltroSeccionNegocioAdmin(
+                    titulo = "Número mínimo de reseñas",
+                    icono = Icons.Default.Reviews
                 ) {
-                    EstadoFilter(
-                        soloAbiertos = filtros.soloAbiertos,
-                        onSoloAbiertosChange = { soloAbiertos ->
-                            filtros = filtros.copy(soloAbiertos = soloAbiertos)
+                    ReviewCountFilter(
+                        reviewCountSeleccionado = filtros.reviewCountMinimo,
+                        onReviewCountChange = { count ->
+                            filtros = filtros.copy(reviewCountMinimo = count)
                         }
                     )
                 }
 
                 // Ordenar por
-                FiltroSeccion(
+                FiltroSeccionNegocioAdmin(
                     titulo = "Ordenar por",
                     icono = Icons.Default.Sort
                 ) {
-                    OrdenarPorFilter(
+                    OrdenarNegocioPorFilter(
                         ordenSeleccionado = filtros.ordenarPor,
                         onOrdenChange = { orden ->
                             filtros = filtros.copy(ordenarPor = orden)
@@ -230,7 +255,7 @@ private fun FiltrosContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            //  Botones de acción
+            // Botones de acción
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -238,7 +263,7 @@ private fun FiltrosContent(
                 OutlinedButton(
                     onClick = {
                         onLimpiarFiltros()
-                        filtros = FiltrosNegocio()
+                        filtros = FiltrosNegocioAdmin()
                     },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -280,9 +305,9 @@ private fun FiltrosContent(
     }
 }
 
-//  Componente para secciones de filtro
+// Componente para secciones de filtro de negocio admin
 @Composable
-private fun FiltroSeccion(
+private fun FiltroSeccionNegocioAdmin(
     titulo: String,
     icono: ImageVector,
     content: @Composable () -> Unit
@@ -310,9 +335,9 @@ private fun FiltroSeccion(
     }
 }
 
-//  Filtro de categorías
+// Filtro de categorías de negocio
 @Composable
-private fun CategoriasFilter(
+private fun CategoriasNegocioFilter(
     categoriasDisponibles: List<String>,
     categoriasSeleccionadas: Set<String>,
     onCategoriaToggle: (String) -> Unit
@@ -338,21 +363,23 @@ private fun CategoriasFilter(
     }
 }
 
-//  Filtro de distancia
+// Filtro de estado de negocio admin
 @Composable
-private fun DistanciaFilter(
-    distanciaSeleccionada: Float?,
-    onDistanciaChange: (Float?) -> Unit
+private fun EstadoNegocioAdminFilter(
+    estadoSeleccionado: EstadoNegocioAdmin?,
+    onEstadoChange: (EstadoNegocioAdmin?) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        DistanciaOption.entries.forEach { opcion ->
-            val isSelected = distanciaSeleccionada == opcion.value
+        EstadoNegocioAdmin.entries.forEach { opcion ->
+            val isSelected = estadoSeleccionado == opcion
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { onDistanciaChange(opcion.value) }
+                    .clickable {
+                        onEstadoChange(if (isSelected) null else opcion)
+                    }
                     .background(
                         if (isSelected)
                             MaterialTheme.colorScheme.primaryContainer
@@ -364,10 +391,22 @@ private fun DistanciaFilter(
             ) {
                 RadioButton(
                     selected = isSelected,
-                    onClick = { onDistanciaChange(opcion.value) },
+                    onClick = {
+                        onEstadoChange(if (isSelected) null else opcion)
+                    },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = MaterialTheme.colorScheme.primary
                     )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = opcion.icon,
+                    contentDescription = null,
+                    tint = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -383,14 +422,73 @@ private fun DistanciaFilter(
     }
 }
 
-//  Filtro de rating
+// Filtro de estado de operación
 @Composable
-private fun RatingFilter(
+private fun EstadoOperacionFilter(
+    estadoSeleccionado: EstadoOperacionNegocio?,
+    onEstadoChange: (EstadoOperacionNegocio?) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        EstadoOperacionNegocio.entries.forEach { opcion ->
+            val isSelected = estadoSeleccionado == opcion
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable {
+                        onEstadoChange(if (isSelected) null else opcion)
+                    }
+                    .background(
+                        if (isSelected)
+                            MaterialTheme.colorScheme.primaryContainer
+                        else
+                            Color.Transparent
+                    )
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = isSelected,
+                    onClick = {
+                        onEstadoChange(if (isSelected) null else opcion)
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = opcion.icon,
+                    contentDescription = null,
+                    tint = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = opcion.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+// Filtro de rating de negocio
+@Composable
+private fun RatingNegocioFilter(
     ratingSeleccionado: Float?,
     onRatingChange: (Float?) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        RatingOption.values().forEach { opcion ->
+        RangoRating.entries.forEach { opcion ->
             val isSelected = ratingSeleccionado == opcion.value
 
             Row(
@@ -442,65 +540,69 @@ private fun RatingFilter(
     }
 }
 
-//  Filtro de estado
+// Filtro de número de reseñas
 @Composable
-private fun EstadoFilter(
-    soloAbiertos: Boolean,
-    onSoloAbiertosChange: (Boolean) -> Unit
+private fun ReviewCountFilter(
+    reviewCountSeleccionado: Int?,
+    onReviewCountChange: (Int?) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable { onSoloAbiertosChange(!soloAbiertos) }
-            .background(
-                if (soloAbiertos)
-                    MaterialTheme.colorScheme.primaryContainer
-                else
-                    Color.Transparent
-            )
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Switch(
-            checked = soloAbiertos,
-            onCheckedChange = onSoloAbiertosChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
-            )
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text(
-                text = "Solo negocios abiertos",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = if (soloAbiertos)
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                else
-                    MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "Mostrar únicamente los que están abiertos ahora",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (soloAbiertos)
-                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                else
-                    MaterialTheme.colorScheme.onSurfaceVariant
-            )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        RangoReviews.entries.forEach { opcion ->
+            val isSelected = reviewCountSeleccionado == opcion.value
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { onReviewCountChange(opcion.value) }
+                    .background(
+                        if (isSelected)
+                            MaterialTheme.colorScheme.primaryContainer
+                        else
+                            Color.Transparent
+                    )
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = isSelected,
+                    onClick = { onReviewCountChange(opcion.value) },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Default.Reviews,
+                    contentDescription = null,
+                    tint = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = opcion.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
 
-//  Filtro de ordenamiento
+// Filtro de ordenamiento de negocios
 @Composable
-private fun OrdenarPorFilter(
-    ordenSeleccionado: OrdenarPor,
-    onOrdenChange: (OrdenarPor) -> Unit
+private fun OrdenarNegocioPorFilter(
+    ordenSeleccionado: OrdenarNegocioPor,
+    onOrdenChange: (OrdenarNegocioPor) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OrdenarPor.values().forEach { opcion ->
+        OrdenarNegocioPor.entries.forEach { opcion ->
             val isSelected = ordenSeleccionado == opcion
 
             Row(
@@ -550,16 +652,15 @@ private fun OrdenarPorFilter(
 
 @Preview(showBackground = true)
 @Composable
-fun FiltrosNegocioModalPreview() {
+fun FiltrosNegocioAdminModalPreview() {
     FrontendappTheme {
-        FiltrosNegocioModal(
+        FiltrosNegocioAdminModal(
             isVisible = true,
-            filtrosActuales = FiltrosNegocio(
+            filtrosActuales = FiltrosNegocioAdmin(
                 categorias = setOf("Restaurante", "Belleza"),
-                soloAbiertos = true,
+                estado = EstadoNegocioAdmin.ACTIVOS,
                 ratingMinimo = 4f
             ),
-            isAdmin =true,
             categoriasDisponibles = listOf("Restaurante", "Belleza", "Salud", "Tecnología", "Educación"),
             onDismiss = {},
             onAplicarFiltros = {},

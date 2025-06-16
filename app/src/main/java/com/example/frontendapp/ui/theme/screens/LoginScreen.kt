@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -55,6 +56,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import com.example.frontendapp.data.model.UI.ERol
 import com.example.frontendapp.data.remote.reponses.Resource
@@ -64,6 +66,7 @@ import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 
 private val TAG= "LoginScreen"
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
     val loginState by loginViewModel.loginState.collectAsState()
@@ -75,15 +78,21 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
     val passwordFocusRequester = remember { FocusRequester() }
     var showModal by remember { mutableStateOf(false) }
 
-
     val context = LocalContext.current
 
+    // Pre-load strings for non-composable contexts like Log.d and Toast.makeText
+    val loginLoadingLog = stringResource(id = R.string.login_loading_log)
+    val loginSuccessLogFormat = stringResource(id = R.string.login_success_log)
+    val loginErrorToastFormat = stringResource(id = R.string.login_error_toast)
+    val loginErrorLogFormat = stringResource(id = R.string.login_error_log)
+    val loginValidationErrorsLogFormat = stringResource(id = R.string.login_validation_errors_log)
+
     ErrorModal(
-        message = "No se puede loguear con este cuenta debido a que este usuario esta bloqueado",
+        message = stringResource(id = R.string.blocked_user_modal_message), // String resource
         isVisible = showModal,
         onConfirm = {showModal=false},
         onDismiss = {showModal=false},
-        title = "USUARIO BLOQUEADO"
+        title = stringResource(id = R.string.blocked_user_modal_title) // String resource
     )
 
     Scaffold(
@@ -98,7 +107,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Logo",
+                    contentDescription = stringResource(id = R.string.login_logo_content_description), // String resource
                     modifier = Modifier.size(100.dp)
                 )
             }
@@ -119,7 +128,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
             ) {
                 CustomTextField(
                     icon = Icons.Default.Person,
-                    label = "Correo electrónico",
+                    label = stringResource(id = R.string.login_email_label), // String resource
                     value = usuario.email.orEmpty(),
                     onValueChange = { loginViewModel.setEmail(it) },
                     errorMessage = validationErrors["email"],
@@ -132,7 +141,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
 
                 CustomTextField(
                     icon = Icons.Default.Lock,
-                    label = "Contraseña",
+                    label = stringResource(id = R.string.login_password_label), // String resource
                     value = usuario.password.orEmpty(),
                     isPassword = true,
                     onValueChange = { loginViewModel.setPassword(it) },
@@ -144,7 +153,11 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                     modifier = Modifier.focusRequester(passwordFocusRequester)
                 )
             }
-            TextNavigate("¿No tienes cuenta? Registrate",navController, NavigationItem.REGISTER.route)
+            TextNavigate(
+                texto = stringResource(id = R.string.login_no_account_text), // String resource
+                navController = navController,
+                destino = NavigationItem.REGISTER.route
+            )
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BtnStyle1(
@@ -152,12 +165,11 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                         loginViewModel.loginUsuario(
                             onLoading = {
                                 isLoading = true
-                                Log.d("Login", "Cargando...")
+                                Log.d("Login", loginLoadingLog) // String resource
                             },
                             onSuccess = { result ->
-
                                 isLoading = false
-                                Log.d("Login", "Éxito: $result")
+                                Log.d("Login", String.format(loginSuccessLogFormat, result)) // String resource with format
                                 if(result.usuario.Bloqueado){
                                     showModal=true
                                     return@loginUsuario
@@ -166,7 +178,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                 Log.d(TAG, result.usuario.toString())
                                 RetrofitInstance.setUsuario(result.usuario)
                                 result.usuario.id?.let { RetrofitInstance.setUserId(it) }
-                                //Si esta autenticado obliglarle a que lo haga
+                                // If authenticated, navigate based on roles
                                 if(result.usuario.isAutentificado){
                                     val roles = result.roles
                                     when {
@@ -174,28 +186,23 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                         roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
                                         roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
                                     }
-                                }else{
-                                    //Enviar a la pantalla de envio de mail
-
-
+                                } else {
+                                    // Navigate to email verification screen
                                     navController.navigate(NavigationItem.SEND_MAIL_SCREEN.route)
-
                                 }
-
-
                                 loginViewModel.reset()
                             },
                             onError = { error ->
                                 isLoading = false
-                                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                                Log.d("LoginScreen", error)
+                                Toast.makeText(context, String.format(loginErrorToastFormat, error), Toast.LENGTH_SHORT).show() // String resource with format
+                                Log.d("LoginScreen", String.format(loginErrorLogFormat, error)) // String resource with format
                             },
                             onValidationError = { errores ->
-                                Log.d("LoginScreen", "Errores de validación: $errores")
+                                Log.d("LoginScreen", String.format(loginValidationErrorsLogFormat, errores)) // String resource with format
                             }
                         )
                     },
-                    text = if (loginState is Resource.Loading) "Cargando..." else "Iniciar Sesión",
+                    text = if (loginState is Resource.Loading) stringResource(id = R.string.login_button_loading_text) else stringResource(id = R.string.login_button_text), // String resource
                     icon = if (loginState is Resource.Loading) Icons.Default.HourglassEmpty else Icons.Default.VerifiedUser,
                 )
             }

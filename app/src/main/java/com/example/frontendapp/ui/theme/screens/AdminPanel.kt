@@ -12,9 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.UI.ResusableModalDTO
 import com.example.frontendapp.data.model.UI.TabItem
 import com.example.frontendapp.ui.theme.FrontendappTheme
@@ -37,8 +39,8 @@ fun AdminPanel(
     usuarioViewModel: UsuarioViewModel,
     negocioViewModel: NegocioViewModel,
     navController: NavController
-){
-    //Modal filtro desactivado
+) {
+    // Modal filter disabled
     val modalState = remember { mutableStateOf(ResusableModalDTO()) }
     var isVisibleLogOut by remember { mutableStateOf(false) }
 
@@ -53,11 +55,12 @@ fun AdminPanel(
             type = modalState.value.type,
         )
     )
-    BackHandler { isVisibleLogOut=true }
 
-    //Modal logout
+    BackHandler { isVisibleLogOut = true }
+
+    // Logout modal
     LogoutConfirmationDialog(
-        onDismiss = {isVisibleLogOut = false},
+        onDismiss = { isVisibleLogOut = false },
         showDialog = isVisibleLogOut,
         onConfirmLogout = {
             navController.navigate(NavigationItem.LOGIN.route) {
@@ -65,46 +68,46 @@ fun AdminPanel(
                     inclusive = true
                 }
             }
-        }
+        },
     )
 
     val tabs = listOf(
         TabItem(
             index = 0,
-            title = "Negocios",
+            title = stringResource(R.string.tab_businesses),
             selectedIcon = Icons.Filled.Store,
             unSelectedIcon = Icons.Outlined.Storefront,
             content = {
                 NegociosPanelAdminContent(
                     negocioViewModel = negocioViewModel,
                     navController = navController,
-                    onBack = {isVisibleLogOut=true}
+                    onBack = { isVisibleLogOut = true }
                 )
             }
         ),
         TabItem(
-            index = 0,
-            title = "Usuarios",
+            index = 1,  // Fixed index (was duplicate 0)
+            title = stringResource(R.string.tab_users),
             selectedIcon = Icons.Filled.Person,
             unSelectedIcon = Icons.Outlined.Person,
             content = {
                 UsuariosAdminPanelContent(
                     usuarioViewModel = usuarioViewModel,
-                    onBack = {isVisibleLogOut=true}
+                    onBack = { isVisibleLogOut = true }
                 )
             }
         )
-
     )
-    TabAnimatedScaffold(tabs)
+
+    TabAnimatedScaffold(
+        tabs = tabs,
+    )
 }
-
-
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview
 @Composable
-fun AdminPanelPreview(){
+fun AdminPanelPreview() {
     FrontendappTheme {
         AdminPanel(
             usuarioViewModel = FakeUsuarioViewModel(),

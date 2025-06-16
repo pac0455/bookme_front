@@ -24,47 +24,48 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.frontendapp.ui.theme.*
 
-//  NUEVO: Data classes para filtros
-data class FiltrosNegocio(
-    val categorias: Set<String> = emptySet(),
-    val distanciaMaxima: Float? = null,
-    val ratingMinimo: Float? = null,
-    val soloAbiertos: Boolean = false,
-    val ordenarPor: OrdenarPor = OrdenarPor.RELEVANCIA,
-    val precioMaximo: Float? = null
+// Data classes para filtros de usuarios actualizadas
+data class FiltrosUsuario(
+    val estado: EstadoUsuario? = null,
+    val fechaRegistro: RangoFecha? = null,
+    val ordenarPor: OrdenarUsuarioPor = OrdenarUsuarioPor.USERNAME,
+    val soloAutentificados: Boolean = false
 )
 
-enum class OrdenarPor(val displayName: String, val icon: ImageVector) {
-    RELEVANCIA("Relevancia", Icons.Default.Star),
-    DISTANCIA("Distancia", Icons.Default.LocationOn),
-    RATING("Valoración", Icons.Default.ThumbUp),
-    PRECIO("Precio", Icons.Default.AttachMoney),
-    NOMBRE("Nombre", Icons.Default.SortByAlpha)
+enum class OrdenarUsuarioPor(val displayName: String, val icon: ImageVector) {
+    USERNAME("Nombre de usuario", Icons.Default.Person),
+    EMAIL("Email", Icons.Default.Email),
+    FECHA_REGISTRO("Fecha de registro", Icons.Default.DateRange),
+    TELEFONO("Teléfono", Icons.Default.Phone)
 }
 
-enum class DistanciaOption(val displayName: String, val value: Float?) {
-    TODAS("Todas las distancias", null),
-    CERCA("Menos de 1 km", 1f),
-    MEDIO("Menos de 5 km", 5f),
-    LEJOS("Menos de 10 km", 10f)
+enum class EstadoUsuario(val displayName: String, val icon: ImageVector) {
+    TODOS("Todos los usuarios", Icons.Default.People),
+    ACTIVOS("Solo activos", Icons.Default.CheckCircle),
+    BLOQUEADOS("Solo bloqueados", Icons.Default.Block)
 }
 
-enum class RatingOption(val displayName: String, val value: Float?) {
-    TODAS("Todas las valoraciones", null),
-    BUENO("4+ estrellas", 4f),
-    MUY_BUENO("4.5+ estrellas", 4.5f),
-    EXCELENTE("5 estrellas", 5f)
+enum class TipoUsuario(val displayName: String, val icon: ImageVector) {
+    TODOS("Todos los tipos", Icons.Default.People),
+    NEGOCIOS("Solo negocios", Icons.Default.Business),
+    CLIENTES("Solo clientes", Icons.Default.Person)
+}
+
+enum class RangoFecha(val displayName: String, val icon: ImageVector) {
+    TODOS("Todos los períodos", Icons.Default.DateRange),
+    ULTIMA_SEMANA("Última semana", Icons.Default.CalendarToday),
+    ULTIMO_MES("Último mes", Icons.Default.CalendarMonth),
+    ULTIMOS_3_MESES("Últimos 3 meses", Icons.Default.CalendarViewMonth),
+    ULTIMO_ANO("Último año", Icons.Default.CalendarViewWeek)
 }
 
 @Composable
-fun FiltrosNegocioModal(
+fun FiltrosUsuarioModal(
     isVisible: Boolean,
-    filtrosActuales: FiltrosNegocio,
-    categoriasDisponibles: List<String>,
+    filtrosActuales: FiltrosUsuario,
     onDismiss: () -> Unit,
-    onAplicarFiltros: (FiltrosNegocio) -> Unit,
-    onLimpiarFiltros: () -> Unit,
-    isAdmin: Boolean = false
+    onAplicarFiltros: (FiltrosUsuario) -> Unit,
+    onLimpiarFiltros: () -> Unit
 ) {
     if (isVisible) {
         Dialog(
@@ -75,10 +76,8 @@ fun FiltrosNegocioModal(
                 dismissOnClickOutside = true
             )
         ) {
-            FiltrosContent(
-                isAdmin = isAdmin,
+            FiltrosUsuarioContent(
                 filtrosActuales = filtrosActuales,
-                categoriasDisponibles = categoriasDisponibles,
                 onDismiss = onDismiss,
                 onAplicarFiltros = onAplicarFiltros,
                 onLimpiarFiltros = onLimpiarFiltros
@@ -88,13 +87,11 @@ fun FiltrosNegocioModal(
 }
 
 @Composable
-private fun FiltrosContent(
-    filtrosActuales: FiltrosNegocio,
-    categoriasDisponibles: List<String>,
+private fun FiltrosUsuarioContent(
+    filtrosActuales: FiltrosUsuario,
     onDismiss: () -> Unit,
-    onAplicarFiltros: (FiltrosNegocio) -> Unit,
-    onLimpiarFiltros: () -> Unit,
-    isAdmin: Boolean=false
+    onAplicarFiltros: (FiltrosUsuario) -> Unit,
+    onLimpiarFiltros: () -> Unit
 ) {
     var filtros by remember { mutableStateOf(filtrosActuales) }
     val scrollState = rememberScrollState()
@@ -115,14 +112,14 @@ private fun FiltrosContent(
                 .fillMaxSize()
                 .padding(24.dp)
         ) {
-            //  Header del modal
+            // Header del modal
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Filtros",
+                    text = "Filtros de Usuarios",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -147,79 +144,59 @@ private fun FiltrosContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            //  Contenido scrolleable
+            // Contenido scrolleable
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // Categorías
-                FiltroSeccion(
-                    titulo = "Categorías",
-                    icono = Icons.Default.Category
-                ) {
-                    CategoriasFilter(
-                        categoriasDisponibles = categoriasDisponibles,
-                        categoriasSeleccionadas = filtros.categorias,
-                        onCategoriaToggle = { categoria ->
-                            filtros = if (categoria in filtros.categorias) {
-                                filtros.copy(categorias = filtros.categorias - categoria)
-                            } else {
-                                filtros.copy(categorias = filtros.categorias + categoria)
-                            }
-                        }
-                    )
-                }
-                if(!isAdmin){
-                    // Distancia
-                    FiltroSeccion(
-                        titulo = "Distancia",
-                        icono = Icons.Default.LocationOn
-                    ) {
-                        DistanciaFilter(
-                            distanciaSeleccionada = filtros.distanciaMaxima,
-                            onDistanciaChange = { distancia ->
-                                filtros = filtros.copy(distanciaMaxima = distancia)
-                            }
-                        )
-                    }
-                }
 
-
-
-                // Rating
-                FiltroSeccion(
-                    titulo = "Valoración mínima",
-                    icono = Icons.Default.Star
-                ) {
-                    RatingFilter(
-                        ratingSeleccionado = filtros.ratingMinimo,
-                        onRatingChange = { rating ->
-                            filtros = filtros.copy(ratingMinimo = rating)
-                        }
-                    )
-                }
-
-                // Estado (Abierto/Cerrado)
-                FiltroSeccion(
+                // Estado del usuario (Activo/Bloqueado)
+                FiltroSeccionUsuario(
                     titulo = "Estado",
-                    icono = Icons.Default.Schedule
+                    icono = Icons.Default.AccountCircle
                 ) {
-                    EstadoFilter(
-                        soloAbiertos = filtros.soloAbiertos,
-                        onSoloAbiertosChange = { soloAbiertos ->
-                            filtros = filtros.copy(soloAbiertos = soloAbiertos)
+                    EstadoUsuarioFilter(
+                        estadoSeleccionado = filtros.estado,
+                        onEstadoChange = { estado ->
+                            filtros = filtros.copy(estado = estado)
+                        }
+                    )
+                }
+
+                // Fecha de registro
+                FiltroSeccionUsuario(
+                    titulo = "Fecha de registro",
+                    icono = Icons.Default.DateRange
+                ) {
+                    FechaRegistroFilter(
+                        rangoSeleccionado = filtros.fechaRegistro,
+                        onRangoChange = { rango ->
+                            filtros = filtros.copy(fechaRegistro = rango)
+                        }
+                    )
+                }
+
+                // Solo autentificados
+                FiltroSeccionUsuario(
+                    titulo = "Autentificación",
+                    icono = Icons.Default.Verified
+                ) {
+                    AutentificacionFilter(
+                        soloAutentificados = filtros.soloAutentificados,
+                        onSoloAutentificadosChange = { autentificados ->
+                            filtros = filtros.copy(soloAutentificados = autentificados)
                         }
                     )
                 }
 
                 // Ordenar por
-                FiltroSeccion(
+                FiltroSeccionUsuario(
                     titulo = "Ordenar por",
                     icono = Icons.Default.Sort
                 ) {
-                    OrdenarPorFilter(
+                    OrdenarUsuarioPorFilter(
                         ordenSeleccionado = filtros.ordenarPor,
                         onOrdenChange = { orden ->
                             filtros = filtros.copy(ordenarPor = orden)
@@ -230,7 +207,7 @@ private fun FiltrosContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            //  Botones de acción
+            // Botones de acción
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -238,7 +215,7 @@ private fun FiltrosContent(
                 OutlinedButton(
                     onClick = {
                         onLimpiarFiltros()
-                        filtros = FiltrosNegocio()
+                        filtros = FiltrosUsuario()
                     },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -280,9 +257,9 @@ private fun FiltrosContent(
     }
 }
 
-//  Componente para secciones de filtro
+// Componente para secciones de filtro de usuario
 @Composable
-private fun FiltroSeccion(
+private fun FiltroSeccionUsuario(
     titulo: String,
     icono: ImageVector,
     content: @Composable () -> Unit
@@ -310,151 +287,196 @@ private fun FiltroSeccion(
     }
 }
 
-//  Filtro de categorías
+// Filtro de tipo de usuario
 @Composable
-private fun CategoriasFilter(
-    categoriasDisponibles: List<String>,
-    categoriasSeleccionadas: Set<String>,
-    onCategoriaToggle: (String) -> Unit
-) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(categoriasDisponibles) { categoria ->
-            val isSelected = categoria in categoriasSeleccionadas
-
-            FilterChip(
-                onClick = { onCategoriaToggle(categoria) },
-                label = { Text(categoria) },
-                selected = isSelected,
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            )
-        }
-    }
-}
-
-//  Filtro de distancia
-@Composable
-private fun DistanciaFilter(
-    distanciaSeleccionada: Float?,
-    onDistanciaChange: (Float?) -> Unit
+private fun TipoUsuarioFilter(
+    tipoSeleccionado: TipoUsuario?,
+    onTipoChange: (TipoUsuario?) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        DistanciaOption.entries.forEach { opcion ->
-            val isSelected = distanciaSeleccionada == opcion.value
+        TipoUsuario.entries.forEach { opcion ->
+            val isSelected = tipoSeleccionado == opcion
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { onDistanciaChange(opcion.value) }
-                    .background(
-                        if (isSelected)
-                            MaterialTheme.colorScheme.primaryContainer
-                        else
-                            Color.Transparent
-                    )
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = isSelected,
-                    onClick = { onDistanciaChange(opcion.value) },
-                    colors = RadioButtonDefaults.colors(
-                        selectedColor = MaterialTheme.colorScheme.primary
-                    )
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = opcion.displayName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isSelected)
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    else
-                        MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-    }
-}
-
-//  Filtro de rating
-@Composable
-private fun RatingFilter(
-    ratingSeleccionado: Float?,
-    onRatingChange: (Float?) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        RatingOption.values().forEach { opcion ->
-            val isSelected = ratingSeleccionado == opcion.value
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable { onRatingChange(opcion.value) }
-                    .background(
-                        if (isSelected)
-                            MaterialTheme.colorScheme.primaryContainer
-                        else
-                            Color.Transparent
-                    )
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = isSelected,
-                    onClick = { onRatingChange(opcion.value) },
-                    colors = RadioButtonDefaults.colors(
-                        selectedColor = MaterialTheme.colorScheme.primary
-                    )
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = opcion.displayName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isSelected)
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    else
-                        MaterialTheme.colorScheme.onSurface
-                )
-                if (opcion.value != null) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    repeat(5) { index ->
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            tint = if (index < (opcion.value ?: 0f))
-                                ThemeColors.warning
-                            else
-                                MaterialTheme.colorScheme.outline,
-                            modifier = Modifier.size(16.dp)
-                        )
+                    .clickable {
+                        onTipoChange(if (isSelected) null else opcion)
                     }
-                }
+                    .background(
+                        if (isSelected)
+                            MaterialTheme.colorScheme.primaryContainer
+                        else
+                            Color.Transparent
+                    )
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = isSelected,
+                    onClick = {
+                        onTipoChange(if (isSelected) null else opcion)
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = opcion.icon,
+                    contentDescription = null,
+                    tint = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = opcion.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
 }
 
-//  Filtro de estado
+// Filtro de estado de usuario
 @Composable
-private fun EstadoFilter(
-    soloAbiertos: Boolean,
-    onSoloAbiertosChange: (Boolean) -> Unit
+private fun EstadoUsuarioFilter(
+    estadoSeleccionado: EstadoUsuario?,
+    onEstadoChange: (EstadoUsuario?) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        EstadoUsuario.entries.forEach { opcion ->
+            val isSelected = estadoSeleccionado == opcion
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable {
+                        onEstadoChange(if (isSelected) null else opcion)
+                    }
+                    .background(
+                        if (isSelected)
+                            MaterialTheme.colorScheme.primaryContainer
+                        else
+                            Color.Transparent
+                    )
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = isSelected,
+                    onClick = {
+                        onEstadoChange(if (isSelected) null else opcion)
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = opcion.icon,
+                    contentDescription = null,
+                    tint = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = opcion.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+// Filtro de fecha de registro
+@Composable
+private fun FechaRegistroFilter(
+    rangoSeleccionado: RangoFecha?,
+    onRangoChange: (RangoFecha?) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        RangoFecha.entries.forEach { opcion ->
+            val isSelected = rangoSeleccionado == opcion
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable {
+                        onRangoChange(if (isSelected) null else opcion)
+                    }
+                    .background(
+                        if (isSelected)
+                            MaterialTheme.colorScheme.primaryContainer
+                        else
+                            Color.Transparent
+                    )
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = isSelected,
+                    onClick = {
+                        onRangoChange(if (isSelected) null else opcion)
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = opcion.icon,
+                    contentDescription = null,
+                    tint = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = opcion.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isSelected)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+// Filtro de autentificación
+@Composable
+private fun AutentificacionFilter(
+    soloAutentificados: Boolean,
+    onSoloAutentificadosChange: (Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .clickable { onSoloAbiertosChange(!soloAbiertos) }
+            .clickable { onSoloAutentificadosChange(!soloAutentificados) }
             .background(
-                if (soloAbiertos)
+                if (soloAutentificados)
                     MaterialTheme.colorScheme.primaryContainer
                 else
                     Color.Transparent
@@ -463,8 +485,8 @@ private fun EstadoFilter(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Switch(
-            checked = soloAbiertos,
-            onCheckedChange = onSoloAbiertosChange,
+            checked = soloAutentificados,
+            onCheckedChange = onSoloAutentificadosChange,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
                 checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
@@ -473,18 +495,18 @@ private fun EstadoFilter(
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(
-                text = "Solo negocios abiertos",
+                text = "Solo usuarios autentificados",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
-                color = if (soloAbiertos)
+                color = if (soloAutentificados)
                     MaterialTheme.colorScheme.onPrimaryContainer
                 else
                     MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Mostrar únicamente los que están abiertos ahora",
+                text = "Mostrar únicamente usuarios con email confirmado",
                 style = MaterialTheme.typography.bodySmall,
-                color = if (soloAbiertos)
+                color = if (soloAutentificados)
                     MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                 else
                     MaterialTheme.colorScheme.onSurfaceVariant
@@ -493,14 +515,14 @@ private fun EstadoFilter(
     }
 }
 
-//  Filtro de ordenamiento
+// Filtro de ordenamiento de usuarios
 @Composable
-private fun OrdenarPorFilter(
-    ordenSeleccionado: OrdenarPor,
-    onOrdenChange: (OrdenarPor) -> Unit
+private fun OrdenarUsuarioPorFilter(
+    ordenSeleccionado: OrdenarUsuarioPor,
+    onOrdenChange: (OrdenarUsuarioPor) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OrdenarPor.values().forEach { opcion ->
+        OrdenarUsuarioPor.entries.forEach { opcion ->
             val isSelected = ordenSeleccionado == opcion
 
             Row(
@@ -550,17 +572,14 @@ private fun OrdenarPorFilter(
 
 @Preview(showBackground = true)
 @Composable
-fun FiltrosNegocioModalPreview() {
+fun FiltrosUsuarioModalPreview() {
     FrontendappTheme {
-        FiltrosNegocioModal(
+        FiltrosUsuarioModal(
             isVisible = true,
-            filtrosActuales = FiltrosNegocio(
-                categorias = setOf("Restaurante", "Belleza"),
-                soloAbiertos = true,
-                ratingMinimo = 4f
+            filtrosActuales = FiltrosUsuario(
+                estado = EstadoUsuario.ACTIVOS,
+                soloAutentificados = true
             ),
-            isAdmin =true,
-            categoriasDisponibles = listOf("Restaurante", "Belleza", "Salud", "Tecnología", "Educación"),
             onDismiss = {},
             onAplicarFiltros = {},
             onLimpiarFiltros = {}

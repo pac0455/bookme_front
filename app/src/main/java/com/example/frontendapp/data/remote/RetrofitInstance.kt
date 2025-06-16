@@ -21,6 +21,7 @@ object RetrofitInstance {
     private val localhost = "https://localhost:7211"
 
     private val serverTest = "https://localhost:7211/"
+    private val deploy ="http://bookme.somee.com/"
 
     private val ip = server
     private var roles: List<String> = emptyList()

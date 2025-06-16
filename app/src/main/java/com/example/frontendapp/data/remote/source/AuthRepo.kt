@@ -42,7 +42,6 @@ class AuthRepo(private val userApi: UserApi) {
         Resource.Error("Excepción de red o inesperada: ${e.localizedMessage}")
     }
     suspend fun delete(usuarioId: String): Resource<SingleMessageResponse> = try {
-        Log.d("AuthRepo", usuarioId.toString())
         val response = userApi.deleteUser(usuarioId)
         handleResponse(response)
     } catch (e: Exception) {

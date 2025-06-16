@@ -19,6 +19,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -27,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRepo
@@ -50,6 +53,7 @@ fun EditarUsuarioScreenMejorada(
     var hasChanges by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
     var isVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     // Detectar cambios
     LaunchedEffect(nombre) { hasChanges = nombre != usuarioUI.userName && nombre.isNotBlank() }
@@ -65,11 +69,11 @@ fun EditarUsuarioScreenMejorada(
         isVisible = isVisible,
         config = ModalConfig(
             type = if(isError) ModalType.ERROR else ModalType.SUCCESS,
-            title = if(isError) "Error" else "Exito",
+            title = if(isError) stringResource(id = R.string.modal_error_title) else stringResource(id = R.string.modal_success_title),
             message = if(isError)
-             "Error inesperado al actualiza el nombre de usuario"
-             else "Nombre actulizado correctamente",
-            confirmText = if(isError) "Entendido" else "Aceptar"
+                stringResource(id = R.string.modal_error_message)
+            else stringResource(id = R.string.modal_success_message),
+            confirmText = if(isError) stringResource(id = R.string.modal_error_confirm_text) else stringResource(id = R.string.modal_success_confirm_text)
         ),
         onConfirm = { isVisible = false },
         onDismiss = { isVisible = false }
@@ -108,7 +112,7 @@ fun EditarUsuarioScreenMejorada(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Text(
-                        text = "Información personal",
+                        text = stringResource(id = R.string.personal_info_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -118,14 +122,14 @@ fun EditarUsuarioScreenMejorada(
                     CustomTextField(
                         value = nombre,
                         onValueChange = { nombre = it },
-                        label = "Nombre completo",
+                        label = stringResource(id = R.string.full_name_label),
                         leadingIcon = Icons.Default.Person,
                         modifier = Modifier.fillMaxWidth(),
                     )
 
                     CustomTextField(
                         icon = Icons.Default.Phone,
-                        label = "Teléfono",
+                        label = stringResource(id = R.string.phone_label),
                         value = telefono,
                         onValueChange = { input ->
                             val cleaned = input.filterNot { c -> c == '\n' || c == '\t' }
@@ -149,13 +153,13 @@ fun EditarUsuarioScreenMejorada(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = null,
+                            contentDescription = null, // This can remain null as it's purely decorative
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "El correo electrónico no se puede modificar por seguridad",
+                            text = stringResource(id = R.string.email_info_note),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -169,7 +173,6 @@ fun EditarUsuarioScreenMejorada(
             Button(
                 onClick = {
                     if (hasChanges) {
-
                         usuarioViewModel.updateNombre(
                             usuario = UpdateNombreDTO(
                                 userName = nombre,
@@ -177,7 +180,7 @@ fun EditarUsuarioScreenMejorada(
                                 telefono = telefono,
                             ),
                             onSuccess = { updatedUser ->
-                                Log.d("EditarUsuairo", updatedUser.toString())
+                                Log.d("EditarUsuario", updatedUser.toString())
                                 isVisible = true
                                 isError = false
                             },
@@ -216,12 +219,12 @@ fun EditarUsuarioScreenMejorada(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Save,
-                            contentDescription = null,
+                            contentDescription = null, // This can remain null as it's purely decorative
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Guardar cambios",
+                            text = stringResource(id = R.string.save_changes_button_text),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )
@@ -250,7 +253,7 @@ private fun TopAppBarSection(onBack: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
+                contentDescription = stringResource(id = R.string.back_button_description),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -258,7 +261,7 @@ private fun TopAppBarSection(onBack: () -> Unit) {
         Spacer(modifier = Modifier.width(16.dp))
 
         Text(
-            text = "Editar perfil",
+            text = stringResource(id = R.string.edit_profile_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
@@ -284,7 +287,7 @@ private fun ProfileHeaderSection() {
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
-                contentDescription = null,
+                contentDescription = null, // This can remain null as it's purely decorative
                 modifier = Modifier.size(50.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -293,7 +296,7 @@ private fun ProfileHeaderSection() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Actualiza tu información",
+            text = stringResource(id = R.string.update_info_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center

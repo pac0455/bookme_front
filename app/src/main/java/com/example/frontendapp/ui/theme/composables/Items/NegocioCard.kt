@@ -81,6 +81,7 @@ fun NegocioCard(
             ServicioImagePicker(
                 icon = Icons.Filled.NoPhotography,
                 imageUrl = imagenUrl,
+                imageUpdatedAt = negocio.logoUpdatedAt,
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(140.dp)

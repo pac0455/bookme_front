@@ -20,11 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Horario
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.ThemeColors
@@ -69,7 +71,7 @@ fun HorarioForm(
                 ),
                 title = {
                     Text(
-                        "Horarios de Atención",
+                        stringResource(id = R.string.attention_hours_title),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -77,7 +79,7 @@ fun HorarioForm(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver atrás",
+                            contentDescription = stringResource(id = R.string.back_button_description),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -90,20 +92,20 @@ fun HorarioForm(
                 shadowElevation = 8.dp
             ) {
                 BtnStyle1(
-                    text = if (esCreacion) "Crear Negocio" else "Actualizar Negocio",
+                    text = if (esCreacion) stringResource(id = R.string.create_business_button) else stringResource(id = R.string.update_business_button),
                     onClick = {
                         if (esCreacion) {
                             negocioViewModel.addNegocioDB(
                                 onLoading = {
                                     Log.d("Create Negocio", "Creando el negocio: $negocio")
-                                    Toast.makeText(context, "Creando negocio...", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.creating_business_message), Toast.LENGTH_SHORT).show()
                                 },
                                 onSuccess = {
-                                    Toast.makeText(context, "Negocio creado correctamente", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.business_created_success), Toast.LENGTH_SHORT).show()
                                     navController.navigate(NavigationItem.BUSSINES_MAIN.route)
                                 },
                                 onError = { errorMsg ->
-                                    Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.error_creating_business, errorMsg), Toast.LENGTH_LONG).show()
                                     Log.e("Create Negocio", "Error: $errorMsg")
                                 }
                             )
@@ -112,14 +114,14 @@ fun HorarioForm(
                                 id = negocio.id,
                                 onLoading = {
                                     Log.d("Update Negocio", "Actualizando el negocio: $negocio")
-                                    Toast.makeText(context, "Actualizando negocio...", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.updating_business_message), Toast.LENGTH_SHORT).show()
                                 },
                                 onSuccess = {
-                                    Toast.makeText(context, "Negocio actualizado correctamente", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.business_updated_success), Toast.LENGTH_SHORT).show()
                                     navController.navigate(NavigationItem.BUSSINES_MAIN.route)
                                 },
                                 onError = { errorMsg ->
-                                    Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.error_updating_business, errorMsg), Toast.LENGTH_LONG).show()
                                     Log.e("Update Negocio", "Error: $errorMsg")
                                 }
                             )
@@ -145,8 +147,8 @@ fun HorarioForm(
             ProgressHeader(
                 currentStep = 2,
                 totalSteps = 2,
-                stepTitle = "Horarios de Atención",
-                stepDescription = "Define cuándo estará disponible tu negocio"
+                stepTitle = stringResource(id = R.string.step_title_attention_hours),
+                stepDescription = stringResource(id = R.string.step_description_define_availability)
             )
 
             Column(
@@ -155,9 +157,9 @@ fun HorarioForm(
             ) {
                 // Sección de selección de días
                 HorarioSection(
-                    title = "Seleccionar Días",
+                    title = stringResource(id = R.string.select_days_title),
                     icon = Icons.Default.CalendarMonth,
-                    description = "Elige los días de la semana que tu negocio estará abierto"
+                    description = stringResource(id = R.string.select_days_description)
                 ) {
                     DaySelector(
                         diasVisuales = diasVisuales,
@@ -172,9 +174,9 @@ fun HorarioForm(
 
                 // Sección de selección de horarios
                 HorarioSection(
-                    title = "Horario de Atención",
+                    title = stringResource(id = R.string.attention_schedule_title),
                     icon = Icons.Default.Schedule,
-                    description = "Define las horas de apertura y cierre"
+                    description = stringResource(id = R.string.attention_schedule_description)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -182,19 +184,19 @@ fun HorarioForm(
                     ) {
                         TimeSelectionCard(
                             modifier = Modifier.weight(1f),
-                            title = "Hora de Apertura",
+                            title = stringResource(id = R.string.opening_time_label),
                             icon = Icons.Default.WbSunny,
                             selectedTime = horaInicioSeleccionada,
                             onTimeSelected = { time ->
                                 if (diasSeleccionados.isEmpty()) {
-                                    Toast.makeText(context, "Primero selecciona al menos un día", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.select_day_first_message), Toast.LENGTH_SHORT).show()
                                     return@TimeSelectionCard
                                 }
 
                                 if (horaFinSeleccionada != null &&
                                     negocioViewModel.esFinAntesDeInicio(time, horaFinSeleccionada!!)
                                 ) {
-                                    Toast.makeText(context, "La hora de cierre no puede ser anterior a la apertura", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.closing_before_opening_error), Toast.LENGTH_SHORT).show()
                                     return@TimeSelectionCard
                                 }
 
@@ -204,12 +206,12 @@ fun HorarioForm(
 
                         TimeSelectionCard(
                             modifier = Modifier.weight(1f),
-                            title = "Hora de Cierre",
+                            title = stringResource(id = R.string.closing_time_label),
                             icon = Icons.Default.NightlightRound,
                             selectedTime = horaFinSeleccionada,
                             onTimeSelected = { time ->
                                 if (diasSeleccionados.isEmpty()) {
-                                    Toast.makeText(context, "Primero selecciona al menos un día", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.select_day_first_message), Toast.LENGTH_SHORT).show()
                                     return@TimeSelectionCard
                                 }
 
@@ -219,7 +221,7 @@ fun HorarioForm(
                                 }
 
                                 if (negocioViewModel.esFinAntesDeInicio(horaInicioSeleccionada!!, time)) {
-                                    Toast.makeText(context, "La hora de cierre no puede ser anterior a la apertura", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.closing_before_opening_error), Toast.LENGTH_SHORT).show()
                                     return@TimeSelectionCard
                                 }
 
@@ -232,11 +234,11 @@ fun HorarioForm(
 
                     // Botón para añadir/editar horario
                     BtnStyle1(
-                        text = if (horarioEditando == null) "Añadir Horario" else "Guardar Cambios",
+                        text = if (horarioEditando == null) stringResource(id = R.string.add_schedule_button) else stringResource(id = R.string.save_changes_button),
                         icon = if (horarioEditando == null) Icons.Default.Add else Icons.Default.Save,
                         onClick = {
                             if (horaInicioSeleccionada == null || horaFinSeleccionada == null) {
-                                Toast.makeText(context, "Debes seleccionar ambas horas", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.select_both_hours_message), Toast.LENGTH_SHORT).show()
                                 return@BtnStyle1
                             }
 
@@ -247,7 +249,7 @@ fun HorarioForm(
                                     horarioEditando
                                 )
                             ) {
-                                Toast.makeText(context, "Ya existe un horario que se solapa en ese día", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.schedule_overlap_error), Toast.LENGTH_SHORT).show()
                                 return@BtnStyle1
                             }
 
@@ -272,9 +274,9 @@ fun HorarioForm(
                 // Sección de horarios añadidos
                 if (horarios.isNotEmpty()) {
                     HorarioSection(
-                        title = "Horarios Configurados",
+                        title = stringResource(id = R.string.configured_schedules_title),
                         icon = Icons.Default.Schedule,
-                        description = "Revisa y edita los horarios de tu negocio"
+                        description = stringResource(id = R.string.configured_schedules_description)
                     ) {
                         HorarioList(
                             horarios = horarios,
@@ -395,7 +397,7 @@ fun TimeSelectionCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             TimePickerInputButton(
-                label = selectedTime ?: "Seleccionar",
+                label = selectedTime ?: stringResource(id = R.string.select_time_default),
                 selectedTime = selectedTime,
                 onTimeSelected = onTimeSelected
             )

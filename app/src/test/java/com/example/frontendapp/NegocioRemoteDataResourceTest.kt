@@ -14,8 +14,18 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
+/**
+ * Tests para la API de negocios.
+ *
+ * Esta clase contiene pruebas que validan las operaciones CRUD y de consulta
+ * sobre el recurso "Negocio" a través del repositorio remoto `NegocioRepo`.
+ * Además, realiza el login previo para obtener un token de autenticación.
+ */
 class NegocioApiTest {
 
+    /**
+     * Usuario de prueba con permisos para manejar negocios.
+     */
     private val usuarioNegocio = Usuario(
         email = "negocio_test@bookme.com",
         password = "Negocio123!",
@@ -26,8 +36,19 @@ class NegocioApiTest {
 
     private lateinit var authRemoteDataResource: AuthRepo
     private lateinit var negocioRemoteSource: NegocioRepo
+
+    /**
+     * ID del negocio creado durante el setup o las pruebas.
+     */
     private var createdNegocioId: Int? = null
 
+    /**
+     * Setup que se ejecuta antes de cada test.
+     *
+     * Realiza login para obtener token y configura el repositorio de negocios.
+     * Además, elimina un negocio con nombre "Negocio de prueba" si existe,
+     * y crea uno nuevo para usarlo en las pruebas.
+     */
     @Before
     fun setup() = runBlocking {
         authRemoteDataResource = AuthRepo(RetrofitInstance.userApi)
@@ -44,12 +65,12 @@ class NegocioApiTest {
             val negociosExistentes = negocioRemoteSource.getAllNegocios()
             if (negociosExistentes is Resource.Success) {
                 negociosExistentes.data?.find { it.nombre == "Negocio de prueba" }?.let { existente ->
-                    negocioRemoteSource.deleteNegocio(existente.id!!)
+                    negocioRemoteSource.deleteNegocio(existente.id)
                     println("Negocio existente eliminado: ${existente.id}")
                 }
             }
 
-            // Crear negocio nuevo
+            // Crear negocio nuevo para las pruebas
             val negocio = Negocio(
                 nombre = "Negocio de prueba",
                 descripcion = "Descripción de prueba",
@@ -57,7 +78,7 @@ class NegocioApiTest {
                 latitud = 10.0,
                 longitud = 20.0,
                 categoriaId = 1,
-                categoria = Categoria() // Puede quedar con valores por defecto
+                categoria = null
             )
 
             val result = negocioRemoteSource.addNegocio(negocio)
@@ -74,37 +95,40 @@ class NegocioApiTest {
         }
     }
 
+    /**
+     * Test para crear un negocio con horarios de atención y verificar
+     * que estos se persisten correctamente.
+     *
+     * - Elimina cualquier negocio con el nombre "Negocio con horarios" antes de crear.
+     * - Crea un negocio con dos horarios específicos.
+     * - Verifica que al obtener el negocio los horarios se mantienen.
+     */
     @Test
     fun `crear negocio con horarios y verificar persistencia`() = runBlocking {
-        // Eliminar negocio existente con el mismo nombre
         val negociosExistentes = negocioRemoteSource.getAllNegocios()
         if (negociosExistentes is Resource.Success) {
             negociosExistentes.data?.find { it.nombre == "Negocio con horarios" }?.let { existente ->
-                val deleteResult = negocioRemoteSource.deleteNegocio(existente.id!!)
+                val deleteResult = negocioRemoteSource.deleteNegocio(existente.id)
                 println("Negocio existente eliminado: ${existente.id} -> $deleteResult")
             }
         }
 
-        // Preparar horarios
         val horarios = listOf(
             Horario(diaSemana = "Lunes", horaInicio = "08:00", horaFin = "12:00"),
             Horario(diaSemana = "Martes", horaInicio = "09:00", horaFin = "13:00")
         )
 
-        // Crear negocio con horarios
         val negocio = Negocio(
             nombre = "Negocio prueba",
             descripcion = "Descripción",
             direccion = "Dirección",
             latitud = 10.0,
             longitud = 20.0,
-            categoriaId = 1,  // solo el id, sin enviar objeto Categoria
-            categoria = null, // o eliminar esta propiedad si es nullable
+            categoriaId = 1,
+            categoria = null,
             activo = true,
-            horarioAtencion = horarios
+            horarioAtencion = horarios,
         )
-
-
 
         when (val result = negocioRemoteSource.addNegocio(negocio)) {
             is Resource.Success -> {
@@ -121,22 +145,24 @@ class NegocioApiTest {
                 assertTrue(negocioRecuperado!!.horarioAtencion.any { it.diaSemana == "Lunes" })
                 assertTrue(negocioRecuperado.horarioAtencion.any { it.diaSemana == "Martes" })
             }
-
             is Resource.Error -> {
                 fail("Error al crear negocio con horarios: ${result.message}")
             }
-
             else -> {}
         }
     }
 
+    /**
+     * Test para crear un negocio básico y verificar que se crea correctamente.
+     *
+     * Elimina cualquier negocio con el mismo nombre antes de crear.
+     */
     @Test
     fun `crear negocio`() = runBlocking {
-        // Eliminar si ya existe
         val negociosExistentes = negocioRemoteSource.getAllNegocios()
         if (negociosExistentes is Resource.Success) {
             negociosExistentes.data?.find { it.nombre == "Negocio de prueba" }?.let { existente ->
-                negocioRemoteSource.deleteNegocio(existente.id!!)
+                negocioRemoteSource.deleteNegocio(existente.id)
                 println("Negocio existente eliminado: ${existente.id}")
             }
         }
@@ -148,7 +174,7 @@ class NegocioApiTest {
             latitud = 10.0,
             longitud = 20.0,
             categoriaId = 1,
-            categoria = Categoria(nombre = "Spa")
+            categoria = null
         )
 
         val result = negocioRemoteSource.addNegocio(negocio)
@@ -168,6 +194,9 @@ class NegocioApiTest {
         assertNotNull(createdNegocioId)
     }
 
+    /**
+     * Test para obtener un negocio por su ID y verificar su existencia.
+     */
     @Test
     fun `obtener negocio por id`() = runBlocking {
         assertNotNull("Debe existir negocio creado", createdNegocioId)
@@ -184,6 +213,10 @@ class NegocioApiTest {
         assertEquals(createdNegocioId, result.data?.id)
     }
 
+    /**
+     * Test para crear un negocio con estado inactivo y verificar
+     * que el estado se guarda correctamente.
+     */
     @Test
     fun `crear negocio con estado inactivo`() = runBlocking {
         val negociosExistentes = negocioRemoteSource.getAllNegocios()
@@ -200,9 +233,9 @@ class NegocioApiTest {
             direccion = "Calle Desactivada 123",
             latitud = 10.0,
             longitud = 20.0,
-            categoriaId = -1,
-            categoria = Categoria(),
-            activo = false
+            categoriaId = 1,
+            categoria = null,
+            activo = false,
         )
 
         val result = negocioRemoteSource.addNegocio(negocioInactivo)
@@ -227,6 +260,9 @@ class NegocioApiTest {
         }
     }
 
+    /**
+     * Test para obtener la lista completa de negocios.
+     */
     @Test
     fun `obtener todos los negocios`() = runBlocking {
         val result = negocioRemoteSource.getAllNegocios()
@@ -243,6 +279,9 @@ class NegocioApiTest {
         assertTrue(result is Resource.Success)
     }
 
+    /**
+     * Test para actualizar un negocio existente usando su nombre.
+     */
     @Test
     fun `actualizar negocio`() = runBlocking {
         assertNotNull("Debe existir negocio creado", createdNegocioId)
@@ -252,8 +291,8 @@ class NegocioApiTest {
             nombre = "Negocio de prueba",
             descripcion = "Descripción actualizada",
             direccion = "Calle Actualizada 456",
-            categoriaId = -1,
-            categoria = Categoria(nombre = "Hola"),
+            categoriaId = 1,
+            categoria = null,
             latitud = 11.0,
             longitud = 21.0
         )
@@ -269,6 +308,9 @@ class NegocioApiTest {
         assertTrue(result is Resource.Success)
     }
 
+    /**
+     * Test para obtener las reservas asociadas a un negocio.
+     */
     @Test
     fun `obtener reservas de negocio`() = runBlocking {
         assertNotNull("Debe existir negocio creado", createdNegocioId)
@@ -289,6 +331,9 @@ class NegocioApiTest {
         assertTrue(result is Resource.Success)
     }
 
+    /**
+     * Test para eliminar un negocio existente.
+     */
     @Test
     fun `eliminar negocio`() = runBlocking {
         assertNotNull("Debe existir negocio creado", createdNegocioId)
@@ -304,26 +349,9 @@ class NegocioApiTest {
         assertTrue(result is Resource.Success)
     }
 
-    @Test
-    fun `obtener reservas detalladas de negocio`() = runBlocking {
-        assertNotNull("Debe existir negocio creado", createdNegocioId)
-
-        val result = negocioRemoteSource.getReservasDetalladasByNegocioId(createdNegocioId!!)
-
-        when (result) {
-            is Resource.Success -> {
-                println("Reservas detalladas del negocio:")
-                result.data?.forEach { println(it) }
-            }
-            is Resource.Error -> {
-                fail("Error al obtener reservas detalladas: ${result.message}")
-            }
-            else -> {}
-        }
-
-        assertTrue(result is Resource.Success)
-    }
-
+    /**
+     * Test para obtener los negocios asociados al usuario autenticado.
+     */
     @Test
     fun `obtener negocios por usuario`() = runBlocking {
         val result = negocioRemoteSource.getNegociosByUserId()

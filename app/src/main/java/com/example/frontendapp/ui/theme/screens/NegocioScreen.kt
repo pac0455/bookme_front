@@ -19,12 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Negocio.Negocio
 import com.example.frontendapp.data.model.Reserva.ReservaPorDiaDTO
 import com.example.frontendapp.data.remote.reponses.Resource
@@ -35,16 +37,19 @@ import com.example.frontendapp.ui.theme.composables.chart.LineChart
 import com.example.frontendapp.ui.theme.composables.list.ServicioList
 import com.example.frontendapp.ui.theme.composables.modals.ModalSelectorDeImagen
 import com.example.frontendapp.ui.theme.composables.tab.adminPanel.EmptyList
+import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.NegocioValoracionesTab
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeReservasViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeServicioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeValoracionViewModel
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
-
+import java.util.Locale
 
 
 enum class ContentType {
@@ -54,20 +59,30 @@ enum class ContentType {
     GALLERIA,
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun NegocioScreen(
     viewModel: NegocioViewModel,
     navController: NavController,
     reservasViewModel: ReservasViewModel,
-    servicioViewModel: ServicioViewModel
+    servicioViewModel: ServicioViewModel,
+    valoracionViewModel: ValoracionViewModel
 ) {
     val negocio by viewModel.negocioState.collectAsState()
     var selectedContent by remember { mutableStateOf<ContentType?>(ContentType.RESERVAS) }
     var imagenConfirmada by remember { mutableStateOf<Uri?>(null) }
 
-    //Crear la url para imagen
-    val urlNegocio=viewModel.getNegocioImageUrl()
+    // Crear la url para imagen
+    val urlNegocio = viewModel.getNegocioImageUrl()
     val context = LocalContext.current
+
+    // Pre-load strings for non-composable contexts (Log.d, Toast.makeText)
+    val logImageSelectedUriFormat = stringResource(id = R.string.negocio_screen_image_selected_log)
+    val toastUploadingImage = stringResource(id = R.string.negocio_screen_uploading_image_toast)
+    val logUploadImageStartedFormat = stringResource(id = R.string.negocio_screen_upload_image_started_log)
+    val toastUploadImageErrorFormat = stringResource(id = R.string.negocio_screen_upload_image_error_toast)
+    val logUploadImageErrorFormat = stringResource(id = R.string.negocio_screen_upload_image_error_log)
+    val toastImageUpdatedCorrectly = stringResource(id = R.string.negocio_screen_image_updated_toast)
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -85,7 +100,10 @@ fun NegocioScreen(
                 Spacer(modifier = Modifier.width(48.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Hello,", color = Color.White)
+                    Text(
+                        text = stringResource(id = R.string.negocio_screen_hello), // String resource
+                        color = Color.White
+                    )
                     Text(
                         text = negocio.nombre,
                         fontSize = 20.sp,
@@ -98,7 +116,7 @@ fun NegocioScreen(
                     logoUrl = urlNegocio,
                     imagenConfirmada = imagenConfirmada,
                     onImagenSeleccionada = { uri ->
-                        Log.d("NegocioScreen", "Imagen seleccionada URI: $uri")
+                        Log.d("NegocioScreen", String.format(logImageSelectedUriFormat, uri)) // String resource with format
                         viewModel.setSelectedImageUri(uri)
                     },
                     onAccept = { uri, onSuccessCallback ->
@@ -106,22 +124,21 @@ fun NegocioScreen(
                             id = negocio.id,
                             context = context,
                             onLoading = {
-                                Toast.makeText(context, "Subiendo imagen...", Toast.LENGTH_SHORT).show()
-                                Log.d("NegocioScreen", "Subida de imagen iniciada para negocio ID: ${negocio.id}")
+                                Toast.makeText(context, toastUploadingImage, Toast.LENGTH_SHORT).show() // String resource
+                                Log.d("NegocioScreen", String.format(Locale.getDefault(), logUploadImageStartedFormat, negocio.id)) // String resource with format
                             },
                             onError = { mensajeError ->
-                                Toast.makeText(context, "Error: $mensajeError", Toast.LENGTH_LONG).show()
-                                Log.e("NegocioScreen", "Error al subir imagen: $mensajeError")
+                                Toast.makeText(context, String.format(toastUploadImageErrorFormat, mensajeError), Toast.LENGTH_LONG).show() // String resource with format
+                                Log.e("NegocioScreen", String.format(logUploadImageErrorFormat, mensajeError)) // String resource with format
                             },
                             onSuccess = { negocioActualizado ->
-                                Toast.makeText(context, "Imagen actualizada correctamente", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, toastImageUpdatedCorrectly, Toast.LENGTH_SHORT).show() // String resource
                                 negocio.logoUrl = negocioActualizado.logoUrl
                                 imagenConfirmada = uri
                                 onSuccessCallback()
                             }
                         )
                     },
-
                 )
             }
 
@@ -133,7 +150,7 @@ fun NegocioScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
+                    contentDescription = stringResource(id = R.string.negocio_screen_back_button_content_description), // String resource
                     tint = Color.White
                 )
             }
@@ -156,7 +173,8 @@ fun NegocioScreen(
             serviciosViewModel_negocioScreen = servicioViewModel,
             negocio = negocio,
             navController = navController,
-            negocioViewModel = viewModel
+            negocioViewModel = viewModel,
+            valoracionViewModel = valoracionViewModel
         )
     }
 }
@@ -169,8 +187,12 @@ fun AnimatedContentArea(
     serviciosViewModel_negocioScreen: ServicioViewModel,
     modifier: Modifier = Modifier,
     navController: NavController,
-    negocioViewModel: NegocioViewModel
+    negocioViewModel: NegocioViewModel,
+    valoracionViewModel: ValoracionViewModel
 ) {
+    val animatedContentAreaSelectSection = stringResource(id = R.string.animated_content_area_select_section)
+    val animatedContentAreaAddServiceContentDescription = stringResource(id = R.string.animated_content_area_add_service_content_description)
+
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedContent(
             targetState = selectedContent,
@@ -201,8 +223,12 @@ fun AnimatedContentArea(
                     negocioId = negocio.id,
                     reservasViewModel= reservasViewModel
                 )
+                ContentType.GALLERIA -> NegocioValoracionesTab(
+                    negocioId = negocio.id,
+                    valoracionViewModel = valoracionViewModel
+                )
                 else -> Text(
-                    "Selecciona una sección",
+                    animatedContentAreaSelectSection, // String resource
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -227,7 +253,7 @@ fun AnimatedContentArea(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar servicio",
+                    contentDescription = animatedContentAreaAddServiceContentDescription, // String resource
                     tint = Color.White
                 )
             }
@@ -272,7 +298,7 @@ fun ReservasPorSemana(
             xLabels = xLabelsState.value
         )
     }else{
-        EmptyList()
+        EmptyList() // Assuming EmptyList is a composable that displays an empty state message
     }
 }
 
@@ -291,6 +317,7 @@ fun PreviewNegocioScreen() {
         viewModel = viewModel,
         navController = navController,
         reservasViewModel = remember { FakeReservasViewModel() },
-        servicioViewModel = FakeServicioViewModel()
+        servicioViewModel = FakeServicioViewModel(),
+        valoracionViewModel = FakeValoracionViewModel()
     )
 }

@@ -16,10 +16,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.valoracion.ValoracionResponseDTO
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.viewmodels.ValoracionViewModel
@@ -35,13 +37,18 @@ fun NegocioValoracionesTab(
 ) {
     val valoracionesState by valoracionViewModel.valoracionesState.collectAsState()
 
+    // Strings for logs (can be externalized or kept as literals based on preference)
+    val logLoadingReviews = stringResource(R.string.log_loading_reviews)
+    val logReviewsLoaded = stringResource(R.string.log_reviews_loaded)
+    val logErrorReviews = stringResource(R.string.log_error_reviews)
+
     // Cargar valoraciones cuando cambie negocioId
     LaunchedEffect(negocioId) {
         valoracionViewModel.getValoracionesPorNegocio(
             negocioId = negocioId,
-            onLoading = { Log.d("ValoracionesTab", "Cargando valoraciones...") },
-            onSuccess = { Log.d("ValoracionesTab", "Valoraciones cargadas: ${it.size}") },
-            onError = { Log.e("ValoracionesTab", "Error: $it") }
+            onLoading = { Log.d("ValoracionesTab", logLoadingReviews) },
+            onSuccess = { Log.d("ValoracionesTab", String.format(logReviewsLoaded, it.size)) },
+            onError = { Log.e("ValoracionesTab", String.format(logErrorReviews, it)) }
         )
     }
 
@@ -65,7 +72,7 @@ fun NegocioValoracionesTab(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Cargando valoraciones...",
+                            text = stringResource(id = R.string.loading_reviews_message), // String resource
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -96,20 +103,20 @@ fun NegocioValoracionesTab(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Star,
-                                    contentDescription = null,
+                                    contentDescription = stringResource(id = R.string.cd_star_icon), // String resource
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(48.dp)
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
-                                    text = "Sin valoraciones aún",
+                                    text = stringResource(id = R.string.no_reviews_yet_title), // String resource
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "Sé el primero en valorar este negocio",
+                                    text = stringResource(id = R.string.be_the_first_review), // String resource
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                                 )
@@ -154,20 +161,20 @@ fun NegocioValoracionesTab(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Error,
-                                contentDescription = null,
+                                contentDescription = stringResource(id = R.string.cd_error_icon), // String resource
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(48.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "Error al cargar valoraciones",
+                                text = stringResource(id = R.string.error_loading_reviews_title), // String resource
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = (valoracionesState as Resource.Error).message ?: "Error desconocido",
+                                text = (valoracionesState as Resource.Error).message ?: stringResource(id = R.string.unknown_error), // String resource
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
                             )
@@ -182,7 +189,7 @@ fun NegocioValoracionesTab(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Sin datos disponibles",
+                        text = stringResource(id = R.string.no_data_available), // String resource
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -196,6 +203,9 @@ fun NegocioValoracionesTab(
 private fun ValoracionesHeader(valoraciones: List<ValoracionResponseDTO>) {
     val promedioRating = valoraciones.map { it.puntuacion }.average()
     val totalValoraciones = valoraciones.size
+
+    val singularReviewText = stringResource(id = R.string.singular_review)
+    val pluralReviewsText = stringResource(id = R.string.plural_reviews)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -213,13 +223,13 @@ private fun ValoracionesHeader(valoraciones: List<ValoracionResponseDTO>) {
             ) {
                 Icon(
                     imageVector = Icons.Default.Star,
-                    contentDescription = null,
+                    contentDescription = stringResource(id = R.string.cd_star_icon), // String resource
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "Valoraciones",
+                    text = stringResource(id = R.string.reviews_header_title), // String resource
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -262,7 +272,11 @@ private fun ValoracionesHeader(valoraciones: List<ValoracionResponseDTO>) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "de $totalValoraciones ${if (totalValoraciones == 1) "valoración" else "valoraciones"}",
+                    text = stringResource(
+                        id = R.string.of_total_reviews, // String resource with placeholder
+                        totalValoraciones,
+                        if (totalValoraciones == 1) singularReviewText else pluralReviewsText
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -308,7 +322,7 @@ private fun ValoracionItemImproved(valoracion: ValoracionResponseDTO) {
                     ) {
                         Icon(
                             imageVector = Icons.Default.Person,
-                            contentDescription = null,
+                            contentDescription = stringResource(id = R.string.cd_person_icon), // String resource
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .padding(8.dp)
@@ -379,7 +393,7 @@ private fun RatingStarsImproved(
         repeat(fullStars) {
             Icon(
                 imageVector = Icons.Filled.Star,
-                contentDescription = null,
+                contentDescription = stringResource(id = R.string.cd_full_star), // String resource
                 tint = starColor,
                 modifier = Modifier.size(starSize)
             )
@@ -387,7 +401,7 @@ private fun RatingStarsImproved(
         if (hasHalfStar) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.StarHalf,
-                contentDescription = null,
+                contentDescription = stringResource(id = R.string.cd_half_star), // String resource
                 tint = starColor,
                 modifier = Modifier.size(starSize)
             )
@@ -395,7 +409,7 @@ private fun RatingStarsImproved(
         repeat(emptyStars) {
             Icon(
                 imageVector = Icons.Outlined.Star,
-                contentDescription = null,
+                contentDescription = stringResource(id = R.string.cd_empty_star), // String resource
                 tint = starColor.copy(alpha = 0.3f),
                 modifier = Modifier.size(starSize)
             )

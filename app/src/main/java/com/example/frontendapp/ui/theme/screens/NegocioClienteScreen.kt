@@ -154,24 +154,14 @@ fun NegocioClienteScrenn(navController: NavController, registerViewModel: Regist
                             onSuccess = { result ->
                                 isLoading = false
                                 // Verificar si el token no es nulo antes de establecerlo
-                                result.token.let { token ->
-                                    Log.d("NegocioClienteScrenn", "Token recibido: $token")
-                                    RetrofitInstance.setToken(token)
-                                }
+                                RetrofitInstance.setToken(result.token)
+                                Log.d("NegocioClienteScrenn", result.usuario.toString())
+                                RetrofitInstance.setUsuario(result.usuario)
                                 result.usuario.id?.let { RetrofitInstance.setUserId(it) }
-
-                                //Si esta autenticado obliglarle a que lo haga
-                                if(result.usuario.isAutentificado){
-                                    val roles = result.roles
-                                    when {
-                                        roles.contains(ERol.ADMIN.toString()) -> navController.navigate(NavigationItem.ADMIN_PANEL_SCREEN.route) { popUpTo(0) }
-                                        roles.contains(ERol.CLIENTE.toString()) -> navController.navigate(NavigationItem.CLIENTE_MAIN_SCREEN.route)
-                                        roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
-                                    }
-                                }else{
-                                    //Enviar a la pantalla de envio de mail
-                                    navController.navigate(NavigationItem.SEND_MAIL_SCREEN.route)
-                                }
+                                val roles = result.roles
+                                RetrofitInstance.setRoles(result.roles)
+                                //Enviar a la pantalla de envio de mail
+                                navController.navigate(NavigationItem.SEND_MAIL_SCREEN.route)
                             },
                             onError = { errorMsg ->
                                 isLoading = false

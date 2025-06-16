@@ -1,5 +1,6 @@
 package com.example.frontendapp.ui.theme.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +33,7 @@ import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController) {
@@ -54,25 +57,38 @@ fun MainScreen(navController: NavController) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Crear tu cuenta", fontSize= 34.sp)
+            Text(
+                text = stringResource(id = R.string.main_screen_create_account_text), // String resource
+                fontSize = 34.sp
+            )
             Spacer(modifier = Modifier.height(20.dp))
 
-            //Detectar el tamaño de la pantalla y en base a eso ajustar el tamaño de la imagen
+            // Detectar el tamaño de la pantalla y en base a eso ajustar el tamaño de la imagen
             val configuration = LocalConfiguration.current
             val screenWidth = configuration.screenWidthDp.dp
             val imageSize = screenWidth * 1f
 
             Image(
                 painter = painterResource(id = R.drawable.ic_shop),
-                contentDescription = "Logo",
+                contentDescription = stringResource(id = R.string.main_screen_logo_content_description), // String resource
                 modifier = Modifier.size(imageSize)
             )
-            Text(text = "y descubre", fontSize= 34.sp, modifier =  Modifier.padding(bottom = 24.dp))
+            Text(
+                text = stringResource(id = R.string.main_screen_discover_text), // String resource
+                fontSize = 34.sp,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp) // Espaciado entre elementos
             ) {
-                BtnStyle1(onClick =  {navController.navigate(NavigationItem.REGISTER.route) }, text = "Comenzar ahora")
-                BtnStyle1(onClick =  {navController.navigate(NavigationItem.LOGIN.route) }, text = "Ya tengo cuenta")
+                BtnStyle1(
+                    onClick = { navController.navigate(NavigationItem.REGISTER.route) },
+                    text = stringResource(id = R.string.main_screen_start_now_button) // String resource
+                )
+                BtnStyle1(
+                    onClick = { navController.navigate(NavigationItem.LOGIN.route) },
+                    text = stringResource(id = R.string.main_screen_already_have_account_button) // String resource
+                )
             }
         }
     }

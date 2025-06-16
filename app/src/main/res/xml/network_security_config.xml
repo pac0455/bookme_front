@@ -8,4 +8,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.168.18.3</domain>
     </domain-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">bookme.somee.com</domain>
+    </domain-config>
 </network-security-config>

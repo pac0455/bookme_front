@@ -20,7 +20,8 @@ enum class Screen {
     CHANGE_PASSWORD,
     ADMIN_PANEL_SCREEN,
     SEND_MAIL_SCREEN,
-    CONFIRM_MAIL_SCREEN
+    CONFIRM_MAIL_SCREEN,
+    HELP_SCREEN
 }
 
 sealed class NavigationItem(val route: String) {
@@ -33,6 +34,7 @@ sealed class NavigationItem(val route: String) {
     data object CONFIRM_MAIL_SCREEN : NavigationItem(Screen.CONFIRM_MAIL_SCREEN.name)
     data object NEGOCIO_CLIENTE : NavigationItem(Screen.NEGOCIO_CLIENTE.name)
     data object LOGIN : NavigationItem(Screen.LOGIN.name)
+    data object HELP_SCREEN : NavigationItem(Screen.HELP_SCREEN.name)
     data object MAIN : NavigationItem(Screen.MAIN.name)
     data object NEGOCIO_FORM_SCREEN : NavigationItem(Screen.NEGOCIO_FORM_SCREEN.name)
     data object VALORACION_FORM : NavigationItem("${Screen.VALORACION_FORM.name}/{negocioId}"){
@@ -55,7 +57,6 @@ sealed class NavigationItem(val route: String) {
 
         // Rutas predefinidas para diferentes contextos
         val forNegocioForm = createRouteWithCallback("negocio_form")
-        val forUserLocation = createRouteWithCallback("user_location")
         val default = createRouteWithCallback("default")
     }
 

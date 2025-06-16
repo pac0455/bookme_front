@@ -1,12 +1,9 @@
 package com.example.frontendapp.ui.theme.screens
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
@@ -23,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -40,7 +36,6 @@ import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
 import com.example.frontendapp.ui.theme.composables.CustomTextField
-import com.example.frontendapp.ui.theme.composables.Btn.GoogleButton
 import com.example.frontendapp.ui.theme.composables.text.TextNavigate
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.RegisterViewModel
@@ -192,6 +187,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: RegisterViewM
     }
 }
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun RegisterScreenPreview() {

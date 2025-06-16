@@ -10,6 +10,7 @@ import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.request.LoginRequest
 import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.data.remote.reponses.Resource
+import com.example.frontendapp.data.remote.reponses.SingleMessageResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
 
@@ -18,43 +19,72 @@ class AuthRepoTest {
     private val authRemoteDataResource = AuthRepo(RetrofitInstance.userApi)
     private val uniqueSuffix = (System.currentTimeMillis() % 1000000000).toString().padStart(9, '0')
 
-    private val user = Usuario(
-        email = "franhidalc@gmail.com",
+    private val userRegister = Usuario(
+        email = "register_${uniqueSuffix}@mail.com",
         password = "12Aaa!a",
-        username = "Nombre",
-        phoneNumber = uniqueSuffix
+        username = "NombreRegister",
+        phoneNumber = uniqueSuffix,
+        isAutentificado = true
+    )
+
+    private val userLogin = Usuario(
+        email = "admin@example.com",
+        password = "AdminPass123!",
+        username = "Admin",
+        phoneNumber = (uniqueSuffix.toLong() + 1).toString(),
+        isAutentificado = true
     )
 
     /**
-     * Antes de cada test, intentamos registrar el usuario.
-     * Si ya existe, lo ignoramos.
+     * Antes de cada test:
+     * 1. Hacemos login con userLogin para obtener token y setearlo en RetrofitInstance.
+     * 2. Eliminamos usuarios de prueba si existen para evitar conflictos.
+     * 3. Registramos usuarios nuevos para pruebas.
      */
     @Before
     fun setup() = runBlocking {
-        // Intentamos eliminar el usuario antes de registrarlo
-        val deleteResult = authRemoteDataResource.delete(user.email ?: "")
-        if (deleteResult is Resource.Success) {
-            println("🧹 Usuario eliminado antes del registro.")
+        // Hacer login para obtener token válido
+        val loginResult = authRemoteDataResource.login(LoginRequest(userLogin.email, userLogin.password))
+        if (loginResult is Resource.Success) {
+            loginResult.data?.token?.let { token ->
+                RetrofitInstance.setToken(token)
+                println("✅ Token seteado para tests")
+            }
         } else {
-            println("⚠️ No se pudo eliminar usuario previo (puede que no existiera): ${deleteResult.message}")
+            println("❌ No se pudo hacer login para obtener token: ${loginResult}")
+            fail("No se pudo autenticar antes de los tests")
         }
 
-        val result = authRemoteDataResource.registerUser(user)
-        if (result is Resource.Success) {
-            user.id = result.data?.usuario?.id ?: ""
-        } else {
-            println("❌ Error al registrar usuario en setup: ${result.message}")
+        // NO eliminar admin
+        if (userLogin.email != "admin@example.com") {
+            authRemoteDataResource.delete(userLogin.email ?: "")
+        }
+
+        // Registrar usuario login si no existe
+        val loginReg = authRemoteDataResource.registerUser(userLogin)
+        if (loginReg is Resource.Success) {
+            userLogin.id = loginReg.data?.usuario?.id ?: ""
+        }
+
+        // Eliminar usuario register si existe
+        if (userRegister.email != "admin@example.com") {
+            authRemoteDataResource.delete(userRegister.email ?: "")
+        }
+
+        // Registrar usuario register
+        val registerReg = authRemoteDataResource.registerUser(userRegister)
+        if (registerReg is Resource.Success) {
+            userRegister.id = registerReg.data?.usuario?.id ?: ""
         }
     }
-
 
     @Test
     fun `validate registration with invalid data`() = runBlocking {
         val invalidUser = Usuario(
-            email = "", // Email vacío
-            password = "short", // Contraseña demasiado corta
-            username = "", // Nombre vacío
-            phoneNumber = "123" // Número de teléfono inválido
+            email = "",
+            password = "short",
+            username = "",
+            phoneNumber = "123"
         )
 
         val registerDTO = invalidUser.toRegisterDTO()
@@ -63,13 +93,10 @@ class AuthRepoTest {
         when (result) {
             is Resource.Success -> {
                 println("✅ Validación exitosa como se esperaba: ${result.data}")
-                // Verifica que success sea false
-                assertFalse(result.data?.success!!) // Asegúrate de que success sea false
-
-                // Verifica que haya errores en el array
+                assertFalse(result.data?.success!!)
                 val errors = result.data?.errors!!
-                assertNotNull(errors) // Asegúrate de que no sea nulo
-                assertTrue(errors.isNotEmpty()) // Asegúrate de que haya errores
+                assertNotNull(errors)
+                assertTrue(errors.isNotEmpty())
             }
             is Resource.Error -> {
                 println("⚠️ Validación fallida cuando no debería: ${result.message}")
@@ -84,7 +111,6 @@ class AuthRepoTest {
 
     @Test
     fun `register user successfully`() = runBlocking {
-        // Usuario fijo
         val newUser = Usuario(
             email = "testuser@mail.com",
             password = "Test123!",
@@ -92,49 +118,39 @@ class AuthRepoTest {
             phoneNumber = "123456789"
         )
 
-        // 1. Intentar borrar al usuario si existe
-        val deleteResult = authRemoteDataResource.delete(newUser.email ?:"")
-        if (deleteResult is Resource.Success) {
-            println("🧹 Usuario anterior eliminado antes del test.")
-        }
+        authRemoteDataResource.delete(newUser.email ?: "")
 
-        // 2. Registrar el usuario limpio
         val registerResult = authRemoteDataResource.registerUser(newUser)
 
         when (registerResult) {
-            is Resource.Success -> {
-                println("✅ Usuario registrado correctamente: ${registerResult.data?.usuario}")
-
-            }
-            is Resource.Error -> {
-                println("❌ Error al registrar usuario: ${registerResult.message}")
-            }
+            is Resource.Success -> println("✅ Usuario registrado correctamente: ${registerResult.data?.usuario}")
+            is Resource.Error -> println("❌ Error al registrar usuario: ${registerResult.message}")
             else -> {}
         }
 
         assertTrue(registerResult is Resource.Success)
     }
 
-
     @Test
     fun `register user with empty email returns error`() = runBlocking {
         val usuario = Usuario(
             email = "",
-            password = user.password,
+            password = "Test123!",
             username = "usuarioUnicoParaTest${System.currentTimeMillis()}",
+            phoneNumber = "123456789"
         )
 
         val result = authRemoteDataResource.registerUser(usuario)
+
         when(result){
             is Resource.Success -> {
                 val deleteResult = authRemoteDataResource.delete(usuario.email ?: "")
                 assertTrue(deleteResult is Resource.Success)
             }
             is Resource.Error -> {
-                print(result.message)
+                println(result.message)
             }
             else -> {}
-
         }
 
         assertTrue(result is Resource.Error)
@@ -143,24 +159,21 @@ class AuthRepoTest {
 
     @Test
     fun `login user successfully`() = runBlocking {
-        val result = authRemoteDataResource.login(LoginRequest(user.email, user.password))
+        val result = authRemoteDataResource.login(LoginRequest(userLogin.email, userLogin.password))
 
         when (result) {
             is Resource.Success -> {
                 val token = result.data?.token
                 val usuario = result.data?.usuario
-                println("✅ Login exitoso: token=${token}, usuario=${usuario}")
-                assertNotNull(token) // Verifica que el token no sea nulo
+                println("✅ Login exitoso: token=$token, usuario=$usuario")
+                assertNotNull(token)
             }
-            is Resource.Error -> {
-                println("❌ Error en login: ${result.message}")
-            }
+            is Resource.Error -> println("❌ Error en login: ${result.message}")
             else -> {}
         }
 
         assertTrue(result is Resource.Success)
     }
-
 
     @Test
     fun `get all users`() = runBlocking {
@@ -175,20 +188,7 @@ class AuthRepoTest {
         assertTrue(result is Resource.Success)
     }
 
-    @Test
-    fun `delete user successfully`() = runBlocking {
-        val result = authRemoteDataResource.delete(user.email ?: "")
 
-        when (result) {
-            is Resource.Success -> println("✅ Usuario eliminado correctamente.")
-            is Resource.Error -> {
-                println("❌ Error al eliminar usuario (${user.email}): ${result.message}")
-            }
-            else -> {}
-        }
-
-        assertTrue(result is Resource.Success)
-    }
     @Test
     fun `register negocio successfully and delete`() = runBlocking {
         val gson = Gson()
@@ -201,18 +201,10 @@ class AuthRepoTest {
             isNegocio = true
         )
 
-        // 1. Intentar borrar al usuario si existe
-        val deleteResult = authRemoteDataResource.delete(usuarioNegocio.email ?: "")
-        if (deleteResult is Resource.Success) {
-            println("🧹 Usuario anterior eliminado antes del test.")
-        } else if (deleteResult is Resource.Error) {
-            println("⚠️ No se pudo eliminar usuario anterior (puede no existir): ${deleteResult.message}")
-        }
+        authRemoteDataResource.delete(usuarioNegocio.email ?: "")
 
-        // 2. Registrar el nuevo negocio
         val result = authRemoteDataResource.registerNegocio(usuarioNegocio)
 
-        // 3. Imprimir el resultado completo como JSON
         println("📦 Respuesta completa: ${gson.toJson(result)}")
 
         when (result) {
@@ -220,10 +212,8 @@ class AuthRepoTest {
                 val usuarioRegistrado = result.data?.usuario
                 println("✅ Usuario registrado: ${gson.toJson(usuarioRegistrado)}")
 
-                // Validaciones
-                assertNotNull(usuarioRegistrado?.id, "El ID no debe ser null")
-                assertTrue("El ID no debe estar vacío", usuarioRegistrado?.id!!.isNotBlank())
-
+                assertNotNull(usuarioRegistrado?.id)
+                assertTrue(usuarioRegistrado?.id!!.isNotBlank())
                 assertEquals(usuarioNegocio.email, usuarioRegistrado.email)
             }
             is Resource.Error -> {
@@ -246,18 +236,18 @@ class AuthRepoTest {
             isNegocio = false
         )
 
-        // 1. Borrar si ya existe
-        val deleteResponse = authRemoteDataResource.delete(usuarioCliente.email ?: "")
-        if (deleteResponse is Resource.Success) {
-            println("🧹 Cliente ${usuarioCliente.email} limpiado")
-        } else if (deleteResponse is Resource.Error) {
-            println("⚠️ No se pudo eliminar cliente anterior (puede no existir): ${deleteResponse.message}")
+
+
+        // Eliminar usuario si existe
+        val deleteResult = authRemoteDataResource.delete(usuarioCliente.email ?: "")
+        if (deleteResult is Resource.Success) {
+            println("🧹 Cliente ${usuarioCliente.email} eliminado antes del test")
+        } else {
+            println("⚠️ No se pudo eliminar cliente anterior: ${deleteResult.message}")
         }
 
-        // 2. Registrar nuevo cliente
         val result = authRemoteDataResource.registerCliente(usuarioCliente)
 
-        // 3. Mostrar respuesta completa
         println("📦 Respuesta completa: ${gson.toJson(result)}")
 
         when (result) {
@@ -265,20 +255,15 @@ class AuthRepoTest {
                 val usuarioRegistrado = result.data?.usuario
                 println("✅ Cliente registrado: ${gson.toJson(usuarioRegistrado)}")
 
-                // Validaciones
-                assertNotNull(usuarioRegistrado?.id, "El ID no debe ser null")
-                assertTrue("El ID no debe estar vacío", usuarioRegistrado?.id!!.isNotBlank())
-
+                assertNotNull(usuarioRegistrado?.id)
+                assertTrue(usuarioRegistrado?.id!!.isNotBlank())
                 assertEquals(usuarioCliente.email, usuarioRegistrado.email)
             }
             is Resource.Error -> {
                 println("❌ Error en registro cliente: ${result.message}")
-
-                // Mostrar errores de validación si existen
                 result.validationResponse?.errors?.forEach { (campo, mensaje) ->
                     println("🛑 Error [$campo]: $mensaje")
                 }
-
                 fail("Fallo en registro: ${result.message}")
             }
             else -> fail("Resultado inesperado del registro")

@@ -20,16 +20,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.Categoria
-import com.example.frontendapp.data.model.Negocio.Ubicacion
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.CategoriaRemoteDataSource
 import com.example.frontendapp.ui.theme.FrontendappTheme
@@ -59,28 +59,43 @@ fun NegocioFormScreen(
     val context = LocalContext.current
     val negocio = negocioViewModel.negocioState.collectAsState().value
     val isEdit = negocioViewModel.isEditMode.collectAsState().value
-    val tituloPantalla = if (isEdit) "Editar Negocio" else "Crear Negocio"
+    val tituloPantalla = if (isEdit) stringResource(id = R.string.screen_title_edit_business) else stringResource(id = R.string.screen_title_create_business) // String resource
     var geocoder = remember { Geocoder(context, Locale.getDefault()) }
 
     val categoriaSelecionada = categorias.find { it.id == negocio.categoriaId }?.nombre ?: ""
 
     if (enableGeocoder) geocoder = remember { Geocoder(context, Locale.getDefault()) }
 
+    val logNavigatingMessage = stringResource(
+        id = R.string.log_navigating_to_schedule_form,
+        negocio.nombre,
+        negocio.direccion,
+        negocio.categoria?.nombre ?: "Sin categoría"
+    )
+
+    val loadingMsg = stringResource(id = R.string.log_categories_loading)
+    val errorMsgTemplate = stringResource(id = R.string.log_categories_error)
+    val itemDebugTemplate = stringResource(id = R.string.log_categories_item_debug)
+
+
     // Cargar categorías
     LaunchedEffect(Unit) {
         categoriasViewModel.getAllCategorias(
             onLoading = {
-                Log.d("Categorias", "Cargando...")
+                Log.d("Categorias", loadingMsg)
             },
-            onError = { errorMsg ->
-                Log.e("Categorias", "Error: $errorMsg")
+            onError = { error ->
+                Log.e("Categorias", String.format(errorMsgTemplate, error))
             },
             onSuccess = { list ->
-                list.forEach { Log.d("NegocioFormScreen_Categorias", it.toString()) }
+                list.forEach {
+                    Log.d("NegocioFormScreen_Categorias", String.format(itemDebugTemplate, it.toString()))
+                }
                 categorias = list
             }
         )
     }
+
 
     // Actualizar dirección cuando cambien las coordenadas
     if (enableGeocoder) {
@@ -108,7 +123,7 @@ fun NegocioFormScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver atrás",
+                            contentDescription = stringResource(id = R.string.back_button_content_description), // String resource
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -121,17 +136,17 @@ fun NegocioFormScreen(
                 shadowElevation = 8.dp
             ) {
                 BtnStyle1(
-                    text = "Siguiente",
+                    text = stringResource(id = R.string.next_button_text),
                     onClick = {
-                        Log.d("NegocioFormScreen", "Navegando a HORARIO_FORM con datos: nombre=${negocio.nombre}, direccion=${negocio.direccion}, categoria=${negocio.categoria}")
                         val modo = if (isEdit) "editar" else "crear"
+                        // Now use the pre-loaded string resources for logging
+                        Log.d("NegocioFormScreen", logNavigatingMessage) // Use the pre-loaded string
+
                         negocioViewModel.validateNegocioForm(
                             onSuccess = {
                                 navController.navigate(NavigationItem.HORARIO_FORM.createRoute(modo))
                             },
-                            onError = { errores ->
-                                Log.d("FieldERRORS", errores)
-                            }
+                            onError = { errores -> }
                         )
                     },
                     iconPosition = IconPosition.END,
@@ -155,8 +170,8 @@ fun NegocioFormScreen(
             ProgressHeader(
                 currentStep = 1,
                 totalSteps = 2,
-                stepTitle = "Información Básica",
-                stepDescription = "Completa los datos principales de tu negocio"
+                stepTitle = stringResource(id = R.string.step_title_basic_info), // String resource
+                stepDescription = stringResource(id = R.string.step_description_basic_info) // String resource
             )
 
             // Formulario principal
@@ -168,11 +183,11 @@ fun NegocioFormScreen(
             ) {
                 // Sección de información básica
                 FormSection(
-                    title = "Información del Negocio",
+                    title = stringResource(id = R.string.business_info_section_title), // String resource
                     icon = Icons.Default.Business
                 ) {
                     CustomTextField(
-                        label = "Nombre del negocio",
+                        label = stringResource(id = R.string.business_name_label), // String resource
                         value = negocio.nombre,
                         errorMessage = validationState.errors["nombre"],
                         onValueChange = { negocioViewModel.setNombre(it) },
@@ -183,14 +198,14 @@ fun NegocioFormScreen(
                         value = negocio.descripcion,
                         errorMessage = validationState.errors["descripcion"],
                         onValueChange = { negocioViewModel.setDescripcion(it) },
-                        label = "Descripción",
+                        label = stringResource(id = R.string.description_label), // String resource
                         leadingIcon = Icons.Default.Description
                     )
                 }
 
                 // Sección de ubicación mejorada
                 FormSection(
-                    title = "Ubicación",
+                    title = stringResource(id = R.string.location_section_title), // String resource
                     icon = Icons.Default.LocationOn
                 ) {
                     // Campo de dirección
@@ -205,7 +220,7 @@ fun NegocioFormScreen(
                             enabled = false,
                             errorMessage = validationState.errors["direccion"],
                             onValueChange = { },
-                            label = "Dirección",
+                            label = stringResource(id = R.string.address_label), // String resource
                             leadingIcon = Icons.Default.Place
                         )
 
@@ -219,7 +234,9 @@ fun NegocioFormScreen(
                             size = 56.dp,
                             iconSize = 24.dp,
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+
+
                         )
                     }
 
@@ -242,13 +259,13 @@ fun NegocioFormScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.GpsFixed,
-                                    contentDescription = null,
+                                    contentDescription = null, // Or provide a specific CD for GPS fixed icon
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Coordenadas: ${String.format("%.6f", negocio.latitud ?: 0.0)}, ${String.format("%.6f", negocio.longitud ?: 0.0)}",
+                                    text = stringResource(id = R.string.coordinates_label, negocio.latitud ?: 0.0, negocio.longitud ?: 0.0), // String resource with format
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -259,7 +276,7 @@ fun NegocioFormScreen(
 
                 // Sección de categoría
                 FormSection(
-                    title = "Categoría",
+                    title = stringResource(id = R.string.category_section_title), // String resource
                     icon = Icons.Default.Category
                 ) {
                     CustomSelector(
@@ -270,7 +287,7 @@ fun NegocioFormScreen(
                                 negocioViewModel.setcategoriaId(it.id)
                             }
                         },
-                        label = "Selecciona una categoría",
+                        label = stringResource(id = R.string.select_category_label), // String resource
                         errorMessage = validationState.errors["categoria"],
                         leadingIcon = Icons.Default.Category
                     )
@@ -278,7 +295,7 @@ fun NegocioFormScreen(
 
                 // Sección de estado del negocio
                 FormSection(
-                    title = "Estado del Negocio",
+                    title = stringResource(id = R.string.business_status_section_title), // String resource
                     icon = Icons.Default.ToggleOn
                 ) {
                     NegocioStatusToggle(
@@ -317,7 +334,7 @@ fun ProgressHeader(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Paso $currentStep de $totalSteps",
+                    text = stringResource(id = R.string.progress_step_indicator, currentStep, totalSteps), // String resource with format
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -372,7 +389,7 @@ fun FormSection(
             ) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
+                    contentDescription = null, // Icon is decorative, or add specific CD if meaningful
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -418,7 +435,7 @@ fun NegocioStatusToggle(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = if (isActive) Icons.Default.CheckCircle else Icons.Default.Cancel,
-                        contentDescription = "Estado del negocio",
+                        contentDescription = stringResource(id = R.string.business_status_content_description), // String resource
                         tint = if (isActive) ThemeColors.success else ThemeColors.error,
                         modifier = Modifier.size(24.dp)
                     )
@@ -426,7 +443,7 @@ fun NegocioStatusToggle(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = if (isActive) "Negocio Activo" else "Negocio Inactivo",
+                        text = if (isActive) stringResource(id = R.string.status_active_business) else stringResource(id = R.string.status_inactive_business), // String resource
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -437,8 +454,8 @@ fun NegocioStatusToggle(
 
                 Text(
                     text = if (isActive)
-                        "Tu negocio será visible para los clientes" else
-                        "Tu negocio estará oculto para los clientes",
+                        stringResource(id = R.string.status_active_description) else // String resource
+                        stringResource(id = R.string.status_inactive_description), // String resource
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

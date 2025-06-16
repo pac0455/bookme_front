@@ -350,7 +350,6 @@ private fun LoadingIndicator() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopControlsSection(
     mapType: MapType,

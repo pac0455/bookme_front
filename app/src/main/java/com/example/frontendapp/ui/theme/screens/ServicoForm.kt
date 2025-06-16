@@ -88,7 +88,6 @@ fun ServicioForm(
         },
         bottomBar = {
             BtnStyle1(
-                enabled = errors.isEmpty(), // Si no hay errores sera clickable
                 isLoading = isLoading,
                 onClick = {
                     servicioViewModel.validateServicio()

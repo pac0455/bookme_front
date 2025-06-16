@@ -1,3 +1,319 @@
 <resources>
-    <string name="app_name">frontendapp</string>
+
+
+    <!--General-->
+    <string name="back_button_content_description">Volver</string>
+    <string name="back_button_description">Volver</string>
+
+    <string name="app_name">Bookme</string>
+    <string name="welcome_greeting">¡Hola!</string>
+    <string name="welcome_subtitle">¿En qué podemos ayudarte hoy?</string>
+    <string name="faq_title">Preguntas Frecuentes</string>
+    <string name="contact_info_title">Información de Contacto</string>
+    <string name="email_title">Email</string>
+    <string name="email_value">soporte@gmail.com</string>
+    <string name="support_hours_title">Horario de atención</string>
+    <string name="support_hours_value">Lunes a Viernes: 9:00 - 18:00</string>
+    <string name="location_title">Ubicación</string>
+    <string name="location_value">Madrid, España</string>
+    <string name="back_arrow_description">Flecha de vuelta atras</string>
+    <string name="help_center_title">Centro de Ayuda</string>
+
+    <!-- Strings de categorías -->
+    <string name="category_reservations">Reservas</string>
+    <string name="category_account">Cuenta</string>
+    <string name="category_payments">Pagos</string>
+    <string name="category_support">Soporte</string>
+    <string name="category_technical">Técnico</string>
+
+
+    <!-- Help Sections -->
+    <string name="section_getting_started">Primeros pasos</string>
+    <string name="section_manage_reservations">Gestión de reservas</string>
+    <string name="section_payments">Pagos y facturación</string>
+
+    <!-- FAQ Questions and Answers -->
+    <string name="faq_reserve_question">¿Cómo puedo hacer una reserva?</string>
+    <string name="faq_reserve_answer">Para hacer una reserva, ve a la sección "Servicios", selecciona el servicio que deseas, elige la fecha y hora disponible, y confirma tu reserva. Recibirás una confirmación por email.</string>
+    <string name="faq_cancel_question">¿Puedo cancelar mi reserva?</string>
+    <string name="faq_cancel_answer">Sí, puedes cancelar tu reserva. Ve a Mis Reservas, selecciona la reserva que deseas cancelar y toca "Cancelar".En ese momento el pago aparecerá como cancelado</string>
+    <string name="faq_profile_update_question">¿Cómo actualizo mi perfil?</string>
+    <string name="faq_profile_update_answer">Ve a la sección "Perfil" en el menú principal, toca "Editar perfil" y actualiza la información que desees. No olvides guardar los cambios.</string>
+    <string name="faq_email_change_answer">Por temas técnicos no es posible cambiar el gmail de la cuenta</string>
+    <string name="faq_payment_methods_question">¿Qué métodos de pago aceptan?</string>
+    <string name="faq_payment_methods_answer">Aceptamos tarjetas de crédito/débito, PayPal, transferencias bancarias y pagos en efectivo (según el establecimiento).</string>
+    <string name="faq_refunds_question">¿Existen reembolsos de pagos?</string>
+    <string name="faq_refunds_answer">Un pago solo es reembolsado en el caso de que el estableciento haya cerrado o la reserva este cancelada</string>
+    <string name="faq_contact_support_question">¿Cómo contacto con soporte?</string>
+    <string name="faq_contact_support_answer">Puedes contactarnos a través del email soporte@gmail.com. Nuestro horario de atención es de 9:00 a 18:00, de lunes a viernes.</string>
+    <string name="faq_offline_question">¿La app funciona sin internet?</string>
+    <string name="faq_offline_answer">No debido a que sino, no podremos conseguir datos esenciales para mostrarte</string>
+
+    <!-- Help Items (examples) -->
+    <string name="help_configure_profile_title">Configurar tu perfil</string>
+    <string name="help_configure_profile_desc">En tu perfil podrás configurar cuenta de perfil, y si deseas compartir tu ubicación con nosotros o no?</string>
+    <string name="help_first_reservation_title">Hacer tu primera reserva</string>
+    <string name="help_first_reservation_desc">Para hacer tu primero reserva es tan sencillo como ir a la pestaña de reservas dentro del propio negocio, una vez hecho esto clickas en la reserva y te aparecerán los días y horarios disponibles junto con un método de pago a elegir</string>
+    <string name="help_create_business_title">Crear un negocio</string>
+    <string name="help_create_business_desc">Si quieres emprender en esta app, solo deberás crear una cuenta con permisos para administrar diferentes locales, una vez ya allí solo deberás insertar los datos requeridos para dicho local</string>
+    <string name="help_view_reservations_title">Ver mis reservas</string>
+    <string name="help_view_reservations_desc">Puedes acceder a todas tus reservas pasadas y futuras</string>
+    <string name="help_modify_reservation_title">Modificar una reserva</string>
+    <string name="help_modify_reservation_desc">Una reserva NO puede ser modificada, deberá ser cancelada y dar otra de alta</string>
+    <string name="help_cancel_reservation_title">Cancelar una reserva</string>
+    <string name="help_cancel_reservation_desc">Una reserva podrá ser cancelada siempre que su estado sea Pendiente</string>
+    <string name="help_reservation_states_title">Estados de una reserva</string>
+    <string name="help_reservation_states_desc">Las reservas que se te mostrarán podrán ser: (Pendiente, Cancelada, Finalizada)</string>
+    <string name="help_payment_methods_title">Métodos de pago</string>
+    <string name="help_payment_methods_desc">Opciones disponibles para realizar pagos</string>
+    <string name="help_payment_history_title">Historial de pagos</string>
+    <string name="help_payment_history_desc">Consulta todos tus pagos y facturas</string>
+    <string name="help_refund_policy_title">Reembolsos</string>
+    <string name="help_refund_policy_desc">Política y proceso de reembolsos</string>
+
+    <!-- Admin Panel Strings -->
+    <string name="admin_panel_title">Panel de Administración</string>
+    <string name="tab_businesses">Negocios</string>
+    <string name="tab_users">Usuarios</string>
+
+    <!-- Logout Dialog Strings -->
+    <string name="logout_dialog_title">¿Cerrar sesión?</string>
+    <string name="logout_dialog_message">Se cerrará tu sesión actual y tendrás que volver a iniciar sesión para acceder a tu cuenta.</string>
+    <string name="logout_cancel_button">Cancelar</string>
+    <string name="logout_confirm_button">Cerrar</string>
+    <string name="logout_icon_desc">Icono de cerrar sesión</string>
+    <string name="cancel_icon_desc">Icono de cancelar</string>
+
+    <!--Cambiar contraseña-->
+    <string name="modal_error_title">Error</string>
+    <string name="modal_success_title">Éxito</string>
+    <string name="modal_error_message">Error inesperado al actualizar la contraseña del usuario, comprueba que tu contraseña es válida</string>
+    <string name="modal_success_message">Contraseña actualizada correctamente</string>
+    <string name="modal_confirm_error_button">Entendido</string>
+    <string name="modal_confirm_success_button">Aceptar</string>
+    <string name="password_length_error">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="passwords_do_not_match_error">Las contraseñas no coinciden</string>
+    <string name="security_title">Seguridad</string>
+    <string name="change_password_screen_title">Cambiar contraseña</string>
+    <string name="current_password_label">Contraseña actual</string>
+    <string name="new_password_label">Nueva contraseña</string>
+    <string name="hide_password_content_description">Ocultar</string>
+    <string name="show_password_content_description">Mostrar</string>
+    <string name="confirm_new_password_label">Confirmar nueva contraseña</string>
+    <string name="update_password_header">Actualizar contraseña</string>
+    <string name="update_password_subtitle">Mantén tu cuenta segura con una contraseña fuerte</string>
+    <string name="security_tips_title">Consejos de seguridad</string>
+    <string name="tip_min_characters">Usa al menos 8 caracteres</string>
+    <string name="tip_combine_characters">Combina letras, números y símbolos</string>
+    <string name="tip_avoid_personal_info">Evita información personal</string>
+    <string name="tip_no_reuse_password">No reutilices contraseñas</string>
+    <string name="change_password_button">Cambiar contraseña</string>
+
+    <!--ClienteMainScreen-->
+
+    <string name="tab_title_business">Negocio</string>
+    <string name="tab_title_services">Servicios</string>
+    <string name="tab_title_my_bookings">Mis reservas</string>
+    <string name="tab_title_settings">Configuración</string>
+
+    <!--Negocio valoraciones tab-->
+    <string name="loading_reviews_message">Cargando valoraciones…</string>
+    <string name="no_reviews_yet_title">Sin valoraciones aún</string>
+    <string name="be_the_first_review">Sé el primero en valorar este negocio</string>
+    <string name="error_loading_reviews_title">Error al cargar valoraciones</string>
+    <string name="unknown_error">Error desconocido</string>
+    <string name="no_data_available">Sin datos disponibles</string>
+
+    <string name="reviews_header_title">Valoraciones</string>
+    <string name="of_total_reviews">de %d %s</string>
+    <string name="singular_review">valoración</string>
+    <string name="plural_reviews">valoraciones</string>
+
+    <string name="cd_star_icon">Estrella</string>
+    <string name="cd_error_icon">Error</string>
+    <string name="cd_person_icon">Persona</string>
+    <string name="cd_full_star">Estrella completa</string>
+    <string name="cd_half_star">Media estrella</string>
+    <string name="cd_empty_star">Estrella vacía</string>
+
+    <string name="log_loading_reviews">Cargando valoraciones...</string>
+    <string name="log_reviews_loaded">Valoraciones cargadas: %d</string>
+    <string name="log_error_reviews">Error: %s</string>
+    <!--NegocioDetailsScreen-->
+    <string name="tab_title_schedules">Horarios</string>
+    <string name="tab_title_reviews">Valoraciones</string>
+    <string name="add_review_content_description">Añadir valoración</string>
+    <string name="log_valoracion_form_id">Id pasada a valoracion form: %d</string>
+
+    <string name="singular_review_count">reseña</string>
+    <string name="plural_review_count">reseñas</string>
+    <string name="no_reviews_yet">Sin reseñas aún</string>
+    <string name="distance_available">A %.2f km de distancia</string>
+    <string name="distance_not_available">Distancia no disponible</string>
+
+    <string name="cd_location_icon">Icono de ubicación</string>
+    <string name="cd_navigation_icon">Icono</string>
+    <!--NegocioFormScreen -->
+    <string name="screen_title_edit_business">Editar Negocio</string>
+    <string name="screen_title_create_business">Crear Negocio</string>
+    <string name="next_button_text">Siguiente</string>
+    <string name="log_navigating_to_schedule_form">Navegando a HORARIO_FORM con datos: nombre=%1$s, direccion=%2$s, categoria=%3$s</string>
+    <string name="log_field_errors">FieldERRORS: %1$s</string>
+    <string name="step_title_basic_info">Información Básica</string>
+    <string name="step_description_basic_info">Completa los datos principales de tu negocio</string>
+    <string name="business_info_section_title">Información del Negocio</string>
+    <string name="business_name_label">Nombre del negocio</string>
+    <string name="description_label">Descripción</string>
+    <string name="location_section_title">Ubicación</string>
+    <string name="address_label">Dirección</string>
+    <string name="my_location_button_content_description">Mi ubicación</string>
+    <string name="coordinates_label">Coordenadas: %1$.6f, %2$.6f</string>
+    <string name="category_section_title">Categoría</string>
+    <string name="select_category_label">Selecciona una categoría</string>
+    <string name="business_status_section_title">Estado del Negocio</string>
+    <string name="log_categories_loading">Cargando...</string>
+    <string name="log_categories_error">Error: %1$s</string>
+    <string name="log_categories_item_debug">%1$s</string>
+
+    <string name="progress_step_indicator">Paso %1$d de %2$d</string>
+
+    <string name="business_status_content_description">Estado del negocio</string>
+    <string name="status_active_business">Negocio Activo</string>
+    <string name="status_inactive_business">Negocio Inactivo</string>
+    <string name="status_active_description">Tu negocio será visible para los clientes</string>
+    <string name="status_inactive_description">Tu negocio estará oculto para los clientes</string>
+    <!--MapaScreen-->
+    <string name="log_map_starting_location_fetch">Iniciando obtención de ubicación…</string>
+    <string name="log_map_business_location_loaded">Ubicación guardada del negocio cargada: %1$s</string>
+    <string name="log_map_current_location_obtained">Ubicación actual obtenida: %1$s</string>
+    <string name="log_map_default_location_used">Usando ubicación por defecto: %1$s</string>
+    <string name="log_map_location_fetch_error">Error al obtener ubicación: %1$s</string>
+    <string name="log_map_manual_location_selected">Ubicación seleccionada manualmente: %1$s</string>
+    <string name="log_map_location_selected_callback">Ubicación seleccionada via callback: %1$s</string>
+    <string name="log_map_location_saved_viewmodel">Ubicación guardada en NegocioViewModel: %1$s</string>
+    <string name="log_map_save_without_selection_warning">Intento guardar sin ubicación seleccionada.</string>
+
+    <string name="location_saved_from_business">Ubicación guardada del negocio</string>
+    <string name="current_location">Tu ubicación actual</string>
+    <string name="default_location_madrid">Ubicación por defecto (Madrid)</string>
+    <string name="toast_default_location_hint">Usando ubicación por defecto. Toca el mapa para seleccionar tu ubicación.</string>
+    <string name="toast_location_fetch_error">Error al obtener ubicación. Usando ubicación por defecto.</string>
+    <string name="custom_location">Ubicación personalizada</string>
+    <string name="toast_location_selected_success">Ubicación seleccionada correctamente</string>
+    <string name="toast_location_saved_success">Ubicación guardada correctamente</string>
+    <string name="toast_select_location_on_map">Por favor, selecciona una ubicación en el mapa</string>
+
+    <string name="coordinates_format">%.6f, %.6f</string>
+
+    <string name="obtaining_your_location">Obteniendo tu ubicación…</string>
+
+
+    <string name="map_type_content_description">Tipo de mapa</string>
+    <string name="map_type_normal">Normal</string>
+    <string name="map_type_satellite">Satélite</string>
+    <string name="map_type_hybrid">Híbrido</string>
+    <string name="map_type_terrain">Terreno</string>
+
+    <string name="my_location_content_description">Mi ubicación</string>
+    <string name="zoom_in_content_description">Acercar</string>
+    <string name="zoom_out_content_description">Alejar</string>
+
+    <string name="close_button_content_description">Cerrar</string>
+    <string name="info_current_location">Esta es tu ubicación actual</string>
+
+    <string name="confirm_location_button_text">Confirmar ubicación</string>
+
+    <!--LoginScreen-->
+    <string name="login_logo_content_description">Logo</string>
+    <string name="login_email_label">Correo electrónico</string>
+    <string name="login_password_label">Contraseña</string>
+    <string name="login_no_account_text">¿No tienes cuenta? Registrate</string>
+    <string name="login_button_loading_text">Cargando…</string>
+    <string name="login_button_text">Iniciar Sesión</string>
+    <string name="login_loading_log">Cargando…</string>
+    <string name="login_success_log">Éxito: %1$s</string>
+    <string name="login_error_toast">Error: %1$s</string>
+    <string name="login_error_log">Error: %1$s</string>
+    <string name="login_validation_errors_log">Errores de validación: %1$s</string>
+
+    <string name="blocked_user_modal_title">USUARIO BLOQUEADO</string>
+    <string name="blocked_user_modal_message">No se puede loguear con esta cuenta debido a que este usuario está bloqueado.</string>
+    <!--MainScreen -->
+    <string name="main_screen_create_account_text">Crear tu cuenta</string>
+    <string name="main_screen_discover_text">y descubre</string>
+    <string name="main_screen_start_now_button">Comenzar ahora</string>
+    <string name="main_screen_already_have_account_button">Ya tengo cuenta</string>
+    <string name="main_screen_logo_content_description">Logo de la aplicación</string>
+
+    <!--Gestion de negocios -->
+    <string name="negocio_screen_hello">Hello,</string>
+    <string name="negocio_screen_back_button_content_description">Volver</string>
+    <string name="negocio_screen_image_selected_log">Imagen seleccionada URI: %1$s</string>
+    <string name="negocio_screen_uploading_image_toast">Subiendo imagen…</string>
+    <string name="negocio_screen_upload_image_started_log">Subida de imagen iniciada para negocio ID: %1$d</string>
+    <string name="negocio_screen_upload_image_error_toast">Error: %1$s</string>
+    <string name="negocio_screen_upload_image_error_log">Error al subir imagen: %1$s</string>
+    <string name="negocio_screen_image_updated_toast">Imagen actualizada correctamente</string>
+
+    <string name="animated_content_area_select_section">Selecciona una sección</string>
+    <string name="animated_content_area_add_service_content_description">Agregar servicio</string>
+
+    <string name="content_type_reservas">Reservas</string>
+    <string name="content_type_servicios">Servicios</string>
+    <string name="content_type_subscriptor">Estadísticas</string>
+    <string name="content_type_galleria">Valoraciones</string>
+
+    <string name="empty_list_message">No hay datos disponibles.</string>
+    <!--valoracion form-->
+    <string name="new_review_title">Nueva Valoración</string>
+
+    <string name="leave_your_review">Deja tu valoración</string>
+    <string name="star_description">Estrella %d</string>
+    <string name="comment_label">Comentario</string>
+    <string name="send_button_text">Enviar</string>
+    <string name="comment_uploaded_message">Comentario subido</string>
+    <string name="error_uploading_comment_message">Error al subir el comentario</string>
+    <string name="form_errors_message">Revisa los errores del formulario</string>
+
+    <!--HorarioForm -->
+    <string name="attention_hours_title">Horarios de Atención</string>
+
+    <string name="create_business_button">Crear Negocio</string>
+    <string name="update_business_button">Actualizar Negocio</string>
+    <string name="creating_business_message">Creando negocio...</string>
+    <string name="business_created_success">Negocio creado correctamente</string>
+    <string name="error_creating_business">Error: %s</string>
+    <string name="updating_business_message">Actualizando negocio...</string>
+    <string name="business_updated_success">Negocio actualizado correctamente</string>
+    <string name="error_updating_business">Error: %s</string>
+    <string name="step_title_attention_hours">Horarios de Atención</string>
+    <string name="step_description_define_availability">Define cuándo estará disponible tu negocio</string>
+    <string name="select_days_title">Seleccionar Días</string>
+    <string name="select_days_description">Elige los días de la semana que tu negocio estará abierto</string>
+    <string name="attention_schedule_title">Horario de Atención</string>
+    <string name="attention_schedule_description">Define las horas de apertura y cierre</string>
+    <string name="opening_time_label">Hora de Apertura</string>
+    <string name="closing_time_label">Hora de Cierre</string>
+    <string name="select_time_default">Seleccionar</string>
+    <string name="select_day_first_message">Primero selecciona al menos un día</string>
+    <string name="closing_before_opening_error">La hora de cierre no puede ser anterior a la apertura</string>
+    <string name="add_schedule_button">Añadir Horario</string>
+    <string name="save_changes_button">Guardar Cambios</string>
+    <string name="select_both_hours_message">Debes seleccionar ambas horas</string>
+    <string name="schedule_overlap_error">Ya existe un horario que se solapa en ese día</string>
+    <string name="configured_schedules_title">Horarios Configurados</string>
+    <string name="configured_schedules_description">Revisa y edita los horarios de tu negocio</string>
+    <!--ad-->
+    <string name="modal_error_confirm_text">Entendido</string>
+    <string name="modal_success_confirm_text">Aceptar</string>
+    <string name="personal_info_title">Información personal</string>
+    <string name="full_name_label">Nombre completo</string>
+    <string name="phone_label">Teléfono</string>
+    <string name="email_info_note">El correo electrónico no se puede modificar por seguridad</string>
+    <string name="save_changes_button_text">Guardar cambios</string>
+
+    <string name="edit_profile_title">Editar perfil</string>
+
+    <string name="update_info_title">Actualiza tu información</string>
+
 </resources>

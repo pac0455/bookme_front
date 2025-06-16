@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -24,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.model.UI.UpdatePasswordDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRepo
@@ -51,18 +53,19 @@ fun CambiarContrasenaScreen(
     var showConfirmPassword by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
     var isVisible by remember { mutableStateOf(false) }
+    val passwordLengthError = stringResource(id = R.string.password_length_error)
+    val passwordsDoNotMatchError = stringResource(id = R.string.passwords_do_not_match_error)
 
 
     ReusableModal(
         isVisible = isVisible,
         config = ModalConfig(
             type = if(isError) ModalType.ERROR else ModalType.SUCCESS,
-            title = if(isError) "Error" else "Exito",
+            title = if(isError) stringResource(id = R.string.modal_error_title) else stringResource(id = R.string.modal_success_title),
             message = if(isError)
-                "Error inesperado al actualizar la contraseña del usuario, " +
-                        "comprueba que tu contraseña es valida"
-            else "Contraseña actulizada correctamente",
-            confirmText = if(isError) "Entendido" else "Aceptar"
+                stringResource(id = R.string.modal_error_message)
+            else stringResource(id = R.string.modal_success_message),
+            confirmText = if(isError) stringResource(id = R.string.modal_confirm_error_button) else stringResource(id = R.string.modal_confirm_success_button)
         ),
         onConfirm = { isVisible = false },
         onDismiss = { isVisible = false }
@@ -87,9 +90,9 @@ fun CambiarContrasenaScreen(
     LaunchedEffect(nuevaContrasena, confirmarContrasena) {
         error = when {
             nuevaContrasena.isNotBlank() && nuevaContrasena.length < 6 ->
-                "La contraseña debe tener al menos 6 caracteres"
+                passwordLengthError // Usa el string cargado
             confirmarContrasena.isNotBlank() && nuevaContrasena != confirmarContrasena ->
-                "Las contraseñas no coinciden"
+                passwordsDoNotMatchError // Usa el string cargado
             else -> null
         }
     }
@@ -102,7 +105,7 @@ fun CambiarContrasenaScreen(
             .verticalScroll(rememberScrollState())
     ) {
         // Top App Bar
-        TopAppBarSection(onBack = { 
+        TopAppBarSection(onBack = {
             navController.popBackStack()
         })
 
@@ -127,7 +130,7 @@ fun CambiarContrasenaScreen(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Text(
-                        text = "Cambiar contraseña",
+                        text = stringResource(id = R.string.change_password_screen_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -137,7 +140,7 @@ fun CambiarContrasenaScreen(
                     CustomTextField(
                         value = contrasenaActual,
                         onValueChange = { contrasenaActual = it },
-                        label = "Contraseña actual" ,
+                        label = stringResource(id = R.string.current_password_label) ,
                         leadingIcon = Icons.Default.Lock,
                         isPassword = true
                     )
@@ -146,7 +149,7 @@ fun CambiarContrasenaScreen(
                     OutlinedTextField(
                         value = nuevaContrasena,
                         onValueChange = { nuevaContrasena = it },
-                        label = { Text("Nueva contraseña") },
+                        label = { Text(stringResource(id = R.string.new_password_label)) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.VpnKey,
@@ -159,7 +162,7 @@ fun CambiarContrasenaScreen(
                                 Icon(
                                     imageVector = if (showNewPassword) Icons.Default.VisibilityOff
                                     else Icons.Default.Visibility,
-                                    contentDescription = if (showNewPassword) "Ocultar" else "Mostrar",
+                                    contentDescription = if (showNewPassword) stringResource(id = R.string.hide_password_content_description) else stringResource(id = R.string.show_password_content_description),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -180,7 +183,7 @@ fun CambiarContrasenaScreen(
                     OutlinedTextField(
                         value = confirmarContrasena,
                         onValueChange = { confirmarContrasena = it },
-                        label = { Text("Confirmar nueva contraseña") },
+                        label = { Text(stringResource(id = R.string.confirm_new_password_label)) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
@@ -195,7 +198,7 @@ fun CambiarContrasenaScreen(
                                 Icon(
                                     imageVector = if (showConfirmPassword) Icons.Default.VisibilityOff
                                     else Icons.Default.Visibility,
-                                    contentDescription = if (showConfirmPassword) "Ocultar" else "Mostrar",
+                                    contentDescription = if (showConfirmPassword) stringResource(id = R.string.hide_password_content_description) else stringResource(id = R.string.show_password_content_description),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -299,7 +302,7 @@ fun CambiarContrasenaScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Cambiar contraseña",
+                            text = stringResource(id = R.string.change_password_button),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )
@@ -328,7 +331,7 @@ private fun TopAppBarSection(onBack: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
+                contentDescription = stringResource(id = R.string.back_button_content_description),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -336,7 +339,7 @@ private fun TopAppBarSection(onBack: () -> Unit) {
         Spacer(modifier = Modifier.width(16.dp))
 
         Text(
-            text = "Seguridad",
+            text = stringResource(id = R.string.security_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
@@ -370,7 +373,7 @@ private fun SecurityHeaderSection() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Actualizar contraseña",
+            text = stringResource(id = R.string.update_password_header),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -378,7 +381,7 @@ private fun SecurityHeaderSection() {
         )
 
         Text(
-            text = "Mantén tu cuenta segura con una contraseña fuerte",
+            text = stringResource(id = R.string.update_password_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -407,7 +410,7 @@ private fun SecurityTipsSection() {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Consejos de seguridad",
+                text = stringResource(id = R.string.security_tips_title),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -415,10 +418,10 @@ private fun SecurityTipsSection() {
         }
 
         val tips = listOf(
-            "Usa al menos 8 caracteres",
-            "Combina letras, números y símbolos",
-            "Evita información personal",
-            "No reutilices contraseñas"
+            stringResource(id = R.string.tip_min_characters),
+            stringResource(id = R.string.tip_combine_characters),
+            stringResource(id = R.string.tip_avoid_personal_info),
+            stringResource(id = R.string.tip_no_reuse_password)
         )
 
         tips.forEach { tip ->

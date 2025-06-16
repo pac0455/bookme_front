@@ -7,10 +7,10 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,9 +37,10 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import java.io.File
 
+
+
 @Composable
 fun ServicioImagePicker(
-    id: Int? = null,
     showIconEdit: Boolean = false,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
@@ -47,6 +48,7 @@ fun ServicioImagePicker(
     size: Dp = 150.dp,
     iconEditSize: Dp = 24.dp,
     imageUrl: String? = null,
+     imageUpdatedAt: Long? = null, // <--- ADDED THIS NEW PARAMETER HERE
     shape: Shape = RoundedCornerShape(8.dp),
     iconEdit: ImageVector = Icons.Default.Edit,
     icon: ImageVector = Icons.Default.PhotoCamera,
@@ -64,8 +66,10 @@ fun ServicioImagePicker(
     var imagenUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
     var showErrorIcon by remember { mutableStateOf(false) }
-    // Almacenamos el URI temporal fuera para recuperarlo después
-    var photoUri: Uri? = null
+
+    // Use rememberSaveable to persist the photoUri across process death
+    var photoUriTemp by remember { mutableStateOf<Uri?>(null) }
+
 
     LaunchedEffect(imageUrl) {
         if (imageUrl != null) {
@@ -81,13 +85,20 @@ fun ServicioImagePicker(
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data = result.data
-            val uri = data?.data ?: photoUri
+            // Prioritize data?.data (gallery) then fall back to photoUriTemp (camera)
+            val uri = data?.data ?: photoUriTemp
             Log.d("ServicioImagePicker", "Imagen seleccionada: ${uri?.toString()}")
             imagenUri = uri
             onImageSelected(uri)
             if (uri != null) onSuccess?.invoke()
+            // Clear photoUriTemp after use
+            photoUriTemp = null
+        } else {
+            // If the user cancels or an error occurs, clear photoUriTemp as well
+            photoUriTemp = null
         }
     }
+
     // Modificador para el elemento clickeable
     val clickableModifier = if (clickable) {
         modifier.clickable {
@@ -95,15 +106,17 @@ fun ServicioImagePicker(
             val photoFile = File.createTempFile("temp_photo", ".jpg", context.cacheDir)
 
             // Obtener Uri segura con FileProvider
-            photoUri = FileProvider.getUriForFile(
+            val newPhotoUri = FileProvider.getUriForFile(
                 context,
                 "com.example.frontendapp.fileprovider", // ¡Este valor debe coincidir exactamente!
                 photoFile
             )
+            // Store the URI in photoUriTemp to retrieve it later
+            photoUriTemp = newPhotoUri
 
             // Intent de cámara con destino
             val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                putExtra(MediaStore.EXTRA_OUTPUT, newPhotoUri)
                 addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             }
 
@@ -122,17 +135,22 @@ fun ServicioImagePicker(
         modifier
     }
 
+    // UPDATED: imageDto calculation with imageUpdatedAt
+    val imageDto = remember(imageUrl, imageUpdatedAt) { // imageUpdatedAt is now a parameter
+        val baseImageUrl = imageUrl
 
+        // Cache busting: Append a timestamp or version parameter
+        val finalUrlWithCacheBust = if (baseImageUrl != null && imageUpdatedAt != null) {
+            "$baseImageUrl?v=$imageUpdatedAt" // Uses the dynamic timestamp from the server
+        } else {
+            baseImageUrl
+        }
 
-
-    val imageDto = remember(id, imageUrl) {
+        // The cache key should be based on the unique identity of the image content
+        // which now includes the version/timestamp. This makes it stable and unique per image version.
         ImageDto(
-            url = when {
-                !imageUrl.isNullOrBlank() -> imageUrl
-                id != null -> "http://192.168.18.3:5000/api/servicio/$id/imagen"
-                else -> null
-            },
-            cacheKey = id?.toString() + "_" + System.currentTimeMillis()
+            url = finalUrlWithCacheBust,
+            cacheKey = finalUrlWithCacheBust ?: ""
         )
     }
 
@@ -140,8 +158,6 @@ fun ServicioImagePicker(
         value = imageDto.url?.let {
             ImageRequest.Builder(context)
                 .data(it)
-                //Concateno algo al cache key para que su unica cache no sea la ruta ya que entonces no detectara
-                //cambios
                 .memoryCacheKey(imageDto.cacheKey) // previene caché en memoria
                 .diskCacheKey(imageDto.cacheKey)   // previene caché en disco
                 .crossfade(true)
