@@ -246,7 +246,7 @@
     <string name="main_screen_logo_content_description">Logo de la aplicación</string>
 
     <!--Gestion de negocios -->
-    <string name="negocio_screen_hello">Hello,</string>
+    <string name="negocio_screen_hello">Buenas,</string>
     <string name="negocio_screen_back_button_content_description">Volver</string>
     <string name="negocio_screen_image_selected_log">Imagen seleccionada URI: %1$s</string>
     <string name="negocio_screen_uploading_image_toast">Subiendo imagen…</string>

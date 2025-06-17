@@ -43,6 +43,7 @@ import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.CategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.NegocioViewModel
+import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeCategoriaViewModel
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.FakeNegocioViewModel
 import java.util.*
 
@@ -203,7 +204,7 @@ fun NegocioFormScreen(
                     )
                 }
 
-                // Sección de ubicación mejorada
+                // Sección de ubicación
                 FormSection(
                     title = stringResource(id = R.string.location_section_title), // String resource
                     icon = Icons.Default.LocationOn
@@ -484,7 +485,7 @@ fun NegocioFormScreenPreview() {
             navController = rememberNavController(),
             negocioViewModel = FakeNegocioViewModel(),
             enableGeocoder = false,
-            categoriasViewModel = CategoriaViewModel(CategoriaRemoteDataSource(RetrofitInstance.categoriaApi))
+            categoriasViewModel = FakeCategoriaViewModel()
         )
     }
 }

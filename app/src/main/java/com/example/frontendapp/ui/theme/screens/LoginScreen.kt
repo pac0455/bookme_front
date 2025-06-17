@@ -66,7 +66,6 @@ import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.LoginViewModel
 
 private val TAG= "LoginScreen"
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
     val loginState by loginViewModel.loginState.collectAsState()
@@ -80,7 +79,6 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
 
     val context = LocalContext.current
 
-    // Pre-load strings for non-composable contexts like Log.d and Toast.makeText
     val loginLoadingLog = stringResource(id = R.string.login_loading_log)
     val loginSuccessLogFormat = stringResource(id = R.string.login_success_log)
     val loginErrorToastFormat = stringResource(id = R.string.login_error_toast)

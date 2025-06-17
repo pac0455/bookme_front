@@ -185,7 +185,7 @@ private fun NegocioDetailHeader(
             ServicioImagePicker(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(150.dp)
                     .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
                 imageModifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,

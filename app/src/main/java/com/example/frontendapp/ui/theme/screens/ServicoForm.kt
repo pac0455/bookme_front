@@ -9,21 +9,28 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.frontendapp.R
 import com.example.frontendapp.data.remote.reponses.Resource
 import com.example.frontendapp.ui.theme.Principal_variacion3
 import com.example.frontendapp.ui.theme.composables.Btn.BtnStyle1
+import com.example.frontendapp.ui.theme.composables.CustomMultilineTextField
 import com.example.frontendapp.ui.theme.composables.CustomTextField
 import com.example.frontendapp.ui.theme.composables.modals.ServicioImagePicker
 import com.example.frontendapp.ui.theme.viewmodels.ServicioViewModel
@@ -112,7 +119,7 @@ fun ServicioForm(
                                 id = servicioId,
                                 context = context,
                                 imagenUri = imagenUri,
-                                onLoading = { /* Aquí puedes manejar loading si quieres */ },
+                                onLoading = {  },
                                 onSuccess = {
                                     Log.d("ServicioForm", "Imagen actualizada con éxito")
                                     isLoading = false
@@ -180,27 +187,23 @@ fun ServicioForm(
             ) {
                 CustomTextField(
                     value = servicio.nombre,
-                    onValueChange = {
-                        Log.d("ServicioForm", "Nuevo nombre: $it")
-                        servicioViewModel.setNombre(it)
-                    },
+                    onValueChange = { servicioViewModel.setNombre(it) },
                     label = "Nombre",
                     modifier = Modifier.fillMaxWidth(),
-                    errorMessage = errors["nombre"]
+                    errorMessage = errors["nombre"],
+                    leadingIcon = Icons.Default.Title
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                CustomTextField(
+                CustomMultilineTextField(
                     value = servicio.descripcion,
-                    onValueChange = {
-                        Log.d("ServicioForm", "Nueva descripción: $it")
-                        servicioViewModel.setDescripcion(it)
-                    },
-                    label = "Descripción",
-                    modifier = Modifier.fillMaxWidth(),
-                    errorMessage = errors["descripcion"]
+                    errorMessage = errors["descripcion"],
+                    onValueChange = { servicioViewModel.setDescripcion(it) },
+                    label = stringResource(id = R.string.description_label), // String resource
+                    leadingIcon = Icons.Default.Description
                 )
+
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -218,7 +221,8 @@ fun ServicioForm(
                     label = "Duración (minutos)",
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    errorMessage = errors["duracionMinutos"]
+                    errorMessage = errors["duracionMinutos"],
+                    leadingIcon = Icons.Default.Schedule
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -236,7 +240,8 @@ fun ServicioForm(
                     label = "Precio (€)",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
-                    errorMessage = errors["precio"]
+                    errorMessage = errors["precio"],
+                    leadingIcon = Icons.Default.AttachMoney
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))

@@ -21,25 +21,25 @@ class FakeValoracionViewModel : ValoracionViewModel(valoracionRepo = ValoracionR
 
 
     init {
-        val valoracionesFalsas = listOf(
-            ValoracionResponseDTO(
-                id = 1,
-                negocioId = 1,
-                usuarioId = "user1",
-                puntuacion = 5.0,
-                comentario = "Excelente servicio",
-                fechaValoracion = nowIsoString,
-                usuario = UsuarioDTO(id = "user1", userName = "Usuario1", email = "user1@mail.com")
-            ),
-            ValoracionResponseDTO(
-                id = 2,
-                negocioId = 1,
-                usuarioId = "user2",
-                puntuacion = 4.5,
-                comentario = "Muy buena atención",
-                fechaValoracion = nowIsoString,
-                usuario = UsuarioDTO(id = "user2", userName = "Usuario2", email = "user2@mail.com")
-            )
+        val valoracionesFalsas = listOf<ValoracionResponseDTO>(
+//            ValoracionResponseDTO(
+//                id = 1,
+//                negocioId = 1,
+//                usuarioId = "user1",
+//                puntuacion = 5.0,
+//                comentario = "Excelente servicio",
+//                fechaValoracion = nowIsoString,
+//                usuario = UsuarioDTO(id = "user1", userName = "Usuario1", email = "user1@mail.com")
+//            ),
+//            ValoracionResponseDTO(
+//                id = 2,
+//                negocioId = 1,
+//                usuarioId = "user2",
+//                puntuacion = 4.5,
+//                comentario = "Muy buena atención",
+//                fechaValoracion = nowIsoString,
+//                usuario = UsuarioDTO(id = "user2", userName = "Usuario2", email = "user2@mail.com")
+//            )
         )
 
         _valoracionesState.value = Resource.Success(valoracionesFalsas)
@@ -54,25 +54,25 @@ class FakeValoracionViewModel : ValoracionViewModel(valoracionRepo = ValoracionR
     ): Job = viewModelScope.launch {
         _valoracionesState.value = Resource.Loading()
 
-        val valoracionesFalsas = listOf(
-            ValoracionResponseDTO(
-                id = 1,
-                negocioId = negocioId,
-                usuarioId = "user1",
-                puntuacion = 4.9,
-                comentario = "Excelente servicio",
-                fechaValoracion = nowIsoString,
-                usuario = UsuarioDTO(id = "user1", userName = "Usuario1", email = "user1@mail.com")
-            ),
-            ValoracionResponseDTO(
-                id = 2,
-                negocioId = negocioId,
-                usuarioId = "user2",
-                puntuacion = 4.3,
-                comentario = "Muy buena atención",
-                fechaValoracion = nowIsoString,
-                usuario = UsuarioDTO(id = "user2", userName = "Usuario2", email = "user2@mail.com")
-            )
+        val valoracionesFalsas = listOf<ValoracionResponseDTO>(
+//            ValoracionResponseDTO(
+//                id = 1,
+//                negocioId = negocioId,
+//                usuarioId = "user1",
+//                puntuacion = 4.9,
+//                comentario = "Excelente servicio",
+//                fechaValoracion = nowIsoString,
+//                usuario = UsuarioDTO(id = "user1", userName = "Usuario1", email = "user1@mail.com")
+//            ),
+//            ValoracionResponseDTO(
+//                id = 2,
+//                negocioId = negocioId,
+//                usuarioId = "user2",
+//                puntuacion = 4.3,
+//                comentario = "Muy buena atención",
+//                fechaValoracion = nowIsoString,
+//                usuario = UsuarioDTO(id = "user2", userName = "Usuario2", email = "user2@mail.com")
+//            )
         )
 
         _valoracionesState.value = Resource.Success(valoracionesFalsas)

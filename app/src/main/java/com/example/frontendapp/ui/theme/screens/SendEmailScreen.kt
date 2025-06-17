@@ -365,7 +365,11 @@ fun SendMailScreen(
                                  onError = {
                                      isLoading.value = false
                                      Log.d(TAG, it)
-
+                                     showModal(
+                                         title = "Error de Verificación",
+                                         msg = "Comprueba que el codigo coincide exactamente con el enviado",
+                                         type = ModalType.ERROR,
+                                     )
                                  },
                                  onLoading = {
                                      isLoading.value = true
