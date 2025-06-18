@@ -31,6 +31,8 @@ import com.example.frontendapp.ui.theme.composables.navigation.TabPagerScaffold
 import com.example.frontendapp.ui.theme.composables.tab.negocioDetails.*
 import com.example.frontendapp.ui.theme.navigation.NavigationItem
 import com.example.frontendapp.ui.theme.viewmodels.*
+import androidx.compose.ui.unit.LayoutDirection
+
 import com.example.frontendapp.ui.theme.viewmodels.fakeViewModel.*
 
 private val TAG = "NegocioDetailScreen"
@@ -82,7 +84,15 @@ fun NegocioDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(
+                    PaddingValues(
+                        start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                        top = innerPadding.calculateTopPadding(),
+                        end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                        bottom = 0.dp
+                    )
+
+                ),
         ) {
             // Header con imagen
             NegocioDetailHeader(

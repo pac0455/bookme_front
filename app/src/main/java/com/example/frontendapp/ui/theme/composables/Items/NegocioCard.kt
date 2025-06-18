@@ -49,6 +49,7 @@ import com.example.frontendapp.data.model.Negocio.NegocioCardCliente
 import com.example.frontendapp.ui.theme.FrontendappTheme
 import com.example.frontendapp.ui.theme.composables.list.darken
 import com.example.frontendapp.ui.theme.composables.modals.ServicioImagePicker
+import kotlin.math.roundToInt
 
 @Composable
 fun NegocioCard(
@@ -238,7 +239,7 @@ fun RatingStars(rating: Float) {
 
         // Mostrar la calificación
         Text(
-            text = "$rating/5",
+            text = "${rating.roundToInt()}/5",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(start = 4.dp) // Espacio entre estrellas y texto
         )
