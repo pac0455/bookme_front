@@ -103,11 +103,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                     .background(Principal_variacion3),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.logo),
-                    contentDescription = stringResource(id = R.string.login_logo_content_description), // String resource
-                    modifier = Modifier.size(100.dp)
-                )
+
             }
         },
         modifier = Modifier.fillMaxSize()
@@ -176,7 +172,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                 Log.d(TAG, result.usuario.toString())
                                 RetrofitInstance.setUsuario(result.usuario)
                                 result.usuario.id?.let { RetrofitInstance.setUserId(it) }
-                                // If authenticated, navigate based on roles
+                                // si esta autenticado, navegar a  las pantallas dependiendo del rol
                                 if(result.usuario.isAutentificado){
                                     val roles = result.roles
                                     when {
@@ -185,7 +181,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                         roles.contains(ERol.NEGOCIO.toString()) -> navController.navigate(NavigationItem.BUSSINES_MAIN.route)
                                     }
                                 } else {
-                                    // Navigate to email verification screen
+                                    // Navegar a la pantalla de verificacion de gmail
                                     navController.navigate(NavigationItem.SEND_MAIL_SCREEN.route)
                                 }
                                 loginViewModel.reset()

@@ -98,6 +98,7 @@ fun NegocioDetailScreen(
                     unSelectedIcon = Icons.Default.Build,
                     content = {
                         NegocioServicioTab(
+                            modifier= Modifier.weight(1f),
                             viewModel = servicioViewModel,
                             reservaViewModel = reservaViewModel,
                             negocioId = negocioCard.id,
@@ -112,6 +113,7 @@ fun NegocioDetailScreen(
                     unSelectedIcon = Icons.Default.Schedule,
                     content = {
                         NegocioHorarioTab(
+                            modifier= Modifier.weight(1f),
                             viewModel = horariosViewModel,
                             negocioId = negocioCard.id
                         )
@@ -128,7 +130,7 @@ fun NegocioDetailScreen(
                                     negocioId = negocioCard.id,
                                     valoracionViewModel = valoracionesViewModel,
                                     modifier = Modifier
-                                        .weight(1f)
+                                        .fillMaxSize()
                                         .padding(bottom = 30.dp)
                                 )
                             }

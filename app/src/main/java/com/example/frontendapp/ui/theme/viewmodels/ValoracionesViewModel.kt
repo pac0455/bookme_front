@@ -38,11 +38,12 @@ open class ValoracionViewModel(
         _valoracionStateUI.value = _valoracionStateUI.value.copy(usuarioId = usuarioId)
     }
     fun resetUIState(){
-        _valoracionStateUI=MutableStateFlow(ValoracionCreateDTO.init())
+        _valoracionStateUI.value = ValoracionCreateDTO.init()
     }
-    fun clearError(field: String) {
+
+    fun clearErrors() {
         val currentErrors = valoracionValidationState.value.errors.toMutableMap()
-        currentErrors.remove(field)
+        currentErrors.clear()
         _valoracionValidationState.value = valoracionValidationState.value.copy(errors = currentErrors)
     }
 

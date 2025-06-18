@@ -184,7 +184,6 @@ fun NegociosPanelAdminContent(
                         items(negociosFiltrados, key = { it.id }) { negocio ->
                             NegocioListAdminItem(
                                 negocio = negocio,
-                                show = true,
                                 viewModel = negocioViewModel,
                                 onDelete = {
                                     negocioViewModel.deleteNegocio(

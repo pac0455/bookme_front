@@ -7,7 +7,7 @@ import com.example.frontendapp.data.model.Usuario.ConfirmMailDTO
 import com.example.frontendapp.data.model.Usuario.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario.RegisterDTO
 import com.example.frontendapp.data.model.Usuario.Usuario
-import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
+import com.example.frontendapp.data.model.Usuario.UpdateDataUserDTO
 import com.example.frontendapp.data.remote.reponses.SingleMessageResponse
 import com.example.frontendapp.data.remote.request.LoginRequest
 import retrofit2.Response
@@ -36,7 +36,7 @@ interface UserApi {
     @POST("$controller/validar-registro")
     suspend fun validateRegistration(@Body registerDTO: RegisterDTO): Response<ValidationErrorResponse>
     @PUT("$controller/update-nombre")
-    suspend fun updateNombre(@Body dto: UpdateNombreDTO): Response<UpdateNombreDTO>
+    suspend fun updateNombre(@Body dto: UpdateDataUserDTO): Response<UpdateDataUserDTO>
     @PUT("$controller/update-password")
     suspend fun updatePassword(@Body dto: UpdatePasswordDTO): Response<UpdatePasswordDTO>
     @PUT("$controller/{id}/bloquear")

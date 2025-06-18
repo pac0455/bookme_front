@@ -1,13 +1,13 @@
 package com.example.frontendapp.data.model.Usuario
 
-data class UpdateNombreDTO(
+data class UpdateDataUserDTO(
     var id: String,
     var userName: String,
     var telefono: String,
 ){
     companion object{
-        fun init(): UpdateNombreDTO{
-            return UpdateNombreDTO(
+        fun init(): UpdateDataUserDTO{
+            return UpdateDataUserDTO(
                 id = "",
                 userName="",
                 telefono = ""

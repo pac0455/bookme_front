@@ -90,8 +90,7 @@ fun NegocioValoracionesTab(
                     ) {
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(24.dp),
+                                .fillMaxWidth(),
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             ),
@@ -101,19 +100,22 @@ fun NegocioValoracionesTab(
                                 modifier = Modifier.padding(24.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = stringResource(id = R.string.cd_star_icon), // String resource
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(48.dp)
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = stringResource(id = R.string.no_reviews_yet_title), // String resource
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                                Row{
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = stringResource(id = R.string.cd_star_icon), // String resource
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(48.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Text(
+                                        text = stringResource(id = R.string.no_reviews_yet_title), // String resource
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = stringResource(id = R.string.be_the_first_review), // String resource

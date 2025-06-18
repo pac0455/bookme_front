@@ -56,7 +56,7 @@ fun ServicioItem(
                 ) {
                     Text(servicio.nombre ?: "Sin nombre", style = MaterialTheme.typography.titleMedium)
                     Text("Duración: ${servicio.duracionMinutos ?: 0} min", style = MaterialTheme.typography.bodySmall)
-                    Text("Precio: $${servicio.precio ?: 0.0}", style = MaterialTheme.typography.bodySmall)
+                    Text("Precio: ${servicio.precio}€", style = MaterialTheme.typography.bodySmall)
                 }
 
                 BtnStyle1(

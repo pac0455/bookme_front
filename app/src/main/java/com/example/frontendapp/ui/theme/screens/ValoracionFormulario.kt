@@ -48,6 +48,11 @@ fun ValoracionFormulario(
     val errors = valoracionValidationState.errors
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        valoracionesViewModel.resetUIState()
+        valoracionesViewModel.clearErrors()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

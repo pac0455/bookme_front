@@ -35,7 +35,7 @@ fun Calendar(
     val dates = remember(currentYearMonth, selectedDate, fechasConHorarios) {
         currentYearMonth.getDaysForCalendar().map { date ->
             date?.let {
-                val isEnabled = fechasConHorarios.any { dia -> dia == it }
+                val isEnabled = fechasConHorarios.any { dia -> dia == it } && !it.isBefore(today)
                 CalendarUiState.Date(
                     dayOfMonth = it.dayOfMonth.toString(),
                     isSelected = it == selectedDate,
@@ -45,6 +45,7 @@ fun Calendar(
             } ?: CalendarUiState.Date.Empty
         }
     }
+
 
     LaunchedEffect(currentYearMonth) {
         onMonthChanged(currentYearMonth)

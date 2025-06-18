@@ -95,6 +95,7 @@ class RegisterViewModel(private val auth: AuthRepo) : ViewModel() {
             }
         }
     }
+
     fun validateRegistration(
         onLoading: () -> Unit = {},
         onSuccess: (ValidationErrorResponse) -> Unit,

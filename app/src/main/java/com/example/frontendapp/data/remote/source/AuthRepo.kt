@@ -8,7 +8,7 @@ import com.example.frontendapp.data.model.Usuario.ConfirmMailDTO
 import com.example.frontendapp.data.model.Usuario.LoginRegisterResultDTO
 import com.example.frontendapp.data.model.Usuario.RegisterDTO
 import com.example.frontendapp.data.model.Usuario.Usuario
-import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
+import com.example.frontendapp.data.model.Usuario.UpdateDataUserDTO
 import com.example.frontendapp.data.model.Usuario.toRegisterDTO
 import com.example.frontendapp.data.remote.api.UserApi
 import com.example.frontendapp.data.remote.reponses.Resource
@@ -20,13 +20,27 @@ import retrofit2.Response
 
 class AuthRepo(private val userApi: UserApi) {
 
-    private fun validateLogin(usuario: Usuario): String? = when {
-        usuario.email.isNullOrBlank() -> "El correo electrónico no puede estar vacío."
-        usuario.password.isNullOrBlank() -> "La contraseña no puede estar vacía."
-        else -> null
+    private fun validateLogin(usuario: Usuario): ValidationErrorResponse? {
+        val errors = mutableMapOf<String, String>()
+
+        if (usuario.email.isNullOrBlank()) {
+            errors["email"] = "El correo electrónico no puede estar vacío."
+        }
+
+
+        if (usuario.password.isNullOrBlank()) {
+            errors["password"] = "La contraseña no puede estar vacía."
+        }
+
+
+        return if (errors.isNotEmpty()) {
+            ValidationErrorResponse(success = false, errors = errors)
+        } else {
+            null // Validacion pasada
+        }
     }
 
-    suspend fun updateNombre(usuario: UpdateNombreDTO): Resource<UpdateNombreDTO> = try {
+    suspend fun updateNombre(usuario: UpdateDataUserDTO): Resource<UpdateDataUserDTO> = try {
         Log.d("AuthRepo", usuario.toString())
         val response = userApi.updateNombre(usuario)
         handleResponse(response)
@@ -114,7 +128,13 @@ class AuthRepo(private val userApi: UserApi) {
 
     suspend fun login(login: LoginRequest): Resource<LoginRegisterResultDTO> {
         val usuario = Usuario(email = login.email, password = login.password)
-        validateLogin(usuario)?.let { return Resource.Error(it) }
+
+        validateLogin(usuario)?.let { validationError ->
+            return Resource.Error(
+                message = "Error de validación",
+                validationResponse = validationError
+            )
+        }
 
         return try {
             val response = userApi.login(login)
@@ -123,6 +143,7 @@ class AuthRepo(private val userApi: UserApi) {
             Resource.Error("Error de red: ${e.message}")
         }
     }
+
 
     private fun <T> wrapperHandleResponse(response: Response<ApiResponse<T>>): Resource<T> {
         if (response.isSuccessful) {

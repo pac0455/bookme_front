@@ -74,7 +74,7 @@ fun NegocioTabContent(
     // CAMBIO: Usar LaunchedEffect con key para recargar cuando sea necesario
     LaunchedEffect(Unit) {
         val ubi = UbicacionHelper.obtenerUbicacionActual(context = context)
-        negocioViewModel.getNegociosParaCliente(ubi)
+            negocioViewModel.getNegociosParaCliente(ubi)
     }
 
     // Mostrar estado de carga

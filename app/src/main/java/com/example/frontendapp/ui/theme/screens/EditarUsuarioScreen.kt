@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -18,8 +17,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -30,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontendapp.R
-import com.example.frontendapp.data.model.Usuario.UpdateNombreDTO
+import com.example.frontendapp.data.model.Usuario.UpdateDataUserDTO
 import com.example.frontendapp.data.remote.RetrofitInstance
 import com.example.frontendapp.data.remote.source.AuthRepo
 import com.example.frontendapp.ui.theme.FrontendappTheme
@@ -53,10 +50,16 @@ fun EditarUsuarioScreenMejorada(
     var hasChanges by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
     var isVisible by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    val user by remember { mutableStateOf(RetrofitInstance.getUsuario()) }
+    val validationState by usuarioViewModel.validationState.collectAsState()
+
 
     // Detectar cambios
     LaunchedEffect(nombre) { hasChanges = nombre != usuarioUI.userName && nombre.isNotBlank() }
+    LaunchedEffect(Unit) {
+        nombre = user?.username ?: ""
+        telefono = user?.phoneNumber ?: ""
+    }
 
     val saveButtonColor by animateColorAsState(
         targetValue = if (hasChanges) MaterialTheme.colorScheme.primary
@@ -125,9 +128,12 @@ fun EditarUsuarioScreenMejorada(
                         label = stringResource(id = R.string.full_name_label),
                         leadingIcon = Icons.Default.Person,
                         modifier = Modifier.fillMaxWidth(),
+                        errorMessage = validationState.data?.errors?.get("username"),
+
                     )
 
                     CustomTextField(
+                        errorMessage = validationState.data?.errors?.get("phoneNumber"),
                         icon = Icons.Default.Phone,
                         label = stringResource(id = R.string.phone_label),
                         value = telefono,
@@ -153,7 +159,7 @@ fun EditarUsuarioScreenMejorada(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = null, // This can remain null as it's purely decorative
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )
@@ -171,30 +177,68 @@ fun EditarUsuarioScreenMejorada(
 
             // Botón guardar
             Button(
-                onClick = {
-                    if (hasChanges) {
-                        usuarioViewModel.updateNombre(
-                            usuario = UpdateNombreDTO(
-                                userName = nombre,
-                                id = RetrofitInstance.getUserId(),
-                                telefono = telefono,
-                            ),
-                            onSuccess = { updatedUser ->
-                                Log.d("EditarUsuario", updatedUser.toString())
-                                isVisible = true
-                                isError = false
-                            },
-                            onError = {
-                                Log.d("EditarUsuario", it)
-                                isVisible = true
-                                isError = true
-                            },
-                            onLoading = {
-                                isLoading = true
-                            }
-                        )
 
-                    }
+                onClick = {
+                    val newUser = user?.copy(
+                        username = nombre,
+                        id = RetrofitInstance.getUserId(),
+                        phoneNumber = telefono,
+                    ) ?: return@Button
+
+                    usuarioViewModel.validateRegistration(
+                        userDTO = newUser,
+                        onLoading = {
+                            isLoading = true
+                        },
+                        onSuccess = { validateResponse ->
+
+                            if(validateResponse.success.not()){
+                                Log.d("Validacion", "Validación fallida. Errores: ${validateResponse.errors}")
+                                isLoading = false
+                                return@validateRegistration
+                            }
+
+                            // Validación exitosa, ahora sí puede continuar
+                            if (hasChanges) {
+                                val updateData = UpdateDataUserDTO(
+                                    userName = nombre,
+                                    id = RetrofitInstance.getUserId(),
+                                    telefono = telefono,
+                                )
+
+                                Log.d("EditarUsuario", "Enviando datos: $updateData")
+
+                                usuarioViewModel.updateNombre(
+                                    usuario = updateData,
+                                    onSuccess = { updatedUser ->
+                                        Log.d("EditarUsuario", "Respuesta exitosa: $updatedUser")
+                                        isVisible = true
+                                        isError = false
+                                        user?.copy(
+                                            phoneNumber = telefono,
+                                            username = nombre
+                                        )?.let { RetrofitInstance.setUsuario(it) }
+                                        isLoading = false
+                                    },
+                                    onError = {
+                                        Log.d("EditarUsuario", "Error: $it")
+                                        isVisible = true
+                                        isError = true
+                                        isLoading = false
+                                    },
+                                    onLoading = {
+                                        isLoading = true
+                                    }
+                                )
+                            }
+                        },
+                        onError = { errorMsg ->
+                            Log.d("EditarUsuario", "Error de validación: $errorMsg")
+                            isVisible = true
+                            isError = true
+                            isLoading = true
+                        }
+                    )
                 },
                 enabled = hasChanges && !isLoading,
                 modifier = Modifier
